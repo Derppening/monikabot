@@ -1,0 +1,4 @@
+rootProject.name = 'monikabot'
+include 'monika'
+findProject(':monika')?.name = 'monikabot'
+
