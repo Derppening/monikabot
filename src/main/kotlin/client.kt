@@ -29,9 +29,9 @@ class Client {
     }
 
     object Instance {
-        val defaultUserName = "MonikaBot"
+        const val defaultUserName = "MonikaBot"
         val defaultState = Status.IDLE
-        val defaultStatus = "I'm still learning (>.<)"
+        const val defaultStatus = "I'm still learning (>.<)"
 
         val client = createClient(getPrivateKey())
         val dispatcher = client.dispatcher ?: throw Exception("Unable to get Event Dispatcher")

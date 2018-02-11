@@ -1,7 +1,7 @@
 package cmds
 
+import Client
 import getBotAdmin
-import sx.blah.discord.api.events.Event
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -35,55 +35,67 @@ class Echo {
         }
     }
 
+    private fun adminChangeStatus(event: MessageReceivedEvent) {
+        val list = event.message.content.split(' ').toMutableList()
+        list.removeAt(0)
+
+        val status = when (list[0]) {
+            "--reset" -> {
+                list.clear()
+                list.add(0, Client.Instance.defaultStatus)
+                Client.Instance.defaultState
+            }
+            "--idle" -> {
+                list.removeAt(0)
+                Client.Status.IDLE
+            }
+            "--dnd", "--busy" -> {
+                list.removeAt(0)
+                Client.Status.BUSY
+            }
+            "--offline", "--invisible" -> {
+                list.removeAt(0)
+                Client.Status.OFFLINE
+            }
+            else -> Client.Status.ONLINE
+        }
+
+        val message = list.joinToString(" ")
+
+        try {
+            Client.Instance.setStatus(status, message)
+
+            MessageBuilder(Client.Instance.client)
+                    .withChannel(event.channel)
+                    .withContent("Status is Set!")
+                    .build()
+        } catch (ex: DiscordException) {
+            ex.printStackTrace()
+
+            try {
+                MessageBuilder(Client.Instance.client)
+                        .withChannel(event.channel)
+                        .withContent("I can't set the status... =/")
+                        .build()
+            } catch (ex: Exception) {
+                // not handled. the stack trace is enough
+            }
+        }
+    }
+
     private fun adminMessage(event: MessageReceivedEvent) {
         when (event.message.content.split(' ')[0]) {
-            "status" -> {
+            "kill" -> {
                 val list = event.message.content.split(' ').toMutableList()
                 list.removeAt(0)
-
-                val status = when (list[0]) {
-                    "--reset" -> {
-                        list.clear()
-                        list.add(0, Client.Instance.defaultStatus)
-                        Client.Instance.defaultState
-                    }
-                    "--idle" -> {
-                        list.removeAt(0)
-                        Client.Status.IDLE
-                    }
-                    "--dnd", "--busy" -> {
-                        list.removeAt(0)
-                        Client.Status.BUSY
-                    }
-                    "--offline", "--invisible" -> {
-                        list.removeAt(0)
-                        Client.Status.OFFLINE
-                    }
-                    else -> Client.Status.ONLINE
-                }
-
                 val message = list.joinToString(" ")
 
-                try {
-                    Client.Instance.setStatus(status, message)
-
-                    MessageBuilder(Client.Instance.client)
-                            .withChannel(event.channel)
-                            .withContent("Status is Set!")
-                            .build()
-                } catch (ex: DiscordException) {
-                    ex.printStackTrace()
-
-                    try {
-                        MessageBuilder(Client.Instance.client)
-                                .withChannel(event.channel)
-                                .withContent("I can't set the status... =/")
-                                .build()
-                    } catch (ex: Exception) {
-                        // not handled. the stack trace is enough
-                    }
-                }
+                MessageBuilder(Client.Instance.client)
+                        .withChannel(event.channel)
+                        .withCode("py", "print(\"" + event.message + "\")")
+                        .build()
             }
+            "status" -> adminChangeStatus(event)
             "stop" -> exitProcess(0)
             else -> {
                 println("Event not handled")
