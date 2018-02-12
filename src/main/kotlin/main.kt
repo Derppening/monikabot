@@ -1,8 +1,8 @@
-import cmds.*
+import cmds.Echo
 
 fun setupDispatchers() {
-    Client.Instance.dispatcher.registerListener(Client())
-    Client.Instance.dispatcher.registerListener(Echo())
+    Client.dispatcher.registerListener(Client)
+    Client.dispatcher.registerListener(Echo())
 }
 
 fun main(args: Array<String>) {

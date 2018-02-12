@@ -2,6 +2,7 @@ package cmds
 
 import Client
 import getBotAdmin
+import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -17,16 +18,14 @@ class Echo {
             adminMessage(event)
         }
 
-        if (!event.message.content.startsWith(Client.Instance.client.ourUser.mention(false))) return
+        if (!event.message.content.startsWith(event.client.ourUser.mention(false))) return
 
         val channel = event.channel
 
-        val list = event.message.content.split(' ').toMutableList()
-        list.removeAt(0)
-        val message = list.joinToString(" ")
+        val message = event.message.content.popFirstWord()
 
         try {
-            MessageBuilder(Client.Instance.client)
+            MessageBuilder(event.client)
                     .withChannel(channel)
                     .withContent(message)
                     .build()
@@ -42,8 +41,8 @@ class Echo {
         val status = when (list[0]) {
             "--reset" -> {
                 list.clear()
-                list.add(0, Client.Instance.defaultStatus)
-                Client.Instance.defaultState
+                list.add(0, Client.defaultStatus)
+                Client.defaultState
             }
             "--idle" -> {
                 list.removeAt(0)
@@ -63,9 +62,9 @@ class Echo {
         val message = list.joinToString(" ")
 
         try {
-            Client.Instance.setStatus(status, message)
+            Client.setStatus(status, message)
 
-            MessageBuilder(Client.Instance.client)
+            MessageBuilder(event.client)
                     .withChannel(event.channel)
                     .withContent("Status is Set!")
                     .build()
@@ -73,7 +72,7 @@ class Echo {
             ex.printStackTrace()
 
             try {
-                MessageBuilder(Client.Instance.client)
+                MessageBuilder(event.client)
                         .withChannel(event.channel)
                         .withContent("I can't set the status... =/")
                         .build()
@@ -90,9 +89,9 @@ class Echo {
                 list.removeAt(0)
                 val message = list.joinToString(" ")
 
-                MessageBuilder(Client.Instance.client)
+                MessageBuilder(event.client)
                         .withChannel(event.channel)
-                        .withCode("py", "print(\"" + event.message + "\")")
+                        .withCode("py", "print(\"$message\")")
                         .build()
             }
             "status" -> adminChangeStatus(event)
