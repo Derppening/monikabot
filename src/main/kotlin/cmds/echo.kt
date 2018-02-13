@@ -25,18 +25,17 @@ class Echo {
         val message = event.message.content.popFirstWord()
 
         try {
-            MessageBuilder(event.client)
-                    .withChannel(channel)
-                    .withContent(message)
-                    .build()
+            MessageBuilder(event.client).apply {
+                withChannel(channel)
+                withContent(message)
+            }.build()
         } catch (e: DiscordException) {
             e.printStackTrace()
         }
     }
 
     private fun adminChangeStatus(event: MessageReceivedEvent) {
-        val list = event.message.content.split(' ').toMutableList()
-        list.removeAt(0)
+        val list = event.message.content.split(' ').drop(0).toMutableList()
 
         val status = when (list[0]) {
             "--reset" -> {
@@ -64,18 +63,18 @@ class Echo {
         try {
             Client.setStatus(status, message)
 
-            MessageBuilder(event.client)
-                    .withChannel(event.channel)
-                    .withContent("Status is Set!")
-                    .build()
+            MessageBuilder(event.client).apply {
+                withChannel(event.channel)
+                withContent("Status is Set!")
+            }.build()
         } catch (ex: DiscordException) {
             ex.printStackTrace()
 
             try {
-                MessageBuilder(event.client)
-                        .withChannel(event.channel)
-                        .withContent("I can't set the status... =/")
-                        .build()
+                MessageBuilder(event.client).apply {
+                    withChannel(event.channel)
+                    withContent("I can't set the status... =/")
+                }.build()
             } catch (ex: Exception) {
                 // not handled. the stack trace is enough
             }
@@ -83,16 +82,14 @@ class Echo {
     }
 
     private fun adminMessage(event: MessageReceivedEvent) {
-        when (event.message.content.split(' ')[0]) {
+        when (event.message.content.takeWhile { it != ' ' }) {
             "kill" -> {
-                val list = event.message.content.split(' ').toMutableList()
-                list.removeAt(0)
-                val message = list.joinToString(" ")
+                val message = event.message.content.popFirstWord()
 
-                MessageBuilder(event.client)
-                        .withChannel(event.channel)
-                        .withCode("py", "print(\"$message\")")
-                        .build()
+                MessageBuilder(event.client).apply {
+                    withChannel(event.channel)
+                    withCode("py", "print(\"$message\")")
+                }.build()
             }
             "status" -> adminChangeStatus(event)
             "stop" -> exitProcess(0)
