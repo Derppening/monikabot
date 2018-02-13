@@ -30,10 +30,10 @@ object Client : IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 
-            MessageBuilder(event.client)
-                    .withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
-                    .withContent("Hii I'm alive!")
-                    .build()
+            MessageBuilder(event.client).apply {
+                withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
+                withCode("", "Ready: Initialized $shardCount shards.")
+            }.build()
         } catch (e: DiscordException) {
             e.printStackTrace()
         }
@@ -48,7 +48,7 @@ object Client : IDiscordClient by client {
                     DisconnectedEvent.Reason.RECONNECT_OP -> "Trying to Reconnect"
                     DisconnectedEvent.Reason.INVALID_SESSION_OP -> "Invalid Session"
                     DisconnectedEvent.Reason.ABNORMAL_CLOSE -> "Abnormal Closure"
-                    else -> "I'm not sure"
+                    else -> "null"
                 }
                 val message = "Shard ${event.shard.info[0]} of ${event.shard.info[1]} disconnected.\n\tReason: $reason"
 
