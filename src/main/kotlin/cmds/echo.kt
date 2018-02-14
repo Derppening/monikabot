@@ -4,6 +4,7 @@ import core.Client
 import core.Log
 import getBotAdmin
 import getDebugChannel
+import getDiscordTag
 import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -103,7 +104,9 @@ class Echo {
                 exitProcess(0)
             }
             else -> {
-                println("Event \"${event.message.content}\" not handled")
+                Log.minus("Message \"${event.message.content}\" not handled.\n" +
+                        "\tFrom ${getDiscordTag(event.author)}\n" +
+                        "\tIn ${event.channel.guild}/${event.channel.name}")
             }
         }
     }
