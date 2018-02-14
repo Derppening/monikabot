@@ -1,6 +1,6 @@
 package cmds
 
-import Client
+import core.Client
 import getBotAdmin
 import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
@@ -96,7 +96,7 @@ class Echo {
                 event.client.shards.forEach {
                     MessageBuilder(event.client).apply {
                         withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
-                        withCode("diff", "- Logging out ${it.info[0]} of ${it.info[1]}.")
+                        withCode("diff", "- Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
                     }.build()
                     it.logout()
                 }
