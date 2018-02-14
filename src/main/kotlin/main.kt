@@ -1,4 +1,3 @@
-import cmds.Echo
 import core.Client
 import core.Shard
 
@@ -8,7 +7,7 @@ fun setupDispatchers() {
     Client.dispatcher.registerListener(Shard())
 
     // cmds
-    Client.dispatcher.registerListener(Echo())
+    Client.dispatcher.registerListener(Parser)
 }
 
 fun main(args: Array<String>) {
