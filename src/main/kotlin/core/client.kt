@@ -1,13 +1,12 @@
 package core
 
-import getBotAdmin
+import Logger
 import getPrivateKey
 import sx.blah.discord.api.ClientBuilder
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 
 private val client by lazy {
     val builder = ClientBuilder().withToken(getPrivateKey())
@@ -33,10 +32,11 @@ object Client : IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 
-            MessageBuilder(event.client).apply {
-                val withChannel = withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
-                withCode("diff", "+ Client Ready: Initialized $shardCount shard(s).")
-            }.build()
+            Logger.Log(Logger.Type.PLUS, "Client Ready: Initialized $shardCount shard(s).")
+//            MessageBuilder(event.client).apply {
+//                withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
+//                withCode("diff", "+ Client Ready: Initialized $shardCount shard(s).")
+//            }.build()
         } catch (e: DiscordException) {
             e.printStackTrace()
         }
