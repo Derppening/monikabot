@@ -1,6 +1,5 @@
 package core
 
-import Logger
 import getPrivateKey
 import sx.blah.discord.api.ClientBuilder
 import sx.blah.discord.api.IDiscordClient
@@ -32,11 +31,7 @@ object Client : IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 
-            Logger.log(Logger.Type.PLUS, "Client Ready: Initialized $shardCount shard(s).")
-//            MessageBuilder(event.client).apply {
-//                withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
-//                withCode("diff", "+ Client Ready: Initialized $shardCount shard(s).")
-//            }.build()
+            Log.plus("Client Ready: Initialized $shardCount shard(s).")
         } catch (e: DiscordException) {
             e.printStackTrace()
         }
