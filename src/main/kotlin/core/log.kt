@@ -20,31 +20,27 @@ object Log: IChannel by debugChannel {
     }
 
     fun plus(message: String) {
-        message.replace("\n", "\n+ ")
-
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("diff", "+ ${reformat(message, "+")}")
+            withCode("diff", "+   ${reformat(message, "+")}")
         }.build()
     }
 
     fun minus(message: String) {
-        message.replace("\n", "\n- ")
-
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("diff", "- ${reformat(message, "-")}")
+            withCode("diff", "-   ${reformat(message, "-")}")
         }.build()
     }
 
     fun log(message: String) {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("diff", "  ${reformat(message, " ")}")
+            withCode("diff", "    ${reformat(message, " ")}")
         }.build()
     }
 
     private fun reformat(s: String, aString: String): String {
-        return s.replace("\n", "\n$aString ")
+        return s.replace("\n", "\n$aString${" ".repeat(4 - aString.length)}")
     }
 }
