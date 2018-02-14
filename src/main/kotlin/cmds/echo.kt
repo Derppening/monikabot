@@ -92,9 +92,14 @@ class Echo {
                 }.build()
             }
             "status" -> adminChangeStatus(event)
-            "stop" -> exitProcess(0)
+            "stop" -> {
+                event.client.shards.forEach {
+                    it.logout()
+                }
+                exitProcess(0)
+            }
             else -> {
-                println("Event not handled")
+                println("Event \"${event.message.content}\" not handled")
             }
         }
     }

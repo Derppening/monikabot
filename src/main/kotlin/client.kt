@@ -32,7 +32,7 @@ object Client : IDiscordClient by client {
 
             MessageBuilder(event.client).apply {
                 withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
-                withCode("", "Ready: Initialized $shardCount shards.")
+                withCode("", "Ready: Initialized $shardCount shard(s).")
             }.build()
         } catch (e: DiscordException) {
             e.printStackTrace()
@@ -41,17 +41,24 @@ object Client : IDiscordClient by client {
 
     @EventSubscriber
     fun onDisconnectListener(event: DisconnectedEvent) {
+        val reason = when (event.reason) {
+            DisconnectedEvent.Reason.LOGGED_OUT -> "Logging Out"
+            DisconnectedEvent.Reason.RECONNECT_OP -> "Trying to Reconnect"
+            DisconnectedEvent.Reason.INVALID_SESSION_OP -> "Invalid Session"
+            DisconnectedEvent.Reason.ABNORMAL_CLOSE -> "Abnormal Closure"
+            else -> "null"
+        }
+
+        val message = "Shard ${event.shard.info[0]} of ${event.shard.info[1]} disconnected.\n\tReason: $reason"
+
+        // TODO: Message Admin if this is not the only shard
+        if (!event.shard.isReady) {
+            println(message)
+            return
+        }
+
         try {
             MessageBuilder(event.client).apply {
-                val reason = when (event.reason) {
-                    DisconnectedEvent.Reason.LOGGED_OUT -> "Logging Out"
-                    DisconnectedEvent.Reason.RECONNECT_OP -> "Trying to Reconnect"
-                    DisconnectedEvent.Reason.INVALID_SESSION_OP -> "Invalid Session"
-                    DisconnectedEvent.Reason.ABNORMAL_CLOSE -> "Abnormal Closure"
-                    else -> "null"
-                }
-                val message = "Shard ${event.shard.info[0]} of ${event.shard.info[1]} disconnected.\n\tReason: $reason"
-
                 withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
                 withCode("md", message)
             }.build()
