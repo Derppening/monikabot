@@ -3,6 +3,7 @@ package cmds
 import core.Client
 import core.Log
 import getBotAdmin
+import getDebugChannel
 import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -13,11 +14,12 @@ import kotlin.system.exitProcess
 class Echo {
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (!event.channel.isPrivate) return
-
-        if (event.channel.isPrivate && event.author == event.client.fetchUser(getBotAdmin())) {
+        if (event.channel.isPrivate && event.author == event.client.fetchUser(getBotAdmin()) ||
+                event.channel == event.client.getChannelByID(getDebugChannel())) {
             adminMessage(event)
         }
+
+        if (!event.channel.isPrivate) return
 
         if (!event.message.content.startsWith(event.client.ourUser.mention(false))) return
 
