@@ -11,8 +11,8 @@ buildscript {
     }
 }
 
-group 'hk.derppening.monikabot'
-version '0.1.0-alpha'
+setGroup("hk.derppening.monikabot")
+setVersion("0.1.0-alpha")
 
 apply plugin: 'application'
 apply plugin: 'java'
@@ -28,7 +28,7 @@ repositories {
 
     jcenter()
     maven {
-        url  "https://jitpack.io"
+        setUrl("https://jitpack.io")
     }
 }
 
