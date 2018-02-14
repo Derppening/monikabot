@@ -1,22 +1,21 @@
 import cmds.Echo
 import core.Client
 import core.Shard
-import sx.blah.discord.handle.obj.IPrivateChannel
+import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.MessageBuilder
 
-private val adminChannel by lazy {
-    Client.fetchUser(getBotAdmin()).orCreatePMChannel.bulkDelete()
-    Client.fetchUser(getBotAdmin()).orCreatePMChannel
+private val debugChannel by lazy {
+    Client.getChannelByID(getDebugChannel())
 }
 
-object Logger: IPrivateChannel by adminChannel {
+object Logger: IChannel by debugChannel {
     enum class Type {
         PLUS,
         MINUS,
         NONE
     }
 
-    fun Log(type: Type = Type.NONE, message: String) {
+    fun log(type: Type = Type.NONE, message: String) {
         val msg = when (type) {
             Type.PLUS -> "+ $message"
             Type.MINUS -> "- $message"
@@ -24,7 +23,7 @@ object Logger: IPrivateChannel by adminChannel {
         }
 
         MessageBuilder(Client).apply {
-            withChannel(adminChannel)
+            withChannel(debugChannel)
             withCode("diff", msg)
         }.build()
     }

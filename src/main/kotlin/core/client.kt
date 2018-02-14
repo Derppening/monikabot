@@ -32,7 +32,7 @@ object Client : IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 
-            Logger.Log(Logger.Type.PLUS, "Client Ready: Initialized $shardCount shard(s).")
+            Logger.log(Logger.Type.PLUS, "Client Ready: Initialized $shardCount shard(s).")
 //            MessageBuilder(event.client).apply {
 //                withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
 //                withCode("diff", "+ Client Ready: Initialized $shardCount shard(s).")
