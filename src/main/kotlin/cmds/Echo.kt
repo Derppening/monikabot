@@ -35,6 +35,16 @@ object Echo : Base {
         val message = Parser.popLeadingMention(event.message.content).popFirstWord()
 
         try {
+            event.message.delete()
+        } catch (e: DiscordException) {
+            Log.minus("ECHO: Cannot delete \"$message\".\n" +
+                    "\tFrom ${getDiscordTag(event.author)}\n" +
+                    "\tIn \"${getChannelId(event.channel)}\"\n" +
+                    "\tReason: ${e.errorMessage}")
+            e.printStackTrace()
+        }
+
+        try {
             MessageBuilder(event.client).apply {
                 withChannel(channel)
                 withContent(message)
