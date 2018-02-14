@@ -3,6 +3,7 @@ package cmds
 import core.Client
 import core.Log
 import getBotAdmin
+import getChannelId
 import getDebugChannel
 import getDiscordTag
 import popFirstWord
@@ -106,7 +107,7 @@ class Echo {
             else -> {
                 Log.minus("Message \"${event.message.content}\" not handled.\n" +
                         "\tFrom ${getDiscordTag(event.author)}\n" +
-                        "\tIn ${event.channel.guild}/${event.channel.name}")
+                        "\tIn \"${getChannelId(event.channel)}\"")
             }
         }
     }

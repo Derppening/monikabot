@@ -1,11 +1,16 @@
+import sx.blah.discord.handle.obj.IChannel
+import sx.blah.discord.handle.obj.IPrivateChannel
 import sx.blah.discord.handle.obj.IUser
 import java.io.FileInputStream
 import java.util.*
 
 private const val PROP_PATH = "/home/david/server/monikabot/source.properties"
 
-fun getDiscordTag(user: IUser): String {
-    return "${user.name}#${user.discriminator}"
+fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"
+
+fun getChannelId(channel: IChannel): String {
+    val guild = if (channel is IPrivateChannel) "(PrivateChannel)" else channel.guild.name
+    return "$guild/${channel.name}"
 }
 
 fun String.popFirstWord(): String = dropWhile { it != ' ' }
