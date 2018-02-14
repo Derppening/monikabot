@@ -3,8 +3,8 @@ package cmds
 import Parser
 import core.Client
 import core.Log
+import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 object Status : Base {
     override fun handler(event: MessageReceivedEvent) {
@@ -16,12 +16,12 @@ object Status : Base {
             return false
         }
 
-        val list = event.message.content.split(' ').drop(0).toMutableList()
+        val list = event.message.content.popFirstWord().split(' ').toMutableList()
 
         val status = when (list[0]) {
             "--reset" -> {
                 list.clear()
-                list.add(0, Client.defaultStatus)
+                list.add(Client.defaultStatus)
                 Client.defaultState
             }
             "--idle" -> {
@@ -36,6 +36,10 @@ object Status : Base {
                 list.removeAt(0)
                 Client.Status.OFFLINE
             }
+            "--online" -> {
+                list.removeAt(0)
+                Client.Status.ONLINE
+            }
             else -> Client.Status.ONLINE
         }
 
@@ -43,12 +47,10 @@ object Status : Base {
 
         try {
             Client.setStatus(status, message)
-            Log.plus("Status \"$message\" is set")
-        } catch (e: DiscordException) {
-            Log.minus("Cannot set status: ${e.errorMessage}")
+            Log.plus("Status is set")
+        } catch (e: Exception) {
+            Log.minus("Cannot set status: ${e.message}")
             e.printStackTrace()
-
-            return false
         }
 
         return true

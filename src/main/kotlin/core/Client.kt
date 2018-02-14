@@ -50,6 +50,8 @@ object Client : IDiscordClient by client {
             Status.OFFLINE -> client.invisible()
         }
 
-        if (playingText != "") client.changePlayingText(playingText)
+        if (playingText != "") {
+            client.changePlayingText(playingText)
+        }
     }
 }

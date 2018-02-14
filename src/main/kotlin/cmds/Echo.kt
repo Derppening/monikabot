@@ -34,14 +34,16 @@ object Echo : Base {
         val channel = event.channel
         val message = Parser.popLeadingMention(event.message.content).popFirstWord()
 
-        try {
-            event.message.delete()
-        } catch (e: DiscordException) {
-            Log.minus("ECHO: Cannot delete \"$message\".\n" +
-                    "\tFrom ${getDiscordTag(event.author)}\n" +
-                    "\tIn \"${getChannelId(event.channel)}\"\n" +
-                    "\tReason: ${e.errorMessage}")
-            e.printStackTrace()
+        if (!event.channel.isPrivate) {
+            try {
+                event.message.delete()
+            } catch (e: DiscordException) {
+                Log.minus("ECHO: Cannot delete \"$message\".\n" +
+                        "\tFrom ${getDiscordTag(event.author)}\n" +
+                        "\tIn \"${getChannelId(event.channel)}\"\n" +
+                        "\tReason: ${e.errorMessage}")
+                e.printStackTrace()
+            }
         }
 
         try {
@@ -52,7 +54,8 @@ object Echo : Base {
         } catch (e: DiscordException) {
             Log.minus("ECHO: \"$message\" not handled.\n" +
                     "\tFrom ${getDiscordTag(event.author)}\n" +
-                    "\tIn \"${getChannelId(event.channel)}\"")
+                    "\tIn \"${getChannelId(event.channel)}\"" +
+                    "\t Reason: ${e.errorMessage}")
             e.printStackTrace()
         }
     }

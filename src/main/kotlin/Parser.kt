@@ -29,7 +29,8 @@ object Parser {
             else -> {
                 Log.minus("Command \"${event.message.content}\" not handled.\n" +
                         "\tFrom ${getDiscordTag(event.author)}\n" +
-                        "\tIn \"${getChannelId(event.channel)}\"")
+                        "\tIn \"${getChannelId(event.channel)}\"\n" +
+                        "\tReason: Command $cmd not found")
             }
         }
     }
