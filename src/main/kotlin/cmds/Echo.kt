@@ -1,6 +1,9 @@
 package cmds
 
+import Parser
+import core.Client
 import core.Log
+import getBotAdmin
 import getChannelId
 import getDiscordTag
 import popFirstWord
@@ -24,10 +27,12 @@ import sx.blah.discord.util.MessageBuilder
 
 object Echo : Base {
     override fun handler(event: MessageReceivedEvent) {
-        if (!event.message.content.startsWith(event.client.ourUser.mention(false))) return
+        if (event.message.author == Client.fetchUser(getBotAdmin())) {
+            handlerSudo(event)
+        }
 
         val channel = event.channel
-        val message = event.message.content.popFirstWord()
+        val message = Parser.popLeadingMention(event.message.content).popFirstWord()
 
         try {
             MessageBuilder(event.client).apply {
@@ -35,7 +40,7 @@ object Echo : Base {
                 withContent(message)
             }.build()
         } catch (e: DiscordException) {
-            Log.minus("Message \"${event.message.content}\" not handled.\n" +
+            Log.minus("ECHO: \"$message\" not handled.\n" +
                     "\tFrom ${getDiscordTag(event.author)}\n" +
                     "\tIn \"${getChannelId(event.channel)}\"")
             e.printStackTrace()

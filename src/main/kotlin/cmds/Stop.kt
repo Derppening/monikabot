@@ -1,5 +1,6 @@
 package cmds
 
+import Parser
 import core.Log
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import kotlin.system.exitProcess
@@ -10,6 +11,10 @@ object Stop : Base {
     }
 
     override fun handlerSudo(event: MessageReceivedEvent): Boolean {
+        if (!Parser.isSudoLocationValid(event)) {
+            return false
+        }
+
         event.client.shards.forEach {
             Log.minus("Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
             it.logout()

@@ -1,3 +1,4 @@
+import core.Client
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
 import sx.blah.discord.handle.obj.IUser
@@ -13,11 +14,13 @@ fun getChannelId(channel: IChannel): String {
     return "$guild/${channel.name}"
 }
 
-fun String.popFirstWord(): String = dropWhile { it != ' ' }
+fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }
 
 fun getBotAdmin(): Long = Properties().apply {
     load(FileInputStream(PROP_PATH))
 }.getProperty("botAdmin").toLong()
+
+fun getAdminPrivateChannel(): IPrivateChannel = Client.fetchUser(getBotAdmin()).orCreatePMChannel
 
 fun getDebugChannel(): Long = Properties().apply {
     load(FileInputStream(PROP_PATH))

@@ -1,5 +1,6 @@
 package cmds
 
+import Parser
 import core.Client
 import core.Log
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -11,6 +12,10 @@ object Status : Base {
     }
 
     override fun handlerSudo(event: MessageReceivedEvent): Boolean {
+        if (!Parser.isSudoLocationValid(event)) {
+            return false
+        }
+
         val list = event.message.content.split(' ').drop(0).toMutableList()
 
         val status = when (list[0]) {

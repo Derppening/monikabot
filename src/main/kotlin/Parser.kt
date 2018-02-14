@@ -1,4 +1,5 @@
 import cmds.Echo
+import cmds.Status
 import cmds.Stop
 import core.Client
 import core.Log
@@ -9,40 +10,52 @@ object Parser {
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
         if (event.author == event.client.fetchUser(getBotAdmin())) {
-            if (parseSudo(event)) return
+            if (parseSudo(event)) {
+                return
+            }
+        }
+
+        if (!event.channel.isPrivate &&
+                !event.message.content.startsWith(Client.ourUser.mention(false))) {
+            return
         }
 
         // TODO("Separate explicit action with admin messages")
 
-        val cmd = popLeadingMention(event.message.content)
+        val cmd = getCommand(popLeadingMention(event.message.content))
 
         when (cmd) {
             "echo" -> Echo.handler(event)
             else -> {
-                Log.minus("Message \"${event.message.content}\" not handled.\n" +
+                Log.minus("Command \"${event.message.content}\" not handled.\n" +
                         "\tFrom ${getDiscordTag(event.author)}\n" +
                         "\tIn \"${getChannelId(event.channel)}\"")
             }
         }
     }
 
+    fun isSudoLocationValid(event: MessageReceivedEvent): Boolean {
+        return event.channel == Client.getChannelByID(getDebugChannel()) ||
+                event.channel == getAdminPrivateChannel()
+    }
+
     private fun parseSudo(event: MessageReceivedEvent): Boolean {
-        val cmd = popLeadingMention(event.message.content)
+        val cmd = getCommand(popLeadingMention(event.message.content))
 
         return when (cmd) {
-            "status" -> Stop.handlerSudo(event)
+            "status" -> Status.handlerSudo(event)
             "stop" -> Stop.handlerSudo(event)
             else -> false
         }
     }
 
-    private fun getCommand(message: String): String = message.split(' ')[0]
-
-    private fun popLeadingMention(message: String): String {
-        return if (message == Client.ourUser.mention(false)) {
+    fun popLeadingMention(message: String): String {
+        return if (message.startsWith(Client.ourUser.mention(false))) {
             message.popFirstWord()
         } else {
             message
         }
     }
+
+    private fun getCommand(message: String): String = message.split(' ')[0]
 }
