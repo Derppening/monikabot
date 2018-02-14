@@ -1,6 +1,7 @@
 package cmds
 
 import core.Client
+import core.Log
 import getBotAdmin
 import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
@@ -94,10 +95,7 @@ class Echo {
             "status" -> adminChangeStatus(event)
             "stop" -> {
                 event.client.shards.forEach {
-                    MessageBuilder(event.client).apply {
-                        withChannel(event.client.fetchUser(getBotAdmin()).orCreatePMChannel)
-                        withCode("diff", "- Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
-                    }.build()
+                    Log.minus("Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
                     it.logout()
                 }
                 exitProcess(0)

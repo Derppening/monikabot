@@ -1,13 +1,15 @@
 package core
 
+import getBotAdmin
 import getDebugChannel
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.MessageBuilder
 
 private val debugChannel by lazy {
     println("Initializing Log")
-    Client.getChannelByID(getDebugChannel()).bulkDelete()
-    Client.getChannelByID(getDebugChannel())
+
+    Client.getChannelByID(getDebugChannel()).apply { bulkDelete() }
+            ?: Client.fetchUser(getBotAdmin()).orCreatePMChannel
 }
 
 object Log: IChannel by debugChannel {
@@ -19,21 +21,21 @@ object Log: IChannel by debugChannel {
 
     fun plus(message: String) {
         MessageBuilder(Client).apply {
-            withChannel(debugChannel)
+            withChannel(this@Log)
             withCode("diff", "+ $message")
         }.build()
     }
 
     fun minus(message: String) {
         MessageBuilder(Client).apply {
-            withChannel(debugChannel)
+            withChannel(this@Log)
             withCode("diff", "- $message")
         }.build()
     }
 
     fun log(message: String) {
         MessageBuilder(Client).apply {
-            withChannel(debugChannel)
+            withChannel(this@Log)
             withCode("diff", "  $message")
         }.build()
     }
