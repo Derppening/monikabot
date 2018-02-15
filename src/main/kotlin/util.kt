@@ -10,7 +10,7 @@ private const val PROP_PATH = "/home/david/server/monikabot/source.properties"
 fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"
 
 fun getChannelId(channel: IChannel): String {
-    val guild = if (channel is IPrivateChannel) "(PrivateChannel)" else channel.guild.name
+    val guild = if (channel is IPrivateChannel) "[Private]" else channel.guild.name
     return "$guild/${channel.name}"
 }
 
