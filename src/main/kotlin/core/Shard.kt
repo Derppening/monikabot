@@ -4,7 +4,7 @@ import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.shard.ShardReadyEvent
 import sx.blah.discord.util.DiscordException
 
-class Shard {
+object Shard {
     @EventSubscriber
     fun onConnectListener(event: ShardReadyEvent) {
         try {

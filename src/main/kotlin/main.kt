@@ -4,7 +4,7 @@ import core.Shard
 fun setupDispatchers() {
     // core
     Client.dispatcher.registerListener(Client)
-    Client.dispatcher.registerListener(Shard())
+    Client.dispatcher.registerListener(Shard)
 
     // cmds
     Client.dispatcher.registerListener(Parser)
