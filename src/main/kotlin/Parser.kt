@@ -1,6 +1,7 @@
 import cmds.Echo
 import cmds.Status
 import cmds.Stop
+import cmds.WorldState
 import core.Client
 import core.Log
 import sx.blah.discord.api.events.EventSubscriber
@@ -44,6 +45,7 @@ object Parser {
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         return when (cmd) {
+            "worldstate" -> WorldState.handlerSudo(event)
             "status" -> Status.handlerSudo(event)
             "stop" -> Stop.handlerSudo(event)
             else -> false
