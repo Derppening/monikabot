@@ -21,12 +21,12 @@ object WorldState : Base {
 
         MessageBuilder(event.client).apply {
             val time = gson.run {
-                val timeElement = JsonParser().parse(contents).asJsonObject
-                timeElement.getAsJsonObject("time").asLong
+                val timeElement = JsonParser().parse(contents).asJsonObject.get("Time")
+                gson.fromJson(timeElement, Long::class.java)
             }
             val epochTime = Date(time * 1000)
 
-            withChannel(channel)
+            withChannel(event.channel)
             withCode("", "Raw Time: $time\nLast Updated: $epochTime")
         }.build()
 
