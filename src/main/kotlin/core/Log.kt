@@ -1,15 +1,13 @@
 package core
 
-import getBotAdmin
-import getDebugChannel
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.MessageBuilder
 
 private val debugChannel by lazy {
     println("Initializing Log")
 
-    Client.getChannelByID(getDebugChannel()).apply { bulkDelete() }
-            ?: Client.fetchUser(getBotAdmin()).orCreatePMChannel
+    Client.getChannelByID(Core.getDebugChannel()).apply { bulkDelete() }
+            ?: Client.fetchUser(Core.getBotAdmin()).orCreatePMChannel
 }
 
 object Log: IChannel by debugChannel {

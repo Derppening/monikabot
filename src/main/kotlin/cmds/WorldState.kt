@@ -11,7 +11,6 @@ object WorldState : Base {
     private const val worldStateLink = "http://content.warframe.com/dynamic/worldState.php"
     private val gson = Gson()
 
-
     override fun handler(event: MessageReceivedEvent) {
         throw Exception("WorldState should not be allowed by non-admin")
     }

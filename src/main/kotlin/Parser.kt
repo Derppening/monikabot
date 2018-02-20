@@ -1,8 +1,6 @@
-import cmds.Echo
-import cmds.Status
-import cmds.Stop
-import cmds.WorldState
+import cmds.*
 import core.Client
+import core.Core
 import core.Log
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -10,7 +8,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 object Parser {
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (event.author == event.client.fetchUser(getBotAdmin())) {
+        if (Core.isEventFromAdmin(event)) {
             if (parseSudo(event)) {
                 return
             }
@@ -21,24 +19,18 @@ object Parser {
             return
         }
 
-        // TODO("Separate explicit action with admin messages")
-
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         when (cmd) {
             "echo" -> Echo.handler(event)
+            "warframe" -> Warframe.handler(event)
             else -> {
                 Log.minus("Command \"${event.message.content}\" not handled.\n" +
-                        "\tFrom ${getDiscordTag(event.author)}\n" +
-                        "\tIn \"${getChannelId(event.channel)}\"\n" +
+                        "\tFrom ${Core.getDiscordTag(event.author)}\n" +
+                        "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
                         "\tReason: Command $cmd not found")
             }
         }
-    }
-
-    fun isSudoLocationValid(event: MessageReceivedEvent): Boolean {
-        return event.channel == Client.getChannelByID(getDebugChannel()) ||
-                event.channel == getAdminPrivateChannel()
     }
 
     private fun parseSudo(event: MessageReceivedEvent): Boolean {

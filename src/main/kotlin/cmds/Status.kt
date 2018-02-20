@@ -1,7 +1,7 @@
 package cmds
 
-import Parser
 import core.Client
+import core.Core
 import core.Log
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -12,7 +12,7 @@ object Status : Base {
     }
 
     override fun handlerSudo(event: MessageReceivedEvent): Boolean {
-        if (!Parser.isSudoLocationValid(event)) {
+        if (!Core.isSudoLocationValid(event)) {
             return false
         }
 

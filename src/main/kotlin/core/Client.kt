@@ -1,6 +1,5 @@
 package core
 
-import getPrivateKey
 import sx.blah.discord.api.ClientBuilder
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
@@ -8,7 +7,7 @@ import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.DiscordException
 
 private val client by lazy {
-    val builder = ClientBuilder().withToken(getPrivateKey())
+    val builder = ClientBuilder().withToken(Core.getPrivateKey())
     try {
         builder.login()
     } catch (e: DiscordException) {
@@ -37,7 +36,7 @@ object Client : IDiscordClient by client {
         }
     }
 
-    const val defaultUserName = "MonikaBot"
+    private const val defaultUserName = "MonikaBot"
     val defaultState = Status.IDLE
     const val defaultStatus = "I'm still learning (>.<)"
 

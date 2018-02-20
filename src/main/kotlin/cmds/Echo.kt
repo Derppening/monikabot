@@ -1,33 +1,16 @@
 package cmds
 
 import Parser
-import core.Client
+import core.Core
 import core.Log
-import getBotAdmin
-import getChannelId
-import getDiscordTag
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
-//    private fun adminMessage(event: MessageReceivedEvent) {
-//        when (event.message.content.takeWhile { it != ' ' }) {
-//            "kill" -> {
-//                val message = event.message.content.popFirstWord()
-//
-//                MessageBuilder(event.client).apply {
-//                    withChannel(event.channel)
-//                    withCode("py", "print(\"$message\")")
-//                }.build()
-//            }
-//            "status" -> adminChangeStatus(event)
-//        }
-//    }
-
 object Echo : Base {
     override fun handler(event: MessageReceivedEvent) {
-        if (event.message.author == Client.fetchUser(getBotAdmin())) {
+        if (Core.isEventFromAdmin(event)) {
             handlerSudo(event)
         }
 
@@ -39,8 +22,8 @@ object Echo : Base {
                 event.message.delete()
             } catch (e: DiscordException) {
                 Log.minus("ECHO: Cannot delete \"$message\".\n" +
-                        "\tFrom ${getDiscordTag(event.author)}\n" +
-                        "\tIn \"${getChannelId(event.channel)}\"\n" +
+                        "\tFrom ${Core.getDiscordTag(event.author)}\n" +
+                        "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
                         "\tReason: ${e.errorMessage}")
                 e.printStackTrace()
             }
@@ -53,8 +36,8 @@ object Echo : Base {
             }.build()
         } catch (e: DiscordException) {
             Log.minus("ECHO: \"$message\" not handled.\n" +
-                    "\tFrom ${getDiscordTag(event.author)}\n" +
-                    "\tIn \"${getChannelId(event.channel)}\"" +
+                    "\tFrom ${Core.getDiscordTag(event.author)}\n" +
+                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
                     "\t Reason: ${e.errorMessage}")
             e.printStackTrace()
         }

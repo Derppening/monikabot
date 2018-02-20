@@ -1,6 +1,6 @@
 package cmds
 
-import Parser
+import core.Core
 import core.Log
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import kotlin.system.exitProcess
@@ -11,7 +11,7 @@ object Stop : Base {
     }
 
     override fun handlerSudo(event: MessageReceivedEvent): Boolean {
-        if (!Parser.isSudoLocationValid(event)) {
+        if (!Core.isSudoLocationValid(event)) {
             return false
         }
 
