@@ -15,7 +15,8 @@ object Echo : Base {
             handlerSudo(event)
         }
 
-        if (event.message.content.split(" ")[1] == "--help") {
+        if (!Core.getArgumentList(event.message.content).isEmpty() &&
+                Core.getArgumentList(event.message.content)[0] == "--help") {
             help(event, false)
             return
         }

@@ -19,6 +19,12 @@ object Status : Base {
             return false
         }
 
+        if (!Core.getArgumentList(event.message.content).isEmpty() &&
+                Core.getArgumentList(event.message.content)[0] == "--help") {
+            help(event, true)
+            return true
+        }
+
         val list = event.message.content.popFirstWord().split(' ').toMutableList()
 
         val status = when (list[0]) {

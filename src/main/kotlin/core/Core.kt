@@ -1,5 +1,7 @@
 package core
 
+import Parser
+import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IChannel
@@ -18,6 +20,10 @@ object Core {
     fun isSudoLocationValid(event: MessageReceivedEvent): Boolean {
         return event.channel == Client.getChannelByID(Core.getDebugChannel()) ||
                 event.channel == Core.getAdminPrivateChannel()
+    }
+
+    fun getArgumentList(str: String): List<String> {
+        return Parser.popLeadingMention(str).popFirstWord().split(" ")
     }
 
     fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"

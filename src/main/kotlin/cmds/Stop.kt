@@ -17,6 +17,12 @@ object Stop : Base {
             return false
         }
 
+        if (!Core.getArgumentList(event.message.content).isEmpty() &&
+                Core.getArgumentList(event.message.content)[0] == "--help") {
+            help(event, true)
+            return true
+        }
+
         event.client.shards.forEach {
             Log.minus("Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
             it.logout()
