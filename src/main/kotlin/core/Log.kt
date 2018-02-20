@@ -7,7 +7,7 @@ private val debugChannel by lazy {
     println("Initializing Log")
 
     Client.getChannelByID(Core.getDebugChannel()).apply { bulkDelete() }
-            ?: Client.fetchUser(Core.getBotAdmin()).orCreatePMChannel
+            ?: Core.getAdminPrivateChannel()
 }
 
 object Log: IChannel by debugChannel {
@@ -20,25 +20,28 @@ object Log: IChannel by debugChannel {
     fun plus(message: String) {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("diff", "+   ${reformat(message, "+")}")
+            withCode("diff", reformat(message, "+"))
         }.build()
     }
 
     fun minus(message: String) {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("diff", "-   ${reformat(message, "-")}")
+            withCode("diff", reformat(message, "-"))
         }.build()
     }
 
     fun log(message: String) {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("diff", "    ${reformat(message, " ")}")
+            withCode("diff", reformat(message, " "))
         }.build()
     }
 
-    private fun reformat(s: String, aString: String): String {
-        return s.replace("\n", "\n$aString${" ".repeat(4 - aString.length)}")
+    private fun reformat(s: String, appendString: String): String {
+        val indentString = "$appendString${" ".repeat(indent - appendString.length)}"
+        return "$indentString${s.replace("\n", "\n$indentString")}"
     }
+
+    private const val indent = 4
 }
