@@ -4,6 +4,7 @@ import Parser
 import core.Core
 import core.Log
 import popFirstWord
+import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
@@ -32,7 +33,7 @@ object Echo : Base {
         try {
             MessageBuilder(event.client).apply {
                 withChannel(channel)
-                withContent(message)
+                withContent(message.removeQuotes())
             }.build()
         } catch (e: DiscordException) {
             Log.minus("ECHO: \"$message\" not handled.\n" +

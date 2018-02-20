@@ -36,11 +36,6 @@ object Client : IDiscordClient by client {
         }
     }
 
-    private const val defaultUserName = "MonikaBot"
-    val defaultState = Status.IDLE
-    const val defaultStatus = "I'm still learning (>.<)"
-
-
     fun setStatus(status: Status, playingText: String = "") {
         if (playingText != "") {
             when (status) {
@@ -58,4 +53,12 @@ object Client : IDiscordClient by client {
             }
         }
     }
+
+    fun resetStatus() {
+        setStatus(defaultState, defaultStatus)
+    }
+
+    private const val defaultUserName = "MonikaBot"
+    private val defaultState = Status.IDLE
+    private const val defaultStatus = "I'm still learning (>.<)"
 }

@@ -4,6 +4,7 @@ import core.Client
 import core.Core
 import core.Log
 import popFirstWord
+import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Status : Base {
@@ -19,10 +20,13 @@ object Status : Base {
         val list = event.message.content.popFirstWord().split(' ').toMutableList()
 
         val status = when (list[0]) {
+            "--help" -> {
+                // TODO: Fill help
+                return true
+            }
             "--reset" -> {
-                list.clear()
-                list.add(Client.defaultStatus)
-                Client.defaultState
+                Client.resetStatus()
+                return true
             }
             "--idle" -> {
                 list.removeAt(0)
@@ -43,13 +47,11 @@ object Status : Base {
             else -> Client.Status.ONLINE
         }
 
-        val message = list.joinToString(" ")
-                .dropWhile { it == '\"' }
-                .dropLastWhile { it == '\"' }
+        val message = list.joinToString(" ").removeQuotes()
 
         try {
             Client.setStatus(status, message)
-            Log.plus("Status is set")
+            Log.plus("Status is set.")
         } catch (e: Exception) {
             Log.minus("Cannot set status: ${e.message}")
             e.printStackTrace()
