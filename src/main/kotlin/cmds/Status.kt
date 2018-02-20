@@ -44,6 +44,8 @@ object Status : Base {
         }
 
         val message = list.joinToString(" ")
+                .dropWhile { it == '\"' }
+                .dropLastWhile { it == '\"' }
 
         try {
             Client.setStatus(status, message)
