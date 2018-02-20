@@ -3,6 +3,8 @@ package cmds
 import core.Core
 import core.Log
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
+import sx.blah.discord.util.MessageBuilder
 import kotlin.system.exitProcess
 
 object Stop : Base {
@@ -20,5 +22,23 @@ object Stop : Base {
             it.logout()
         }
         exitProcess(0)
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        if (isSu) {
+            try {
+                MessageBuilder(event.client).apply {
+                    withChannel(event.channel)
+                    withCode("", "Usage: stop\n\n" +
+                            "Stops the execution of the bot.")
+                }.build()
+            } catch (e: DiscordException) {
+                Log.minus("STOP: Cannot display help text.\n" +
+                        "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
+                        "\tIn \"${Core.getChannelId(event.channel)}\"" +
+                        "\t Reason: ${e.errorMessage}")
+                e.printStackTrace()
+            }
+        }
     }
 }

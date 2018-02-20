@@ -31,4 +31,8 @@ object WorldState : Base {
 
         return true
     }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        // not handled
+    }
 }

@@ -6,6 +6,8 @@ import core.Log
 import popFirstWord
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
+import sx.blah.discord.util.MessageBuilder
 
 object Status : Base {
     override fun handler(event: MessageReceivedEvent) {
@@ -51,12 +53,32 @@ object Status : Base {
 
         try {
             Client.setStatus(status, message)
-            Log.plus("Status is set.")
+            Log.plus("STATUS: Updated.")
         } catch (e: Exception) {
-            Log.minus("Cannot set status: ${e.message}")
+            Log.minus("STATUS: Cannot set status." +
+                    "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
+                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
+                    "\tReason: ${e.message}")
             e.printStackTrace()
         }
 
         return true
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            MessageBuilder(event.client).apply {
+                withChannel(event.channel)
+                withCode("", "Usage: echo [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n\n" +
+                        "Sets the status and playing text of the bot.\n\n" +
+                        "If PLAYINGTEXT is not specified, none will be set.")
+            }.build()
+        } catch (e: DiscordException) {
+            Log.minus("STATUS: Cannot display help text.\n" +
+                    "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
+                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
+                    "\t Reason: ${e.errorMessage}")
+            e.printStackTrace()
+        }
     }
 }

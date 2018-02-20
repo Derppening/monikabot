@@ -15,6 +15,11 @@ object Echo : Base {
             handlerSudo(event)
         }
 
+        if (event.message.content.startsWith("--help")) {
+            help(event, false)
+            return
+        }
+
         val channel = event.channel
         val message = Parser.popLeadingMention(event.message.content).popFirstWord()
 
@@ -46,5 +51,20 @@ object Echo : Base {
 
     override fun handlerSudo(event: MessageReceivedEvent): Boolean {
         return false
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            MessageBuilder(event.client).apply {
+                withChannel(event.channel)
+                withCode("","Repeats a user-defined string.")
+            }.build()
+        } catch (e: DiscordException) {
+            Log.minus("ECHO: Cannot display help text.\n" +
+                    "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
+                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
+                    "\tReason: ${e.errorMessage}")
+            e.printStackTrace()
+        }
     }
 }

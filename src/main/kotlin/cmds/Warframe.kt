@@ -10,4 +10,8 @@ object Warframe : Base {
     override fun handlerSudo(event: MessageReceivedEvent): Boolean {
         return false
     }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        // not handled
+    }
 }
