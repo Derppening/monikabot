@@ -42,15 +42,20 @@ object Client : IDiscordClient by client {
 
 
     fun setStatus(status: Status, playingText: String = "") {
-        when (status) {
-            Status.ONLINE -> client.online()
-            Status.IDLE -> client.idle()
-            Status.BUSY -> client.dnd()
-            Status.OFFLINE -> client.invisible()
-        }
-
         if (playingText != "") {
-            client.changePlayingText(playingText)
+            when (status) {
+                Status.ONLINE -> client.online(playingText)
+                Status.IDLE -> client.idle(playingText)
+                Status.BUSY -> client.dnd(playingText)
+                Status.OFFLINE -> client.invisible()
+            }
+        } else {
+            when (status) {
+                Status.ONLINE -> client.online()
+                Status.IDLE -> client.idle()
+                Status.BUSY -> client.dnd()
+                Status.OFFLINE -> client.invisible()
+            }
         }
     }
 }
