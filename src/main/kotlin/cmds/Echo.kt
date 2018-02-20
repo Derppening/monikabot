@@ -15,7 +15,7 @@ object Echo : Base {
             handlerSudo(event)
         }
 
-        if (event.message.content.startsWith("--help")) {
+        if (event.message.content.split(" ")[1] == "--help") {
             help(event, false)
             return
         }
