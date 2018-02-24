@@ -62,14 +62,12 @@ object Log: IChannel by debugChannel {
     private val persistentMessageId by lazy {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("md", "$persistentHeader\nLoading...")
-        }.build().also {
-            debugChannel.pin(it)
-        }.longID
+            withCode("md", "$persistentHeader\nNothing to see here!")
+        }.build().longID
     }
 
     private val persistentMap = mutableMapOf<String, String>()
 
-    private const val persistentHeader = "[PERSISTENT]"
+    private const val persistentHeader = "[INFO]"
     private const val indent = 4
 }
