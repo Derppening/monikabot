@@ -35,7 +35,7 @@ object Stop : Base {
             try {
                 MessageBuilder(event.client).apply {
                     withChannel(event.channel)
-                    withCode("", "Usage: stop\n\n" +
+                    withCode("", "Usage: stop\n" +
                             "Stops the execution of the bot.")
                 }.build()
             } catch (e: DiscordException) {

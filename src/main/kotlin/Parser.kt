@@ -6,6 +6,12 @@ import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Parser {
+    enum class HandleState {
+        HANDLED,
+        UNHANDLED,
+        NOT_FOUND
+    }
+
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
         if (Core.isEventFromAdmin(event)) {
@@ -37,6 +43,7 @@ object Parser {
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         return when (cmd) {
+            "debug" -> Debug.handlerSudo(event)
             "worldstate" -> WorldState.handlerSudo(event)
             "status" -> Status.handlerSudo(event)
             "stop" -> Stop.handlerSudo(event)

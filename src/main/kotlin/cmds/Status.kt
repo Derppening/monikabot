@@ -28,10 +28,6 @@ object Status : Base {
         val list = event.message.content.popFirstWord().split(' ').toMutableList()
 
         val status = when (list[0]) {
-            "--help" -> {
-                // TODO: Fill help
-                return true
-            }
             "--reset" -> {
                 Client.resetStatus()
                 return true
@@ -75,7 +71,7 @@ object Status : Base {
         try {
             MessageBuilder(event.client).apply {
                 withChannel(event.channel)
-                withCode("", "Usage: echo [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n\n" +
+                withCode("", "Usage: echo [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n" +
                         "Sets the status and playing text of the bot.\n\n" +
                         "If PLAYINGTEXT is not specified, none will be set.")
             }.build()

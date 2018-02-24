@@ -38,10 +38,35 @@ object Log: IChannel by debugChannel {
         }.build()
     }
 
+    fun updatePersistent(k: String, v: String) {
+        if (v.isBlank()) {
+            persistentMap.remove(k)
+        } else {
+            persistentMap[k] = v
+        }
+
+        val s = persistentMap.map { (k, v) ->
+            "$k: $v"
+        }.joinToString("\n")
+
+        Client.getMessageByID(persistentMessageId).apply {
+            edit("```md\n$s```")
+        }
+    }
+
     private fun reformat(s: String, appendString: String): String {
         val indentString = "$appendString${" ".repeat(indent - appendString.length)}"
         return "$indentString${s.replace("\n", "\n$indentString")}"
     }
+
+    private val persistentMessageId by lazy {
+        MessageBuilder(Client).apply {
+            withChannel(this@Log)
+            withCode("md", "[Placeholder]")
+        }.build().longID
+    }
+
+    private val persistentMap = mutableMapOf<String, String>()
 
     private const val indent = 4
 }

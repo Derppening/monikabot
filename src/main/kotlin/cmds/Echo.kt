@@ -58,7 +58,7 @@ object Echo : Base {
         try {
             MessageBuilder(event.client).apply {
                 withChannel(event.channel)
-                withCode("","Repeats a user-defined string.")
+                withCode("","Echo: Repeats a user-defined string.")
             }.build()
         } catch (e: DiscordException) {
             Log.minus("ECHO: Cannot display help text.\n" +
