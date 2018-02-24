@@ -49,9 +49,13 @@ object Log: IChannel by debugChannel {
     }
 
     fun updatePersistent() {
-        val s = persistentMap.map { (k, v) ->
-            "$k: $v"
-        }.joinToString("\n")
+        val s = if (persistentMap.isNotEmpty()) {
+            persistentMap.map { (k, v) ->
+                "$k: $v"
+            }.joinToString("\n")
+        } else {
+            "Nothing to see here!"
+        }
 
         Client.getMessageByID(persistentMessageId).apply {
             edit("```md\n$persistentHeader\n$s```")
