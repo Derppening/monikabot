@@ -1,15 +1,16 @@
 package cmds
 
+import Parser
 import core.Core
 import core.Log
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Debug : Base {
-    override fun handler(event: MessageReceivedEvent) {
+    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         throw Exception("Debug should not be allowed by non-admin")
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Boolean {
+    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
         val args = Core.getArgumentList(event.message.content)
 
         assert(args.size > 1)
@@ -22,7 +23,7 @@ object Debug : Base {
             else -> {}
         }
 
-        return true
+        return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {

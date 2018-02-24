@@ -10,7 +10,7 @@ import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
 object Echo : Base {
-    override fun handler(event: MessageReceivedEvent) {
+    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         if (Core.isEventFromAdmin(event)) {
             handlerSudo(event)
         }
@@ -18,7 +18,7 @@ object Echo : Base {
         if (!Core.getArgumentList(event.message.content).isEmpty() &&
                 Core.getArgumentList(event.message.content)[0] == "--help") {
             help(event, false)
-            return
+            return Parser.HandleState.UNHANDLED
         }
 
         val channel = event.channel
@@ -48,10 +48,12 @@ object Echo : Base {
                     "\t Reason: ${e.errorMessage}")
             e.printStackTrace()
         }
+
+        return Parser.HandleState.HANDLED
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Boolean {
-        return false
+    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
+        return Parser.HandleState.UNHANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {

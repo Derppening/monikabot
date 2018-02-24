@@ -1,5 +1,6 @@
 package cmds
 
+import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import core.Client
@@ -10,12 +11,12 @@ import java.util.*
 import kotlin.concurrent.timer
 
 object Warframe : Base {
-    override fun handler(event: MessageReceivedEvent) {
-//        if ()
+    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
+        return Parser.HandleState.UNHANDLED
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Boolean {
-        return false
+    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
+        return Parser.HandleState.UNHANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {

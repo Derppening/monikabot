@@ -15,7 +15,7 @@ object Parser {
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
         if (Core.isEventFromAdmin(event)) {
-            if (parseSudo(event)) {
+            if (parseSudo(event) == HandleState.HANDLED) {
                 return
             }
         }
@@ -27,10 +27,21 @@ object Parser {
 
         val cmd = getCommand(popLeadingMention(event.message.content))
 
-        when (cmd) {
+        val retval = when (cmd) {
             "echo" -> Echo.handler(event)
             "warframe" -> Warframe.handler(event)
-            else -> {
+            else -> { HandleState.NOT_FOUND }
+        }
+
+        when (retval) {
+            HandleState.HANDLED -> {}
+            HandleState.UNHANDLED -> {
+                Log.minus("Command \"${event.message.content}\" not handled.\n" +
+                        "\tFrom ${Core.getDiscordTag(event.author)}\n" +
+                        "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
+                        "\tReason: Command $cmd not handled")
+            }
+            HandleState.NOT_FOUND -> {
                 Log.minus("Command \"${event.message.content}\" not handled.\n" +
                         "\tFrom ${Core.getDiscordTag(event.author)}\n" +
                         "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
@@ -39,14 +50,14 @@ object Parser {
         }
     }
 
-    private fun parseSudo(event: MessageReceivedEvent): Boolean {
+    private fun parseSudo(event: MessageReceivedEvent): HandleState {
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         return when (cmd) {
             "debug" -> Debug.handlerSudo(event)
             "status" -> Status.handlerSudo(event)
             "stop" -> Stop.handlerSudo(event)
-            else -> false
+            else -> HandleState.NOT_FOUND
         }
     }
 

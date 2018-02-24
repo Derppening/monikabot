@@ -1,5 +1,6 @@
 package cmds
 
+import Parser
 import core.Client
 import core.Core
 import core.Log
@@ -10,19 +11,19 @@ import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
 object Status : Base {
-    override fun handler(event: MessageReceivedEvent) {
+    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         throw Exception("Status should not be allowed by non-admin")
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Boolean {
+    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.isSudoLocationValid(event)) {
-            return false
+            return Parser.HandleState.UNHANDLED
         }
 
         if (!Core.getArgumentList(event.message.content).isEmpty() &&
                 Core.getArgumentList(event.message.content)[0] == "--help") {
             help(event, true)
-            return true
+            return Parser.HandleState.HANDLED
         }
 
         val list = event.message.content.popFirstWord().split(' ').toMutableList()
@@ -30,7 +31,7 @@ object Status : Base {
         val status = when (list[0]) {
             "--reset" -> {
                 Client.resetStatus()
-                return true
+                return Parser.HandleState.HANDLED
             }
             "--idle" -> {
                 list.removeAt(0)
@@ -64,7 +65,7 @@ object Status : Base {
             e.printStackTrace()
         }
 
-        return true
+        return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
