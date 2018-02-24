@@ -38,13 +38,17 @@ object Log: IChannel by debugChannel {
         }.build()
     }
 
-    fun updatePersistent(k: String, v: String) {
+    fun modifyPersistent(k: String, v: String, update: Boolean = false) {
         if (v.isBlank()) {
             persistentMap.remove(k)
         } else {
             persistentMap[k] = v
         }
 
+        if (update) { updatePersistent() }
+    }
+
+    fun updatePersistent() {
         val s = persistentMap.map { (k, v) ->
             "$k: $v"
         }.joinToString("\n")

@@ -17,7 +17,7 @@ object Debug : Base {
         when (args[0]) {
             "persist" -> run {
                 if (args.size != 3) { return@run }
-                Log.updatePersistent(args[1], args[2])
+                Log.modifyPersistent(args[1], args[2], true)
             }
             else -> {}
         }
