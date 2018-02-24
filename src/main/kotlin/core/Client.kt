@@ -5,6 +5,7 @@ import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.DiscordException
+import java.util.*
 
 private val client by lazy {
     val builder = ClientBuilder().withToken(Core.getPrivateKey())
@@ -36,6 +37,10 @@ object Client : IDiscordClient by client {
         }
     }
 
+    fun registerTimer(timer: Timer) {
+        timers.add(timer)
+    }
+
     fun setStatus(status: Status, playingText: String = "") {
         if (playingText != "") {
             when (status) {
@@ -57,6 +62,8 @@ object Client : IDiscordClient by client {
     fun resetStatus() {
         setStatus(defaultState, defaultStatus)
     }
+
+    private var timers = mutableListOf<Timer>()
 
     private const val defaultUserName = "MonikaBot"
     private val defaultState = Status.IDLE

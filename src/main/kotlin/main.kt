@@ -1,3 +1,4 @@
+import cmds.Warframe
 import core.Client
 import core.Shard
 
@@ -10,6 +11,11 @@ fun setupDispatchers() {
     Client.dispatcher.registerListener(Parser)
 }
 
+fun registerTimers() {
+    Client.registerTimer(Warframe.bgTask)
+}
+
 fun main(args: Array<String>) {
     setupDispatchers()
+    registerTimers()
 }

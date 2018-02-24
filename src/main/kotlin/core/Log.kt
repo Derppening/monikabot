@@ -4,8 +4,6 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.MessageBuilder
 
 private val debugChannel by lazy {
-    println("Initializing Log")
-
     Client.getChannelByID(Core.getDebugChannel()).apply { bulkDelete() }
             ?: Core.getAdminPrivateChannel()
 }

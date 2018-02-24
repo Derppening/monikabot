@@ -44,7 +44,6 @@ object Parser {
 
         return when (cmd) {
             "debug" -> Debug.handlerSudo(event)
-            "worldstate" -> WorldState.handlerSudo(event)
             "status" -> Status.handlerSudo(event)
             "stop" -> Stop.handlerSudo(event)
             else -> false
