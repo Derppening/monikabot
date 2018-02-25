@@ -21,7 +21,7 @@ object Client : IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 
-            Log.plus("Client Ready: Initialized $shardCount shard(s).")
+            Log.plus(javaClass.name, "Ready", info = "Initialization complete with $shardCount shard(s)")
         } catch (e: DiscordException) {
             e.printStackTrace()
         }

@@ -56,12 +56,13 @@ object Status : Base {
 
         try {
             Client.setStatus(status, message)
-            Log.plus("STATUS: Updated.")
+            Log.plus(javaClass.name, "Successfully updated")
         } catch (e: Exception) {
-            Log.minus("STATUS: Cannot set status." +
-                    "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
-                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
-                    "\tReason: ${e.message}")
+            Log.minus(javaClass.name,
+                    "Cannot set status",
+                    event.author,
+                    event.channel,
+                    e.message ?: "Unknown Exception")
             e.printStackTrace()
         }
 
@@ -77,10 +78,11 @@ object Status : Base {
                         "If PLAYINGTEXT is not specified, none will be set.")
             }.build()
         } catch (e: DiscordException) {
-            Log.minus("STATUS: Cannot display help text.\n" +
-                    "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
-                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
-                    "\t Reason: ${e.errorMessage}")
+            Log.minus(javaClass.name,
+                    "Unable to display help text",
+                    event.author,
+                    event.channel,
+                    e.errorMessage)
             e.printStackTrace()
         }
     }

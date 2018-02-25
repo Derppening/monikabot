@@ -24,8 +24,10 @@ object Stop : Base {
             return Parser.HandleState.HANDLED
         }
 
+        Log.minus(javaClass.name, "Logging out", event.author, event.channel)
+
         event.client.shards.forEach {
-            Log.minus("Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
+            Log.minus(javaClass.name, "Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
             it.logout()
         }
         exitProcess(0)
@@ -40,10 +42,7 @@ object Stop : Base {
                             "Stops the execution of the bot.")
                 }.build()
             } catch (e: DiscordException) {
-                Log.minus("STOP: Cannot display help text.\n" +
-                        "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
-                        "\tIn \"${Core.getChannelId(event.channel)}\"" +
-                        "\t Reason: ${e.errorMessage}")
+                Log.minus(javaClass.name, "Cannot display help text", event.author, event.channel, e.errorMessage)
                 e.printStackTrace()
             }
         }

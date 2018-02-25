@@ -9,7 +9,8 @@ object Shard {
     fun onConnectListener(event: ShardReadyEvent) {
         try {
             Log.updatePersistent()
-            Log.plus("Shard ${event.shard.info[0]} connected (Total: ${event.shard.info[1]})")
+            Log.plus(javaClass.name,
+                    "Shard ${event.shard.info[0]} connected (Total: ${event.shard.info[1]})")
         } catch (e: DiscordException) {
             e.printStackTrace()
         }

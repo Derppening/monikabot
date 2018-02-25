@@ -36,16 +36,12 @@ object Parser {
         when (retval) {
             HandleState.HANDLED -> {}
             HandleState.UNHANDLED -> {
-                Log.minus("Command \"${event.message.content}\" not handled.\n" +
-                        "\tFrom ${Core.getDiscordTag(event.author)}\n" +
-                        "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
-                        "\tReason: Command $cmd not handled")
+                Log.minus(javaClass.name,
+                        "Command \"${event.message.content}\" not handled", event.author, event.channel)
             }
             HandleState.NOT_FOUND -> {
-                Log.minus("Command \"${event.message.content}\" not handled.\n" +
-                        "\tFrom ${Core.getDiscordTag(event.author)}\n" +
-                        "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
-                        "\tReason: Command $cmd not found")
+                Log.minus(javaClass.name,
+                        "Command \"${event.message.content}\" not found", event.author, event.channel)
             }
         }
     }

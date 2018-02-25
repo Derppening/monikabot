@@ -28,10 +28,7 @@ object Echo : Base {
             try {
                 event.message.delete()
             } catch (e: DiscordException) {
-                Log.minus("ECHO: Cannot delete \"$message\".\n" +
-                        "\tFrom ${Core.getDiscordTag(event.author)}\n" +
-                        "\tIn \"${Core.getChannelId(event.channel)}\"\n" +
-                        "\tReason: ${e.errorMessage}")
+                Log.minus(javaClass.name, "Cannot delete \"$message\"", event.author, event.channel, e.errorMessage)
                 e.printStackTrace()
             }
         }
@@ -42,10 +39,7 @@ object Echo : Base {
                 withContent(message.removeQuotes())
             }.build()
         } catch (e: DiscordException) {
-            Log.minus("ECHO: \"$message\" not handled.\n" +
-                    "\tFrom ${Core.getDiscordTag(event.author)}\n" +
-                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
-                    "\t Reason: ${e.errorMessage}")
+            Log.minus(javaClass.name, "\"$message\" not handled", event.author, event.channel, e.errorMessage)
             e.printStackTrace()
         }
 
@@ -63,10 +57,7 @@ object Echo : Base {
                 withCode("","Echo: Repeats a user-defined string.")
             }.build()
         } catch (e: DiscordException) {
-            Log.minus("ECHO: Cannot display help text.\n" +
-                    "\tInvoked by ${Core.getDiscordTag(event.author)}\n" +
-                    "\tIn \"${Core.getChannelId(event.channel)}\"" +
-                    "\tReason: ${e.errorMessage}")
+            Log.minus(javaClass.name, "Cannot display help text", event.author, event.channel, e.errorMessage)
             e.printStackTrace()
         }
     }
