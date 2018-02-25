@@ -1,6 +1,6 @@
 package cmds
 
-import ILogger
+import IConsoleLogger
 import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonParser
@@ -12,7 +12,7 @@ import java.net.URL
 import java.util.*
 import kotlin.concurrent.timer
 
-object Warframe : Base, ILogger {
+object Warframe : Base, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         return Parser.HandleState.UNHANDLED
     }
