@@ -35,8 +35,8 @@ object Warframe : Base {
         WorldState.lastModified = Date(time * 1000)
         val currentTime = Date()
 
-        Log.modifyPersistent("WorldState Last Modified", WorldState.lastModified.toString())
-        Log.modifyPersistent("Last Updated", currentTime.toString(), true)
+        Log.modifyPersistent("Warframe", "WorldState Last Modified", WorldState.lastModified.toString())
+        Log.modifyPersistent("Misc", "Last Updated", currentTime.toString(), true)
     }
 
     val updateWorldStateTask = timer("Update WorldState", true, period = 60000) { getWorldState() }

@@ -9,12 +9,6 @@ private val debugChannel by lazy {
 }
 
 object Log: IChannel by debugChannel {
-    enum class Type {
-        PLUS,
-        MINUS,
-        NONE
-    }
-
     fun plus(message: String) {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
@@ -36,27 +30,34 @@ object Log: IChannel by debugChannel {
         }.build()
     }
 
-    fun modifyPersistent(k: String, v: String, update: Boolean = false) {
-        if (v.isBlank()) {
-            persistentMap.remove(k)
+    fun modifyPersistent(header: String, key: String, value: String, doUpdate: Boolean = false) {
+        if (value.isBlank()) {
+            persistentMap[header]?.remove(key)
         } else {
-            persistentMap[k] = v
+            if (persistentMap[header] == null) {
+                persistentMap[header] = mutableMapOf(Pair(key, value))
+            } else {
+                persistentMap[header]?.put(key, value)
+            }
         }
 
-        if (update) { updatePersistent() }
+        if (doUpdate) { updatePersistent() }
     }
 
     fun updatePersistent() {
         val s = if (persistentMap.isNotEmpty()) {
-            persistentMap.map { (k, v) ->
-                "$k: $v"
-            }.joinToString("\n")
+            persistentMap.entries.joinToString("\n\n") { (h, p) ->
+                val pairsInHeader = p.entries.joinToString("\n") { (k, v) ->
+                    "$k: $v"
+                }
+                "[$h]\n$pairsInHeader"
+            }
         } else {
             "Nothing to see here!"
         }
 
         Client.getMessageByID(persistentMessageId).apply {
-            edit("```md\n$persistentHeader\n$s```")
+            edit("```md\n$s```")
         }
     }
 
@@ -68,12 +69,11 @@ object Log: IChannel by debugChannel {
     private val persistentMessageId by lazy {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
-            withCode("md", "$persistentHeader\nNothing to see here!")
+            withCode("md", "Nothing to see here!")
         }.build().longID
     }
 
-    private val persistentMap = mutableMapOf<String, String>()
+    private val persistentMap = mutableMapOf<String, MutableMap<String, String>>()
 
-    private const val persistentHeader = "[INFO]"
     private const val indent = 4
 }
