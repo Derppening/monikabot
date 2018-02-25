@@ -12,7 +12,7 @@ import sx.blah.discord.util.MessageBuilder
 object Echo : Base {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         if (Core.isEventFromAdmin(event)) {
-            handlerSudo(event)
+            handlerSu(event)
         }
 
         if (!Core.getArgumentList(event.message.content).isEmpty() &&
@@ -52,7 +52,7 @@ object Echo : Base {
         return Parser.HandleState.HANDLED
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
+    override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         return Parser.HandleState.UNHANDLED
     }
 

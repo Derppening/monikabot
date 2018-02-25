@@ -54,9 +54,9 @@ object Parser {
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         return when (cmd) {
-            "debug" -> Debug.handlerSudo(event)
-            "status" -> Status.handlerSudo(event)
-            "stop" -> Stop.handlerSudo(event)
+            "debug" -> Debug.handlerSu(event)
+            "status" -> Status.handlerSu(event)
+            "stop" -> Stop.handlerSu(event)
             else -> HandleState.NOT_FOUND
         }
     }

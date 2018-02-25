@@ -1,21 +1,11 @@
 package core
 
-import sx.blah.discord.api.ClientBuilder
+import core.Persistence.client
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.DiscordException
 import java.util.*
-
-private val client by lazy {
-    val builder = ClientBuilder().withToken(Core.getPrivateKey())
-    try {
-        builder.login()
-    } catch (e: DiscordException) {
-        e.printStackTrace()
-        throw Exception("Unable to instantiate core.Client")
-    }
-}
 
 object Client : IDiscordClient by client {
     enum class Status {

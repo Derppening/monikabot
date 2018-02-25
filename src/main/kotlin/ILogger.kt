@@ -1,5 +1,5 @@
 import org.slf4j.Logger
 
-interface LoggerInterface {
+interface ILogger {
     val logger: Logger
 }

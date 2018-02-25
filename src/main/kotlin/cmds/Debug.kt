@@ -10,7 +10,7 @@ object Debug : Base {
         throw Exception("Debug should not be allowed by non-admin")
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
+    override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = Core.getArgumentList(event.message.content)
 
         assert(args.size > 1)

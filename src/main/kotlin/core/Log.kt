@@ -1,13 +1,9 @@
 package core
 
+import core.Persistence.debugChannel
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.MessageBuilder
 import java.util.*
-
-private val debugChannel by lazy {
-    Client.getChannelByID(Core.getDebugChannel()).apply { bulkDelete() }
-            ?: Core.getAdminPrivateChannel()
-}
 
 object Log: IChannel by debugChannel {
     fun plus(message: String) {

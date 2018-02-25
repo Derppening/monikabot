@@ -15,7 +15,7 @@ object Status : Base {
         throw Exception("Status should not be allowed by non-admin")
     }
 
-    override fun handlerSudo(event: MessageReceivedEvent): Parser.HandleState {
+    override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.isSudoLocationValid(event)) {
             return Parser.HandleState.UNHANDLED
         }
