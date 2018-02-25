@@ -46,4 +46,8 @@ object Core {
     fun getPrivateKey(): String = Properties().apply {
         load(FileInputStream(PROP_PATH))
     }.getProperty("privateKey") ?: throw Exception("Cannot retrieve private key from source.properties")
+
+    fun getMethodName(): String {
+        return Thread.currentThread().stackTrace[2].methodName + "(?)"
+    }
 }
