@@ -2,6 +2,7 @@ package core
 
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.MessageBuilder
+import java.util.*
 
 private val debugChannel by lazy {
     Client.getChannelByID(Core.getDebugChannel()).apply { bulkDelete() }
@@ -35,7 +36,7 @@ object Log: IChannel by debugChannel {
             persistentMap[header]?.remove(key)
         } else {
             if (persistentMap[header] == null) {
-                persistentMap[header] = mutableMapOf(Pair(key, value))
+                persistentMap[header] = mutableMapOf(Pair(key, value)).toSortedMap()
             } else {
                 persistentMap[header]?.put(key, value)
             }
@@ -46,7 +47,9 @@ object Log: IChannel by debugChannel {
 
     fun updatePersistent() {
         val s = if (persistentMap.isNotEmpty()) {
-            persistentMap.entries.joinToString("\n\n") { (h, p) ->
+            persistentMap.entries
+                    .sortedWith(compareBy( { it.key == "Misc" }, { it.key }))
+                    .joinToString("\n\n") { (h, p) ->
                 val pairsInHeader = p.entries.joinToString("\n") { (k, v) ->
                     "$k: $v"
                 }
@@ -73,7 +76,7 @@ object Log: IChannel by debugChannel {
         }.build().longID
     }
 
-    private val persistentMap = mutableMapOf<String, MutableMap<String, String>>()
+    private val persistentMap = sortedMapOf<String, SortedMap<String, String>>()
 
     private const val indent = 4
 }

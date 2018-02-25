@@ -1,16 +1,18 @@
 package cmds
 
+import LoggerInterface
 import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import core.Client
 import core.Log
+import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
 import java.util.*
 import kotlin.concurrent.timer
 
-object Warframe : Base {
+object Warframe : Base, LoggerInterface {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         return Parser.HandleState.UNHANDLED
     }
@@ -24,6 +26,8 @@ object Warframe : Base {
     }
 
     private fun getWorldState() {
+        logger.info("Invoked getWorldState()")
+
         if (!Client.isReady) { return }
 
         val contents = URL(worldStateLink).readText()
@@ -39,10 +43,11 @@ object Warframe : Base {
         Log.modifyPersistent("Misc", "Last Updated", currentTime.toString(), true)
     }
 
-    val updateWorldStateTask = timer("Update WorldState", true, period = 60000) { getWorldState() }
+    val updateWorldStateTask = timer("Update WorldState Timer", true, period = 60000) { getWorldState() }
 
     private const val worldStateLink = "http://content.warframe.com/dynamic/worldState.php"
     private val gson = Gson()
+    override val logger = LoggerFactory.getLogger(this::class.java)!!
 
     object WorldState {
         var lastModified = Date()
