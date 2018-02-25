@@ -63,7 +63,7 @@ object Client : IDiscordClient by client {
         setStatus(defaultState, defaultStatus)
     }
 
-    private var timers = mutableListOf<Timer>()
+    private val timers = mutableListOf<Timer>()
 
     private const val defaultUserName = "MonikaBot"
     private val defaultState = Status.IDLE

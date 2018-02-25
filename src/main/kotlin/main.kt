@@ -12,7 +12,7 @@ fun setupDispatchers() {
 }
 
 fun registerTimers() {
-    Client.registerTimer(Warframe.bgTask)
+    Client.registerTimer(Warframe.updateWorldStateTask)
 }
 
 fun main(args: Array<String>) {

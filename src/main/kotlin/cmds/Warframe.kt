@@ -39,7 +39,7 @@ object Warframe : Base {
         Log.modifyPersistent("Last Updated", currentTime.toString(), true)
     }
 
-    val bgTask = timer("Update WorldState", true, period = 60000, action = { getWorldState() })
+    val updateWorldStateTask = timer("Update WorldState", true, period = 60000) { getWorldState() }
 
     private const val worldStateLink = "http://content.warframe.com/dynamic/worldState.php"
     private val gson = Gson()
