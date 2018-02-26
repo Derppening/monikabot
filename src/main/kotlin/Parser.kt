@@ -59,6 +59,7 @@ object Parser {
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         return when (cmd) {
+            "clear" -> Clear.handlerSu(event)
             "debug" -> Debug.handlerSu(event)
             "status" -> Status.handlerSu(event)
             "stop" -> Stop.handlerSu(event)

@@ -181,7 +181,7 @@ object Log : IConsoleLogger, IChannel by debugChannel {
     /**
      * The ID for the persistent message.
      */
-    private val persistentMessageId by lazy {
+    val persistentMessageId by lazy {
         MessageBuilder(Client).apply {
             withChannel(this@Log)
             withCode("md", "Nothing to see here!")
