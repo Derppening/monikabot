@@ -1,12 +1,15 @@
 package core
 
+import core.Core.adminPrivateChannel
+import core.Core.privateKey
 import sx.blah.discord.api.ClientBuilder
 import sx.blah.discord.api.IDiscordClient
+import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.DiscordException
 
 object Persistence {
     val client: IDiscordClient by lazy {
-        val builder = ClientBuilder().withToken(Core.getPrivateKey())
+        val builder = ClientBuilder().withToken(privateKey)
         try {
             builder.login()
         } catch (e: DiscordException) {
@@ -15,8 +18,8 @@ object Persistence {
         }
     }
 
-    val debugChannel by lazy {
-        Client.getChannelByID(Core.getDebugChannel()).apply { bulkDelete() }
-                ?: Core.getAdminPrivateChannel()
+    val debugChannel: IChannel by lazy {
+        Client.getChannelByID(Core.debugChannel).apply { bulkDelete() }
+                ?: adminPrivateChannel
     }
 }

@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.MessageBuilder
 import java.util.*
+import kotlin.concurrent.thread
 
 object Log : IChannel by debugChannel {
     fun plus(className: String,
@@ -72,8 +73,10 @@ object Log : IChannel by debugChannel {
             "Nothing to see here!"
         }
 
-        Client.getMessageByID(persistentMessageId).apply {
-            edit("```md\n$s```")
+        thread {
+            Client.getMessageByID(persistentMessageId).apply {
+                edit("```md\n$s```")
+            }
         }
     }
 

@@ -7,19 +7,21 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
 import sx.blah.discord.handle.obj.IUser
+import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
 object Core {
     private const val PROP_PATH = "/home/david/server/monikabot/source.properties"
+    private const val PROP_FALLBACK = "/home/david/Dropbox/programming/Java_Kotlin/monikabot/source.properties"
 
     fun isEventFromAdmin(event: MessageEvent): Boolean {
-        return event.author == Client.fetchUser(getBotAdmin())
+        return event.author == Client.fetchUser(botAdmin)
     }
 
     fun isSudoLocationValid(event: MessageReceivedEvent): Boolean {
-        return event.channel == Client.getChannelByID(Core.getDebugChannel()) ||
-                event.channel == Core.getAdminPrivateChannel()
+        return event.channel == Client.getChannelByID(debugChannel) ||
+                event.channel == adminPrivateChannel
     }
 
     fun getArgumentList(str: String): List<String> {
@@ -33,21 +35,28 @@ object Core {
         return "$guild/${channel.name}"
     }
 
-    fun getBotAdmin(): Long = Properties().apply {
-        load(FileInputStream(PROP_PATH))
-    }.getProperty("botAdmin").toLong()
+    private fun getProperties(): Properties {
+        if (File(PROP_PATH).exists()) {
+            return Properties().apply {
+                load(FileInputStream(PROP_PATH))
+            }
+        }
 
-    fun getAdminPrivateChannel(): IPrivateChannel = Client.fetchUser(getBotAdmin()).orCreatePMChannel
+        if (File(PROP_FALLBACK).exists())  {
+            return Properties().apply {
+                load(FileInputStream(PROP_FALLBACK))
+            }
+        }
 
-    fun getDebugChannel(): Long = Properties().apply {
-        load(FileInputStream(PROP_PATH))
-    }.getProperty(("debugChannel")).toLong()
-
-    fun getPrivateKey(): String = Properties().apply {
-        load(FileInputStream(PROP_PATH))
-    }.getProperty("privateKey") ?: throw Exception("Cannot retrieve private key from source.properties")
+        throw Exception("Cannot retrieve private key from source.properties")
+    }
 
     fun getMethodName(): String {
         return Thread.currentThread().stackTrace[2].methodName + "(?)"
     }
+
+    val botAdmin: Long = getProperties().getProperty("botAdmin").toLong()
+    val adminPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(botAdmin).orCreatePMChannel }
+    val debugChannel = getProperties().getProperty("debugChannel").toLong()
+    val privateKey = getProperties().getProperty("privateKey")
 }

@@ -6,7 +6,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import core.Client
-import core.Core.getMethodName
 import core.Log
 import org.slf4j.LoggerFactory
 import popFirstWord
@@ -14,7 +13,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.MessageBuilder
 import java.net.URL
 import java.util.*
+import kotlin.concurrent.thread
 import kotlin.concurrent.timer
+import kotlin.system.measureTimeMillis
 
 object Warframe : Base, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -36,29 +37,31 @@ object Warframe : Base, IConsoleLogger {
 
     private fun getNews(event: MessageReceivedEvent): Parser.HandleState {
         val messageId = MessageBuilder(event.client).apply {
-            withCode("", "Updating world state...")
+            withCode("", "Loading...")
             withChannel(event.channel)
         }.build().longID
 
-        updateWorldState(getMethodName())
-
-        event.client.getMessageByID(messageId).edit("```\nLoading...```")
-
-        val events = JsonParser().parse(worldStateText).asJsonObject.get("Events")
-        val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
         var eventStr = ""
-        for (wfEvent in eventList) {
-            val e = wfEvent.asJsonObject
-            val time = gson.fromJson(wfEvent.asJsonObject.get("Date").asJsonObject.get("\$date").asJsonObject.get("\$numberLong"), Long::class.java)
-            for (it in e.get("Messages").asJsonArray) {
-                if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
-                    eventStr += "${Date(time)} - ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}\n"
-                    break
+        val timer = measureTimeMillis {
+            val events = JsonParser().parse(worldStateText).asJsonObject.get("Events")
+            val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
+            for (wfEvent in eventList) {
+                val e = wfEvent.asJsonObject
+                val time = gson.fromJson(wfEvent.asJsonObject.get("Date").asJsonObject.get("\$date").asJsonObject.get("\$numberLong"), Long::class.java)
+                for (it in e.get("Messages").asJsonArray) {
+                    if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
+                        eventStr += "${Date(time)} - ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}\n"
+                        break
+                    }
                 }
             }
         }
 
-        event.client.getMessageByID(messageId).edit("```\n${eventStr.dropLastWhile { it == '\n' }}```")
+        logger.info("getNews() took ${timer}ms.")
+
+        thread {
+            event.client.getMessageByID(messageId).edit("```\n${eventStr.dropLastWhile { it == '\n' }}```")
+        }
 
         return Parser.HandleState.HANDLED
     }
@@ -83,10 +86,10 @@ object Warframe : Base, IConsoleLogger {
         Log.modifyPersistent("Misc", "Last Updated", currentTime.toString(), true)
     }
 
-    val updateWorldStateTask = timer("Update WorldState Timer", true, period = 60000) { updateWorldState() }
+    var updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
 
     private const val worldStateLink = "http://content.warframe.com/dynamic/worldState.php"
-    private var worldStateText = ""
+    private var worldStateText = URL(worldStateLink).readText()
     private val gson = Gson()
 
     override val logger = LoggerFactory.getLogger(this::class.java)!!
