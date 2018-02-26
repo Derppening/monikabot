@@ -31,6 +31,7 @@ object Parser {
 
         val retval = when (cmd) {
             "echo" -> Echo.handler(event)
+            "random" -> Random.handler(event)
             "warframe" -> Warframe.handler(event)
             else -> HandleState.NOT_FOUND
         }
