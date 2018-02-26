@@ -57,11 +57,11 @@ object Warframe : Base, IConsoleLogger {
             }
         }
 
-        logger.debug("getNews() took ${timer}ms.")
+        logger.debug("getNews(): JSON parsing took ${timer}ms.")
 
         thread {
             event.client.getMessageByID(messageId).edit("```\n${eventStr.dropLastWhile { it == '\n' }}```")
-            logger.debug("getNews() threaded update complete.")
+            logger.debug("getNews(): Message update complete.")
         }
 
         return Parser.HandleState.HANDLED
@@ -77,7 +77,7 @@ object Warframe : Base, IConsoleLogger {
         val timer = measureTimeMillis {
             worldStateText = URL(worldStateLink).readText()
         }
-        logger.debug("updateWorldState() JSON update took ${timer}ms.")
+        logger.debug("updateWorldState(): JSON update took ${timer}ms.")
 
         val time = gson.run {
             val timeElement = JsonParser().parse(worldStateText).asJsonObject.get("Time")

@@ -1,15 +1,17 @@
 package core
 
+import IConsoleLogger
 import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.Persistence.debugChannel
+import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.MessageBuilder
 import java.util.*
 import kotlin.concurrent.thread
 
-object Log : IChannel by debugChannel {
+object Log : IConsoleLogger, IChannel by debugChannel {
     fun plus(className: String,
              message: String,
              srcAuthor: IUser? = null,
@@ -60,6 +62,8 @@ object Log : IChannel by debugChannel {
     }
 
     fun updatePersistent() {
+        logger.debug("updatePersistent()")
+
         val s = if (persistentMap.isNotEmpty()) {
             persistentMap.entries
                     .sortedWith(compareBy({ it.key == "Misc" }, { it.key }))
@@ -113,6 +117,7 @@ object Log : IChannel by debugChannel {
         }.build().longID
     }
 
+    override val logger = LoggerFactory.getLogger(this::class.java)!!
     private val persistentMap = sortedMapOf<String, SortedMap<String, String>>()
 
     private const val indent = 4
