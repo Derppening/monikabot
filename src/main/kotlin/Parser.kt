@@ -4,6 +4,8 @@ import core.Core
 import core.Log
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
+import sx.blah.discord.util.MessageBuilder
 
 object Parser {
     enum class HandleState {
@@ -40,6 +42,12 @@ object Parser {
                         "Command \"$cmd\" not handled", event.message, event.author, event.channel)
             }
             HandleState.NOT_FOUND -> {
+                try {
+                    MessageBuilder(event.client).apply {
+                        withChannel(event.channel)
+                        withContent("I don't know how to do that! >.<")
+                    }.build()
+                } catch (e: DiscordException) {}
                 Log.minus(javaClass.name,
                         "Command \"$cmd\" not found", event.message, event.author, event.channel)
             }
