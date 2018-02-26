@@ -8,6 +8,9 @@ import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 import kotlin.system.exitProcess
 
+/**
+ * Singleton handling "stop" command.
+ */
 object Stop : Base {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         throw Exception("Stop should not be allowed by non-admin")
@@ -24,7 +27,7 @@ object Stop : Base {
             return Parser.HandleState.HANDLED
         }
 
-        Log.minus(javaClass.name, "Logging out", event.author, event.channel)
+        Log.minus(javaClass.name, "Logging out", null, event.author, event.channel)
 
         event.client.shards.forEach {
             Log.minus(javaClass.name, "Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
@@ -42,7 +45,12 @@ object Stop : Base {
                             "Stops the execution of the bot.")
                 }.build()
             } catch (e: DiscordException) {
-                Log.minus(javaClass.name, "Cannot display help text", event.author, event.channel, e.errorMessage)
+                Log.minus(javaClass.name,
+                        "Cannot display help text",
+                        null,
+                        event.author,
+                        event.channel,
+                        e.errorMessage)
                 e.printStackTrace()
             }
         }

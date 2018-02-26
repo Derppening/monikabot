@@ -14,7 +14,7 @@ object Parser {
 
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (Core.isEventFromAdmin(event)) {
+        if (Core.isEventFromSu(event)) {
             if (parseSudo(event) == HandleState.HANDLED) {
                 return
             }
@@ -37,11 +37,11 @@ object Parser {
             HandleState.HANDLED -> {}
             HandleState.UNHANDLED -> {
                 Log.minus(javaClass.name,
-                        "Command \"${event.message.content}\" not handled", event.author, event.channel)
+                        "Command \"$cmd\" not handled", event.message, event.author, event.channel)
             }
             HandleState.NOT_FOUND -> {
                 Log.minus(javaClass.name,
-                        "Command \"${event.message.content}\" not found", event.author, event.channel)
+                        "Command \"$cmd\" not found", event.message, event.author, event.channel)
             }
         }
     }

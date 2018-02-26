@@ -10,6 +10,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
+/**
+ * Singleton handling "status" commands
+ */
 object Status : Base {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         throw Exception("Status should not be allowed by non-admin")
@@ -60,6 +63,7 @@ object Status : Base {
         } catch (e: Exception) {
             Log.minus(javaClass.name,
                     "Cannot set status",
+                    null,
                     event.author,
                     event.channel,
                     e.message ?: "Unknown Exception")
@@ -80,6 +84,7 @@ object Status : Base {
         } catch (e: DiscordException) {
             Log.minus(javaClass.name,
                     "Unable to display help text",
+                    null,
                     event.author,
                     event.channel,
                     e.errorMessage)

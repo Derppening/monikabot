@@ -7,7 +7,13 @@ import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.DiscordException
 import java.util.*
 
+/**
+ * A singleton IDiscordClient object.
+ */
 object Client : IDiscordClient by client {
+    /**
+     * Enumeration for bot status.
+     */
     enum class Status {
         ONLINE,
         IDLE,
@@ -15,6 +21,9 @@ object Client : IDiscordClient by client {
         OFFLINE
     }
 
+    /**
+     * Listener for ReadyEvent.
+     */
     @EventSubscriber
     fun onReadyListener(event: ReadyEvent) {
         try {
@@ -27,10 +36,19 @@ object Client : IDiscordClient by client {
         }
     }
 
+    /**
+     * Registers [timer] as an event.
+     */
     fun registerTimer(timer: Timer) {
         timers.add(timer)
     }
 
+    /**
+     * Sets the bot's status and playing message.
+     *
+     * @param status Status of the bot.
+     * @param playingText Playing message of the bot.
+     */
     fun setStatus(status: Status, playingText: String = "") {
         if (playingText != "") {
             when (status) {
@@ -49,13 +67,28 @@ object Client : IDiscordClient by client {
         }
     }
 
+    /**
+     * Resets the bot's status and playing message to the default.
+     */
     fun resetStatus() {
         setStatus(defaultState, defaultStatus)
     }
 
+    /**
+     * List of all background timers.
+     */
     private val timers = mutableListOf<Timer>()
 
+    /**
+     * Default user name.
+     */
     private const val defaultUserName = "MonikaBot"
+    /**
+     * Default status.
+     */
     private val defaultState = Status.IDLE
+    /**
+     * Default playing text.
+     */
     private const val defaultStatus = "I'm still learning (>.<)"
 }

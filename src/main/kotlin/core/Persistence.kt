@@ -7,7 +7,13 @@ import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.DiscordException
 
+/**
+ * Singleton housing all persistent objects.
+ */
 object Persistence {
+    /**
+     * Core IDiscordClient object.
+     */
     val client: IDiscordClient by lazy {
         val builder = ClientBuilder().withToken(privateKey)
         try {
@@ -18,6 +24,9 @@ object Persistence {
         }
     }
 
+    /**
+     * Debug channel.
+     */
     val debugChannel: IChannel by lazy {
         Client.getChannelByID(Core.debugChannel).apply { bulkDelete() }
                 ?: adminPrivateChannel

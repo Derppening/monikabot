@@ -9,9 +9,12 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
+/**
+ * Singleton handling "echo" commands.
+ */
 object Echo : Base {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        if (Core.isEventFromAdmin(event)) {
+        if (Core.isEventFromSu(event)) {
             handlerSu(event)
         }
 
@@ -28,7 +31,12 @@ object Echo : Base {
             try {
                 event.message.delete()
             } catch (e: DiscordException) {
-                Log.minus(javaClass.name, "Cannot delete \"$message\"", event.author, event.channel, e.errorMessage)
+                Log.minus(javaClass.name,
+                        "Cannot delete \"$message\"",
+                        null,
+                        event.author,
+                        event.channel,
+                        e.errorMessage)
                 e.printStackTrace()
             }
         }
@@ -39,7 +47,12 @@ object Echo : Base {
                 withContent(message.removeQuotes())
             }.build()
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name, "\"$message\" not handled", event.author, event.channel, e.errorMessage)
+            Log.minus(javaClass.name,
+                    "\"$message\" not handled",
+                    event.message,
+                    event.author,
+                    event.channel,
+                    e.errorMessage)
             e.printStackTrace()
         }
 
@@ -57,7 +70,12 @@ object Echo : Base {
                 withCode("","Echo: Repeats a user-defined string.")
             }.build()
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name, "Cannot display help text", event.author, event.channel, e.errorMessage)
+            Log.minus(javaClass.name,
+                    "Cannot display help text",
+                    null,
+                    event.author,
+                    event.channel,
+                    e.errorMessage)
             e.printStackTrace()
         }
     }

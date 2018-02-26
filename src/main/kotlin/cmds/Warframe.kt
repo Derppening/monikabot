@@ -17,6 +17,9 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
+/**
+ * Singleton handling "warframe" commands
+ */
 object Warframe : Base, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split("\n")
@@ -35,6 +38,13 @@ object Warframe : Base, IConsoleLogger {
         // not handled
     }
 
+    /**
+     * Handles "warframe news" subcommand.
+     *
+     * @param event Event which invoked this function.
+     *
+     * @return Parser.HandleState.HANDLED
+     */
     private fun getNews(event: MessageReceivedEvent): Parser.HandleState {
         val messageId = MessageBuilder(event.client).apply {
             withCode("", "Loading...")
@@ -43,7 +53,7 @@ object Warframe : Base, IConsoleLogger {
 
         var eventStr = ""
         val timer = measureTimeMillis {
-            val events = JsonParser().parse(worldStateText).asJsonObject.get("Events")
+            val events = JsonParser().parse(WorldState.json).asJsonObject.get("Events")
             val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
             for (wfEvent in eventList) {
                 val e = wfEvent.asJsonObject
@@ -67,20 +77,23 @@ object Warframe : Base, IConsoleLogger {
         return Parser.HandleState.HANDLED
     }
 
-    private fun updateWorldState(invokedBy: String = "") {
-        logger.info("Invoked updateWorldState() ${if (invokedBy.isNotBlank()) "from $invokedBy" else ""}")
+    /**
+     * Updates the world state json. Will be invoked periodically by updateWorldStateTask.
+     */
+    private fun updateWorldState() {
+        logger.info("updateWorldState()")
 
         if (!Client.isReady) {
             return
         }
 
         val timer = measureTimeMillis {
-            worldStateText = URL(worldStateLink).readText()
+            WorldState.json = URL(WorldState.source).readText()
         }
         logger.debug("updateWorldState(): JSON update took ${timer}ms.")
 
         val time = gson.run {
-            val timeElement = JsonParser().parse(worldStateText).asJsonObject.get("Time")
+            val timeElement = JsonParser().parse(WorldState.json).asJsonObject.get("Time")
             gson.fromJson(timeElement, Long::class.java) * 1000
         }
         WorldState.lastModified = Date(time)
@@ -90,15 +103,37 @@ object Warframe : Base, IConsoleLogger {
         Log.modifyPersistent("Misc", "Last Updated", currentTime.toString(), true)
     }
 
-    var updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
+    /**
+     * Task for updating world state JSON periodically.
+     */
+    val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
 
-    private const val worldStateLink = "http://content.warframe.com/dynamic/worldState.php"
-    private var worldStateText = URL(worldStateLink).readText()
+    /**
+     * JSON parser.
+     */
     private val gson = Gson()
 
+    /**
+     * Console logger.
+     */
     override val logger = LoggerFactory.getLogger(this::class.java)!!
 
-    object WorldState {
+    /**
+     * Singleton for storing world state JSON.
+     */
+    private object WorldState {
+        /**
+         * URL to world state.
+         */
+        const val source = "http://content.warframe.com/dynamic/worldState.php"
+
+        /**
+         * When the JSON is last modified server-side.
+         */
         var lastModified = Date()
+        /**
+         * JSON string.
+         */
+        var json = URL(source).readText().also { lastModified = Date() }
     }
 }
