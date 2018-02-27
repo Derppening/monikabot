@@ -24,7 +24,7 @@ object Parser {
             }
         }
 
-        val cmd = getCommand(popLeadingMention(event.message.content))
+        val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase()
 
         val retval = when (cmd) {
             "clear" -> Clear.delegateCommand(event)
