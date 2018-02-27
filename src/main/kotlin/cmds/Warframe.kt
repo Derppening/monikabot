@@ -89,8 +89,6 @@ object Warframe : Base, IConsoleLogger {
      * Updates the world state json. Will be invoked periodically by updateWorldStateTask.
      */
     private fun updateWorldState() {
-        logger.debug("updateWorldState()")
-
         if (!Client.isReady) {
             return
         }
@@ -105,10 +103,8 @@ object Warframe : Base, IConsoleLogger {
             gson.fromJson(timeElement, Long::class.java)
         }
         WorldState.lastModified = Instant.ofEpochSecond(time)
-        val currentTime = Instant.now()
 
-        Log.modifyPersistent("Warframe", "WorldState Last Modified", WorldState.lastModified.toString())
-        Log.modifyPersistent("Misc", "Last Updated", currentTime.toString(), true)
+        Log.modifyPersistent("Warframe", "WorldState Last Modified", WorldState.lastModified.toString(), true)
     }
 
     /**

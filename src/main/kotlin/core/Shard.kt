@@ -16,7 +16,7 @@ object Shard {
     @EventSubscriber
     fun onConnectListener(event: ShardReadyEvent) {
         try {
-            Log.updatePersistent()
+            Log.modifyPersistent("Misc", "Version", Core.monikaVersion, true)
             Log.plus(javaClass.name,
                     "Shard ${event.shard.info[0]} connected (Total: ${event.shard.info[1]})")
         } catch (e: DiscordException) {

@@ -31,8 +31,6 @@ object Client : IDiscordClient by client {
             setStatus(defaultState, defaultStatus)
 
             Log.plus(javaClass.name, "Ready", info = "Initialization complete with $shardCount shard(s)")
-
-            Log.modifyPersistent("Misc", "Version", Core.monikaVersion, true)
         } catch (e: DiscordException) {
             e.printStackTrace()
         }

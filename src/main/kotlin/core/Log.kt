@@ -9,6 +9,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.MessageBuilder
+import java.time.Instant
 import kotlin.concurrent.thread
 
 object Log : IConsoleLogger, IChannel by debugChannel {
@@ -108,32 +109,6 @@ object Log : IConsoleLogger, IChannel by debugChannel {
     }
 
     /**
-     * Updates the persistent message in the debug channel.
-     */
-    fun updatePersistent() {
-        logger.debug("updatePersistent()")
-
-        val s = if (persistentMap.isNotEmpty()) {
-            persistentMap.entries
-                    .sortedWith(compareBy({ it.key == "Misc" }, { it.key }))
-                    .joinToString("\n\n") { (h, p) ->
-                        val pairsInHeader = p.entries.joinToString("\n") { (k, v) ->
-                            "$k: $v"
-                        }
-                        "[$h]\n$pairsInHeader"
-                    }
-        } else {
-            "Nothing to see here!"
-        }
-
-        thread {
-            Client.getMessageByID(persistentMessageId).apply {
-                edit("```md\n$s```")
-            }
-        }
-    }
-
-    /**
      * Logs a message to the debug channel in green.
      *
      * @param message The message itself.
@@ -176,6 +151,34 @@ object Log : IConsoleLogger, IChannel by debugChannel {
     private fun reformat(s: String, appendString: String): String {
         val indentString = "$appendString${" ".repeat(indent - appendString.length)}"
         return "$indentString${s.replace("\n", "\n$indentString")}"
+    }
+
+    /**
+     * Updates the persistent message in the debug channel.
+     */
+    private fun updatePersistent() {
+        logger.debug("updatePersistent()")
+
+        Log.modifyPersistent("Misc", "Last Updated", Instant.now().toString())
+
+        val s = if (persistentMap.isNotEmpty()) {
+            persistentMap.entries
+                    .sortedWith(compareBy({ it.key == "Misc" }, { it.key }))
+                    .joinToString("\n\n") { (h, p) ->
+                        val pairsInHeader = p.entries.joinToString("\n") { (k, v) ->
+                            "$k: $v"
+                        }
+                        "[$h]\n$pairsInHeader"
+                    }
+        } else {
+            "Nothing to see here!"
+        }
+
+        thread {
+            Client.getMessageByID(persistentMessageId).apply {
+                edit("```md\n$s```")
+            }
+        }
     }
 
     /**
