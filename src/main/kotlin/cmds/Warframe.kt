@@ -12,7 +12,9 @@ import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.MessageBuilder
 import java.net.URL
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
@@ -46,21 +48,24 @@ object Warframe : Base, IConsoleLogger {
      * @return Parser.HandleState.HANDLED
      */
     private fun getNews(event: MessageReceivedEvent): Parser.HandleState {
-        val messageId = MessageBuilder(event.client).apply {
-            withCode("", "Loading...")
-            withChannel(event.channel)
-        }.build().longID
+        event.channel.toggleTypingStatus()
 
         var eventStr = ""
         val timer = measureTimeMillis {
             val events = JsonParser().parse(WorldState.json).asJsonObject.get("Events")
             val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
+
             for (wfEvent in eventList) {
                 val e = wfEvent.asJsonObject
                 val time = gson.fromJson(wfEvent.asJsonObject.get("Date").asJsonObject.get("\$date").asJsonObject.get("\$numberLong"), Long::class.java)
+
                 for (it in e.get("Messages").asJsonArray) {
                     if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
-                        eventStr += "${Date(time)} - ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}\n"
+                        val rfctime = DateTimeFormatter.RFC_1123_DATE_TIME
+                                .withZone(ZoneId.of("UTC"))
+                                .format(Instant.ofEpochMilli(time))
+
+                        eventStr += "$rfctime - ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}\n"
                         break
                     }
                 }
@@ -70,7 +75,10 @@ object Warframe : Base, IConsoleLogger {
         logger.debug("getNews(): JSON parsing took ${timer}ms.")
 
         thread {
-            event.client.getMessageByID(messageId).edit("```\n${eventStr.dropLastWhile { it == '\n' }}```")
+            MessageBuilder(event.client).apply {
+                withCode("", eventStr.dropLastWhile { it == '\n' })
+                withChannel(event.channel)
+            }.build()
             logger.debug("getNews(): Message update complete.")
         }
 
@@ -94,10 +102,10 @@ object Warframe : Base, IConsoleLogger {
 
         val time = gson.run {
             val timeElement = JsonParser().parse(WorldState.json).asJsonObject.get("Time")
-            gson.fromJson(timeElement, Long::class.java) * 1000
+            gson.fromJson(timeElement, Long::class.java)
         }
-        WorldState.lastModified = Date(time)
-        val currentTime = Date()
+        WorldState.lastModified = Instant.ofEpochSecond(time)
+        val currentTime = Instant.now()
 
         Log.modifyPersistent("Warframe", "WorldState Last Modified", WorldState.lastModified.toString())
         Log.modifyPersistent("Misc", "Last Updated", currentTime.toString(), true)
@@ -130,10 +138,10 @@ object Warframe : Base, IConsoleLogger {
         /**
          * When the JSON is last modified server-side.
          */
-        var lastModified = Date()
+        var lastModified = Instant.EPOCH
         /**
          * JSON string.
          */
-        var json = URL(source).readText().also { lastModified = Date() }
+        var json = URL(source).readText().also { lastModified = Instant.now() }
     }
 }
