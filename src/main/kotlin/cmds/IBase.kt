@@ -2,8 +2,11 @@ package cmds
 
 import Parser
 import core.Core
+import core.Log
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
+import sx.blah.discord.util.MessageBuilder
 
 /**
  * Interface for implementing bot commands.
@@ -34,7 +37,22 @@ interface IBase {
      * @param event: The event leading to the invocation of the this function.
      * @param isSu: Whether user invoking this function is a superuser.
      */
-    fun help(event: MessageReceivedEvent, isSu: Boolean)
+    fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            MessageBuilder(event.client).apply {
+                withChannel(event.channel)
+                withCode("", "No help text is available for this command.")
+            }.build()
+        } catch (e: DiscordException) {
+            Log.minus(javaClass.name,
+                    "Cannot display help text",
+                    null,
+                    event.author,
+                    event.channel,
+                    e.errorMessage)
+            e.printStackTrace()
+        }
+    }
 
     /**
      * Handles [event] for all users.

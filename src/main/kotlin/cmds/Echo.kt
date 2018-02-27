@@ -63,7 +63,8 @@ object Echo : IBase {
         try {
             MessageBuilder(event.client).apply {
                 withChannel(event.channel)
-                withCode("","Echo: Repeats a user-defined string.")
+                withCode("","Usage: echo [string]\n" +
+                        "Echo: Repeats a string.")
             }.build()
         } catch (e: DiscordException) {
             Log.minus(javaClass.name,

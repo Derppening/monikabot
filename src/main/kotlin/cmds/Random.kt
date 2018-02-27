@@ -74,8 +74,9 @@ object Random : IBase {
             MessageBuilder(event.client).apply {
                 withChannel(event.channel)
                 withCode("", "Usage: random [min] [max]\n" +
+                        "       random [coin|dice]" +
                         "Random: Randomizes a number, with range of [min] to [max] (inclusive).\n\n" +
-                        "You can also \"random coin\" or \"random dice\"!")
+                        "Using \"coin\"/\"dice\" as the argument does what you expect it to do.")
             }.build()
         } catch (e: DiscordException) {
             Log.minus(javaClass.name,

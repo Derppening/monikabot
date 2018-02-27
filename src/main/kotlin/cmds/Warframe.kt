@@ -9,6 +9,7 @@ import core.IConsoleLogger
 import core.Log
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 import java.net.URL
 import java.time.Instant
@@ -36,7 +37,23 @@ object Warframe : IBase, IConsoleLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        // not handled
+        try {
+            MessageBuilder(event.client).apply {
+                withChannel(event.channel)
+                withCode("", "Usage: warframe [subcommand] [args...]\n" +
+                        "Warframe: Wrapper for Warframe-related commands.\n\n" +
+                        "Currently supported subcommands are:\n" +
+                        "\tnews: Displays the latest Warframe news (same as the news segment in the orbiter)")
+            }.build()
+        } catch (e: DiscordException) {
+            Log.minus(javaClass.name,
+                    "Cannot display help text",
+                    null,
+                    event.author,
+                    event.channel,
+                    e.errorMessage)
+            e.printStackTrace()
+        }
     }
 
     /**

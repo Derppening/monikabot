@@ -77,7 +77,7 @@ object Status : IBase {
         try {
             MessageBuilder(event.client).apply {
                 withChannel(event.channel)
-                withCode("", "Usage: echo [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n" +
+                withCode("", "Usage: status [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n" +
                         "Sets the status and playing text of the bot.\n\n" +
                         "If PLAYINGTEXT is not specified, none will be set.")
             }.build()

@@ -38,7 +38,8 @@ object Debug : IBase {
         try {
             MessageBuilder(event.client).apply {
                 withChannel(event.channel)
-                withCode("","No help text for debug.")
+                withCode("","Usage: debug [subcommand] [args...]\n" +
+                        "Debug: Enables debugging methods")
             }.build()
         } catch (e: DiscordException) {
             Log.minus(javaClass.name,
