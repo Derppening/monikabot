@@ -2,15 +2,17 @@ package core
 
 import core.Core.adminPrivateChannel
 import core.Core.privateKey
+import core.Core.serverDebugChannel
 import sx.blah.discord.api.ClientBuilder
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.DiscordException
+import kotlin.system.exitProcess
 
 /**
  * Singleton housing all persistent objects.
  */
-object Persistence {
+object Persistence : IConsoleLogger {
     /**
      * Core IDiscordClient object.
      */
@@ -28,7 +30,14 @@ object Persistence {
      * Debug channel.
      */
     val debugChannel: IChannel by lazy {
-        Client.getChannelByID(Core.debugChannel).apply { bulkDelete() }
-                ?: adminPrivateChannel
+        try {
+            serverDebugChannel.apply { this?.bulkDelete() }
+                    ?: adminPrivateChannel
+        } catch (e: Exception) {
+            logger.error("Cannot initialize debug channel")
+            e.printStackTrace()
+
+            exitProcess(0)
+        }
     }
 }

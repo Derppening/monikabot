@@ -12,12 +12,8 @@ import sx.blah.discord.util.MessageBuilder
 /**
  * Singleton handling "echo" commands.
  */
-object Echo : Base {
+object Echo : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        if (Core.isEventFromSu(event)) {
-            handlerSu(event)
-        }
-
         if (!Core.getArgumentList(event.message.content).isEmpty() &&
                 Core.getArgumentList(event.message.content)[0] == "--help") {
             help(event, false)

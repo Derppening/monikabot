@@ -12,9 +12,9 @@ import kotlin.system.exitProcess
 /**
  * Singleton handling "stop" command.
  */
-object Stop : Base {
+object Stop : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        throw Exception("Stop should not be allowed by non-admin")
+        return Parser.HandleState.PERMISSION_DENIED
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {

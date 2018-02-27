@@ -1,13 +1,12 @@
 package cmds
 
-import IConsoleLogger
 import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import core.Client
+import core.IConsoleLogger
 import core.Log
-import org.slf4j.LoggerFactory
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.MessageBuilder
@@ -22,7 +21,7 @@ import kotlin.system.measureTimeMillis
 /**
  * Singleton handling "warframe" commands
  */
-object Warframe : Base, IConsoleLogger {
+object Warframe : IBase, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split("\n")
 
@@ -116,11 +115,6 @@ object Warframe : Base, IConsoleLogger {
      * JSON parser.
      */
     private val gson = Gson()
-
-    /**
-     * Console logger.
-     */
-    override val logger = LoggerFactory.getLogger(this::class.java)!!
 
     /**
      * Singleton for storing world state JSON.

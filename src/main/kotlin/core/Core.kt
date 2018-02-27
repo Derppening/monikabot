@@ -3,7 +3,6 @@ package core
 import Parser
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
 import sx.blah.discord.handle.obj.IUser
@@ -24,19 +23,15 @@ object Core {
     private const val VERSION_PROP = "version.properties"
 
     /**
-     * @return Whether event is from superuser.
-     */
-    fun isEventFromSu(event: MessageEvent): Boolean {
-        return event.author == Client.fetchUser(botAdmin)
-    }
-
-    /**
      * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
      */
-    fun isSudoLocationValid(event: MessageReceivedEvent): Boolean {
-        return event.channel == Client.getChannelByID(debugChannel) ||
-                event.channel == adminPrivateChannel
-    }
+    fun isSudoLocationValid(event: MessageEvent) =
+            event.channel == serverDebugChannel || event.channel == adminPrivateChannel
+
+    /**
+     * @return Whether event is from superuser.
+     */
+    fun isEventFromSuperuser(event: MessageEvent) = event.author == Client.fetchUser(botAdminId)
 
     /**
      * @return List of arguments.
@@ -87,17 +82,13 @@ object Core {
     }
 
     /**
-     * ID of bot admin.
-     */
-    val botAdmin: Long = getProperties(SOURCE_PROP).getProperty("botAdmin").toLong()
-    /**
      * PM Channel of bot admin.
      */
-    val adminPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(botAdmin).orCreatePMChannel }
+    val adminPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(botAdminId).orCreatePMChannel }
     /**
      * Debug channel.
      */
-    val debugChannel = getProperties(SOURCE_PROP).getProperty("debugChannel").toLong()
+    val serverDebugChannel: IChannel? by lazy { Client.getChannelByID(serverDebugChannelId) }
     /**
      * Bot private key.
      */
@@ -106,4 +97,13 @@ object Core {
      * Version of the bot.
      */
     val monikaVersion = getProperties(VERSION_PROP).getProperty("version")!!
+
+    /**
+     * ID of bot admin.
+     */
+    private val botAdminId = getProperties(SOURCE_PROP).getProperty("botAdminId").toLong()
+    /**
+     * ID of Debug channel.
+     */
+    private val serverDebugChannelId = getProperties(SOURCE_PROP).getProperty("debugChannelId").toLong()
 }

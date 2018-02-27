@@ -10,9 +10,9 @@ import sx.blah.discord.util.MessageBuilder
 /**
  * Singleton handling "debug" commands.
  */
-object Debug : Base {
+object Debug : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        throw Exception("Debug should not be allowed by non-admin")
+        return Parser.HandleState.PERMISSION_DENIED
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -25,7 +25,10 @@ object Debug : Base {
                 if (args.size != 4) { return@run }
                 Log.modifyPersistent(args[1], args[2], args[3], true)
             }
-            else -> {}
+            else -> {
+                Log.minus(javaClass.name,
+                        "Unknown debug option \"${args[0]}\"", event.message, event.author, event.channel)
+            }
         }
 
         return Parser.HandleState.HANDLED

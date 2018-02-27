@@ -7,9 +7,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
-object Clear : Base {
+object Clear : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        throw Exception("Clear should not be allowed by non-admin")
+        return Parser.HandleState.PERMISSION_DENIED
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {

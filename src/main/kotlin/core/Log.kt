@@ -1,10 +1,8 @@
 package core
 
-import IConsoleLogger
 import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.Persistence.debugChannel
-import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
@@ -190,8 +188,6 @@ object Log : IConsoleLogger, IChannel by debugChannel {
             withCode("md", "Nothing to see here!")
         }.build().longID
     }
-
-    override val logger = LoggerFactory.getLogger(this::class.java)!!
 
     /**
      * Map of persistent information.

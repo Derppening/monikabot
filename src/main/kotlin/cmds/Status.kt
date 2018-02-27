@@ -13,9 +13,9 @@ import sx.blah.discord.util.MessageBuilder
 /**
  * Singleton handling "status" commands
  */
-object Status : Base {
+object Status : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        throw Exception("Status should not be allowed by non-admin")
+        return Parser.HandleState.PERMISSION_DENIED
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {

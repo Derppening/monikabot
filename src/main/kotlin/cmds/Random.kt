@@ -7,7 +7,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MessageBuilder
 
-object Random : Base {
+object Random : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ").toMutableList()
 

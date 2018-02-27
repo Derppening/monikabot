@@ -11,29 +11,29 @@ object Parser {
     enum class HandleState {
         HANDLED,
         UNHANDLED,
-        CONTINUE,
+        PERMISSION_DENIED,
         NOT_FOUND
     }
 
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (Core.isEventFromSu(event)) {
-            if (parseSudo(event) == HandleState.HANDLED) {
-                return
-            }
-        }
-
         if (!event.channel.isPrivate &&
                 !event.message.content.startsWith(Client.ourUser.mention(false))) {
-            return
+            if (!Core.isSudoLocationValid(event)) {
+                return
+            }
         }
 
         val cmd = getCommand(popLeadingMention(event.message.content))
 
         val retval = when (cmd) {
-            "echo" -> Echo.handler(event)
-            "random" -> Random.handler(event)
-            "warframe" -> Warframe.handler(event)
+            "clear" -> Clear.delegateCommand(event)
+            "debug" -> Debug.delegateCommand(event)
+            "echo" -> Echo.delegateCommand(event)
+            "random" -> Random.delegateCommand(event)
+            "status" -> Status.delegateCommand(event)
+            "stop" -> Stop.delegateCommand(event)
+            "warframe" -> Warframe.delegateCommand(event)
             else -> HandleState.NOT_FOUND
         }
 
@@ -53,19 +53,16 @@ object Parser {
                 Log.minus(javaClass.name,
                         "Command \"$cmd\" not found", event.message, event.author, event.channel)
             }
-            HandleState.CONTINUE -> throw Exception("Continue should not occur after command parsing")
-        }
-    }
-
-    private fun parseSudo(event: MessageReceivedEvent): HandleState {
-        val cmd = getCommand(popLeadingMention(event.message.content))
-
-        return when (cmd) {
-            "clear" -> Clear.handlerSu(event)
-            "debug" -> Debug.handlerSu(event)
-            "status" -> Status.handlerSu(event)
-            "stop" -> Stop.handlerSu(event)
-            else -> HandleState.NOT_FOUND
+            HandleState.PERMISSION_DENIED -> {
+                try {
+                    MessageBuilder(event.client).apply {
+                        withChannel(event.channel)
+                        withContent("You're not allow to do this! x(")
+                    }.build()
+                } catch (e: DiscordException) {}
+                Log.minus(javaClass.name,
+                        "\"$cmd\" was not invoked by superuser", event.message, event.author, event.channel)
+            }
         }
     }
 
