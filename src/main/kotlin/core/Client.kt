@@ -44,6 +44,15 @@ object Client : IDiscordClient by client {
     }
 
     /**
+     * Clears all timers from [timers].
+     */
+    fun clearTimers() {
+        timers.forEach {
+            it.cancel()
+        }
+    }
+
+    /**
      * Sets the bot's status and playing message.
      *
      * @param status Status of the bot.

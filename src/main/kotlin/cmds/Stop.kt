@@ -1,6 +1,7 @@
 package cmds
 
 import Parser
+import core.Client
 import core.Core
 import core.Log
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -28,6 +29,8 @@ object Stop : Base {
         }
 
         Log.minus(javaClass.name, "Logging out", null, event.author, event.channel)
+
+        Client.clearTimers()
 
         event.client.shards.forEach {
             Log.minus(javaClass.name, "Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
