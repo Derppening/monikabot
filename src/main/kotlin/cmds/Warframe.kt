@@ -48,6 +48,7 @@ object Warframe : Base, IConsoleLogger {
      * @return Parser.HandleState.HANDLED
      */
     private fun getNews(event: MessageReceivedEvent): Parser.HandleState {
+        // potentially long operation. toggle typing to show that the bot is loading.
         event.channel.toggleTypingStatus()
 
         var eventStr = ""
@@ -56,10 +57,10 @@ object Warframe : Base, IConsoleLogger {
             val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
 
             for (wfEvent in eventList) {
-                val e = wfEvent.asJsonObject
+                val eventJson = wfEvent.asJsonObject
                 val time = gson.fromJson(wfEvent.asJsonObject.get("Date").asJsonObject.get("\$date").asJsonObject.get("\$numberLong"), Long::class.java)
 
-                for (it in e.get("Messages").asJsonArray) {
+                for (it in eventJson.get("Messages").asJsonArray) {
                     if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
                         val rfctime = DateTimeFormatter.RFC_1123_DATE_TIME
                                 .withZone(ZoneId.of("UTC"))
@@ -79,7 +80,6 @@ object Warframe : Base, IConsoleLogger {
                 withCode("", eventStr.dropLastWhile { it == '\n' })
                 withChannel(event.channel)
             }.build()
-            logger.debug("getNews(): Message update complete.")
         }
 
         return Parser.HandleState.HANDLED
@@ -89,7 +89,7 @@ object Warframe : Base, IConsoleLogger {
      * Updates the world state json. Will be invoked periodically by updateWorldStateTask.
      */
     private fun updateWorldState() {
-        logger.info("updateWorldState()")
+        logger.debug("updateWorldState()")
 
         if (!Client.isReady) {
             return
