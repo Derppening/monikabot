@@ -6,6 +6,7 @@ import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.DiscordException
 import java.util.*
+import kotlin.concurrent.thread
 
 /**
  * A singleton IDiscordClient object.
@@ -27,6 +28,10 @@ object Client : IDiscordClient by client {
     @EventSubscriber
     fun onReadyListener(event: ReadyEvent) {
         try {
+            thread {
+                Log.modifyPersistent("Misc", "Version", Core.monikaVersion, true)
+            }
+
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 

@@ -28,12 +28,15 @@ object Stop : IBase {
             return Parser.HandleState.HANDLED
         }
 
-        Log.minus(javaClass.name, "Logging out", null, event.author, event.channel)
+        Log.minus(javaClass.name,
+                "Logging out with ${event.client.shardCount} shards active",
+                null,
+                event.author,
+                event.channel)
 
         Client.clearTimers()
 
         event.client.shards.forEach {
-            Log.minus(javaClass.name, "Logging out shard[${it.info[0]}] (Total: ${it.info[1]})")
             it.logout()
         }
         exitProcess(0)
