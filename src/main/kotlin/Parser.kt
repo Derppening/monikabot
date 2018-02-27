@@ -11,6 +11,7 @@ object Parser {
     enum class HandleState {
         HANDLED,
         UNHANDLED,
+        CONTINUE,
         NOT_FOUND
     }
 
@@ -52,6 +53,7 @@ object Parser {
                 Log.minus(javaClass.name,
                         "Command \"$cmd\" not found", event.message, event.author, event.channel)
             }
+            HandleState.CONTINUE -> throw Exception("Continue should not occur after command parsing")
         }
     }
 
