@@ -9,17 +9,19 @@ import sx.blah.discord.handle.obj.IPrivateChannel
 import sx.blah.discord.handle.obj.IUser
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.util.*
+import kotlin.system.exitProcess
 
 object Core {
     /**
-     * Path to properties file.
+     * Filename of source.properties.
      */
-    private const val PROP_PATH = "/home/david/server/monikabot/source.properties"
+    private const val SOURCE_PROP = "source.properties"
     /**
-     * Fallback path to properties file.
+     * Filename of version.properties.
      */
-    private const val PROP_FALLBACK = "/home/david/Dropbox/programming/Java_Kotlin/monikabot/source.properties"
+    private const val VERSION_PROP = "version.properties"
 
     /**
      * @return Whether event is from superuser.
@@ -64,28 +66,30 @@ object Core {
     }
 
     /**
-     * Gets the properties file.
+     * Loads a property object based on a file. Application will terminate if file cannot be found.
+     *
+     * @param filename Filename of properties file to load.
+     *
+     * @return Properties object of loaded file.
      */
-    private fun getProperties(): Properties {
-        if (File(PROP_PATH).exists()) {
+    private fun getProperties(filename: String): Properties {
+        try {
             return Properties().apply {
-                load(FileInputStream(PROP_PATH))
+                val relpath = "properties/$filename"
+                load(FileInputStream(File(Thread.currentThread().contextClassLoader.getResource(relpath).toURI())))
             }
-        }
+        } catch (ioException: FileNotFoundException) {
+            println("Cannot find properties file")
+            ioException.printStackTrace()
 
-        if (File(PROP_FALLBACK).exists())  {
-            return Properties().apply {
-                load(FileInputStream(PROP_FALLBACK))
-            }
+            exitProcess(0)
         }
-
-        throw Exception("Cannot find source.properties")
     }
 
     /**
      * ID of bot admin.
      */
-    val botAdmin: Long = getProperties().getProperty("botAdmin").toLong()
+    val botAdmin: Long = getProperties(SOURCE_PROP).getProperty("botAdmin").toLong()
     /**
      * PM Channel of bot admin.
      */
@@ -93,9 +97,13 @@ object Core {
     /**
      * Debug channel.
      */
-    val debugChannel = getProperties().getProperty("debugChannel").toLong()
+    val debugChannel = getProperties(SOURCE_PROP).getProperty("debugChannel").toLong()
     /**
      * Bot private key.
      */
-    val privateKey = getProperties().getProperty("privateKey")
+    val privateKey = getProperties(SOURCE_PROP).getProperty("privateKey")!!
+    /**
+     * Version of the bot.
+     */
+    val monikaVersion = getProperties(VERSION_PROP).getProperty("version")!!
 }
