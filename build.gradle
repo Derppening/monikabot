@@ -13,7 +13,7 @@ buildscript {
 }
 
 setGroup("hk.derppening.monikabot")
-setVersion("0.1.0-beta")
+setVersion("0.1.0-beta.1")
 
 apply plugin: 'application'
 apply plugin: 'java'
@@ -49,11 +49,25 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+def getWorkingBranch() {
+    def gitBranch = "Unknown branch"
+    try {
+        def workingDir = new File("${project.projectDir}")
+        def result = 'git rev-parse --abbrev-ref HEAD'.execute(null, workingDir)
+        result.waitFor()
+        if (result.exitValue() == 0) {
+            gitBranch = result.text.trim()
+        }
+    } catch (e) {}
+    return gitBranch
+}
+
 task createKtProperties() {
     doLast {
         new File("$projectDir/out/production/classes/properties/version.properties").withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
+            p['gitbranch'] = getWorkingBranch()
             p.store w, null
         }
     }
@@ -64,6 +78,7 @@ task createGradleProperties(dependsOn: processResources) {
         new File("$buildDir/resources/main/properties/version.properties").withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
+            p['gitbranch'] = getWorkingBranch()
             p.store w, null
         }
     }

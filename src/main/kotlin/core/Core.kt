@@ -96,7 +96,8 @@ object Core {
     /**
      * Version of the bot.
      */
-    val monikaVersion = getProperties(VERSION_PROP).getProperty("version")!!
+    val monikaVersion =
+            "${getProperties(VERSION_PROP).getProperty("version")!!}+${getProperties(VERSION_PROP).getProperty("gitbranch")!!}"
 
     /**
      * ID of bot admin.
