@@ -1,13 +1,15 @@
 package cmds
 
 import Parser
-import core.Log
+import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.buildMessage
+import core.IChannelLogger
+import core.PersistentMessage
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 
-object Clear : IBase {
+object Clear : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         return Parser.HandleState.PERMISSION_DENIED
     }
@@ -22,20 +24,18 @@ object Clear : IBase {
         val all = args.contains("all") || args.contains("--all")
 
         if (event.channel.isPrivate) {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withContent("I can't delete clear messages in private channels!")
-            }.build()
+            }
 
-            Log.minus(javaClass.name,
-                    "Cannot bulk delete messages",
-                    null,
-                    event.author,
-                    event.channel,
-                    "In a private channel")
+            log(IChannelLogger.LogLevel.ERROR, "Cannot bulk delete messages") {
+                author { event.author }
+                channel { event.channel }
+                info { "In a private channel" }
+            }
         } else {
             val messages = if (all) event.channel.fullMessageHistory else event.channel.messageHistory
-            event.channel.bulkDelete(messages.filterNot { it.longID == Log.persistentMessageId })
+            event.channel.bulkDelete(messages.filterNot { it.longID == PersistentMessage.messageId })
         }
 
         return Parser.HandleState.HANDLED
@@ -43,20 +43,21 @@ object Clear : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
-                withCode("", "Usage: clear [--all]\n" +
-                        "Clear: Clears a channel messages which are younger than 14 days.\n\n" +
-                        "--all: Retrieves all messages from the channel, not only ones which are locally cached.\n\n" +
-                        "This command does not work in private channels.")
-            }.build()
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `clear`")
+                withDesc("Clears all channel messages that are younger than 14 days.")
+                appendDesc("\nThis command does not work in private channels.")
+                appendField("Usage", "```clear [--all]```", false)
+                appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
+                        "are locally cached.", false)
+                withFooterText("Package: ${this@Clear.javaClass.name}")
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "Cannot display help text",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
             e.printStackTrace()
         }
     }

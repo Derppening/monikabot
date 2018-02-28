@@ -1,18 +1,18 @@
 package cmds
 
 import Parser
+import core.BuilderHelper.buildMessage
 import core.Client
 import core.Core
-import core.Log
+import core.IChannelLogger
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 import kotlin.system.exitProcess
 
 /**
  * Singleton handling "stop" command.
  */
-object Stop : IBase {
+object Stop : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         return Parser.HandleState.PERMISSION_DENIED
     }
@@ -28,11 +28,10 @@ object Stop : IBase {
             return Parser.HandleState.HANDLED
         }
 
-        Log.minus(javaClass.name,
-                "Logging out with ${event.client.shardCount} shards active",
-                null,
-                event.author,
-                event.channel)
+        log(IChannelLogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
+            author { event.author }
+            channel { event.channel}
+        }
 
         Client.clearTimers()
 
@@ -45,18 +44,16 @@ object Stop : IBase {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         if (isSu) {
             try {
-                MessageBuilder(event.client).apply {
-                    withChannel(event.channel)
+                buildMessage(event.channel) {
                     withCode("", "Usage: stop\n" +
                             "Stops the execution of the bot.")
-                }.build()
+                }
             } catch (e: DiscordException) {
-                Log.minus(javaClass.name,
-                        "Cannot display help text",
-                        null,
-                        event.author,
-                        event.channel,
-                        e.errorMessage)
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
                 e.printStackTrace()
             }
         }

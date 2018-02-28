@@ -11,7 +11,7 @@ import kotlin.concurrent.thread
 /**
  * A singleton IDiscordClient object.
  */
-object Client : IDiscordClient by client {
+object Client : IChannelLogger, IDiscordClient by client {
     /**
      * Enumeration for bot status.
      */
@@ -28,14 +28,16 @@ object Client : IDiscordClient by client {
     @EventSubscriber
     fun onReadyListener(event: ReadyEvent) {
         try {
-            thread {
-                Log.modifyPersistent("Misc", "Version", Core.monikaVersion, true)
-            }
-
             event.client.changeUsername(defaultUserName)
             setStatus(defaultState, defaultStatus)
 
-            Log.plus(javaClass.name, "Ready", info = "Initialization complete with $shardCount shard(s)")
+            thread {
+                PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
+            }
+
+            log(IChannelLogger.LogLevel.INFO, "Ready") {
+                info { "Initialization complete with $shardCount shard(s)" }
+            }
         } catch (e: DiscordException) {
             e.printStackTrace()
         }

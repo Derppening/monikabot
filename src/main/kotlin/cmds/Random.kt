@@ -1,11 +1,11 @@
 package cmds
 
 import Parser
-import core.Log
+import core.BuilderHelper.buildMessage
+import core.IChannelLogger
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 
 object Random : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -27,10 +27,9 @@ object Random : IBase {
         args.remove("to")
 
         if (args.size != 2) {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withContent("Give me ${if (args.size > 2) "only " else ""}the minimum and maximum number!! >_>")
-            }.build()
+            }
 
             return Parser.HandleState.HANDLED
         }
@@ -43,16 +42,14 @@ object Random : IBase {
 
             if (min >= max) throw Exception("Minimum number is bigger than the maximum!")
         } catch (e: Exception) {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withContent("${e.message} >_>")
-            }.build()
+            }
 
             return Parser.HandleState.HANDLED
         }
 
-        MessageBuilder(event.client).apply {
-            withChannel(event.channel)
+        buildMessage(event.channel) {
             if (isReal) {
                 val n = generateReal(min, max)
                 withContent("You got $n!")
@@ -60,7 +57,7 @@ object Random : IBase {
                 val n = generateInt(min.toInt(), (max + 1).toInt())
                 withContent("You got a $n!")
             }
-        }.build()
+        }
 
         return Parser.HandleState.HANDLED
     }
@@ -71,38 +68,32 @@ object Random : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withCode("", "Usage: random [min] [max]\n" +
                         "       random [coin|dice]" +
                         "Random: Randomizes a number, with range of [min] to [max] (inclusive).\n\n" +
                         "Using \"coin\"/\"dice\" as the argument does what you expect it to do.")
-            }.build()
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "Cannot display help text",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
             e.printStackTrace()
         }
     }
 
     private fun rollDie(event: MessageReceivedEvent) {
-        MessageBuilder(event.client).apply {
-            withChannel(event.channel)
-            val n = generateInt(1, 7)
-            withContent("You got a $n!")
-        }.build()
+        buildMessage(event.channel) {
+            withContent("You got a ${generateInt(1, 7)}!")
+        }
     }
 
     private fun flipCoin(event: MessageReceivedEvent) {
-        MessageBuilder(event.client).apply {
-            withChannel(event.channel)
-            val n = generateInt(0, 2)
-            withContent("You got ${if (n == 0) "tails" else "heads"}!")
-        }.build()
+        buildMessage(event.channel) {
+            withContent("You got ${if (generateInt(0, 2) == 0) "tails" else "heads"}!")
+        }
     }
 
     private fun generateInt(min: Int, max: Int): Int = java.util.Random().nextInt(max - min) + min

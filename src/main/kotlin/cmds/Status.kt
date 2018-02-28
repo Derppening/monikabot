@@ -1,14 +1,14 @@
 package cmds
 
 import Parser
+import core.BuilderHelper.buildMessage
 import core.Client
 import core.Core
-import core.Log
+import core.IChannelLogger
 import popFirstWord
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 
 /**
  * Singleton handling "status" commands
@@ -59,14 +59,13 @@ object Status : IBase {
 
         try {
             Client.setStatus(status, message)
-            Log.plus(javaClass.name, "Successfully updated")
+            log(IChannelLogger.LogLevel.INFO, "Successfully updated")
         } catch (e: Exception) {
-            Log.minus(javaClass.name,
-                    "Cannot set status",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.message ?: "Unknown Exception")
+            log(IChannelLogger.LogLevel.ERROR, "Cannot set status") {
+                author { event.author }
+                channel { event.channel }
+                info { e.message ?: "Unknown Exception" }
+            }
             e.printStackTrace()
         }
 
@@ -75,19 +74,17 @@ object Status : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withCode("", "Usage: status [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n" +
                         "Sets the status and playing text of the bot.\n\n" +
                         "If PLAYINGTEXT is not specified, none will be set.")
-            }.build()
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "Unable to display help text",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
+            log(IChannelLogger.LogLevel.ERROR, "Unable to display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
             e.printStackTrace()
         }
     }

@@ -1,16 +1,22 @@
 package cmds
 
 import Parser
+import core.BuilderHelper.buildEmbed
 import core.Core
-import core.Log
+import core.Core.getChannelName
+import core.Core.getDiscordTag
+import core.IChannelLogger
+import core.PersistentMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
+import java.awt.Color
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 /**
  * Singleton handling "debug" commands.
  */
-object Debug : IBase {
+object Debug : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         return Parser.HandleState.PERMISSION_DENIED
     }
@@ -21,13 +27,50 @@ object Debug : IBase {
         assert(args.size > 1)
 
         when (args[0]) {
+            "buildEmbed" -> run {
+                buildEmbed(event.channel) {
+                    withTitle("Title")
+                    withDesc("Description")
+                    withAuthorName("Author Name")
+                    withColor(Color.RED)
+                    withTimestamp(LocalDateTime.now(ZoneId.of("UTC")))
+                    appendField("Field Key", "Field Content", false)
+                    withFooterText("Footer Text")
+                }
+            }
+            "log" -> run {
+                buildEmbed(event.channel) {
+                    withColor(Color.RED)
+                    withTitle("Error")
+                    withDesc("Cannot display help text")
+                    appendField("Caused by", "`${event.message.content}`", false)
+                    appendField("From", getDiscordTag(event.author), false)
+                    appendField("In", getChannelName(event.channel), false)
+                    appendField("Additional Info", ":(", false)
+                    withFooterText("Package: ${this@Debug::class.java.name}")
+                }
+            }
             "persist" -> run {
+                if (args.size == 2 && args[1].matches("-{0,2}help".toRegex())) {
+                    buildEmbed(event.channel) {
+                        withTitle("Help Text for `debug-persist`")
+                        withDesc("Directly modifies persistence text.")
+                        appendField("Usage", "```debug persist [header] [key] [value]```", false)
+                        appendField("`[header]`", "Header to put the key/value pair", false)
+                        appendField("`[key]`", "Name of the value", false)
+                        appendField("`[value]`", "Value", false)
+                        withFooterText("Package: ${this@Debug.javaClass.name}")
+                    }
+                }
                 if (args.size != 4) { return@run }
-                Log.modifyPersistent(args[1], args[2], args[3], true)
+                PersistentMessage.modify(args[1], args[2], args[3], true)
             }
             else -> {
-                Log.minus(javaClass.name,
-                        "Unknown debug option \"${args[0]}\"", event.message, event.author, event.channel)
+                log(IChannelLogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
+                    message { event.message }
+                    author { event.author }
+                    channel { event.channel }
+                }
             }
         }
 
@@ -36,18 +79,17 @@ object Debug : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
-                withCode("","Usage: debug [subcommand] [args...]\n" +
-                        "Debug: Enables debugging methods")
-            }.build()
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `debug`")
+                withDesc("Enables superuser debugging methods.")
+                withFooterText("Package: ${this@Debug.javaClass.name}")
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "Cannot display help text",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
             e.printStackTrace()
         }
     }

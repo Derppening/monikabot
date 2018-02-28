@@ -4,13 +4,14 @@ import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import core.BuilderHelper.buildMessage
 import core.Client
+import core.IChannelLogger
 import core.IConsoleLogger
-import core.Log
+import core.PersistentMessage
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 import java.net.URL
 import java.time.Instant
 import java.time.ZoneId
@@ -22,7 +23,7 @@ import kotlin.system.measureTimeMillis
 /**
  * Singleton handling "warframe" commands
  */
-object Warframe : IBase, IConsoleLogger {
+object Warframe : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split("\n")
 
@@ -38,21 +39,18 @@ object Warframe : IBase, IConsoleLogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withCode("", "Usage: warframe [subcommand] [args...]\n" +
                         "Warframe: Wrapper for Warframe-related commands.\n\n" +
                         "Currently supported subcommands are:\n" +
                         "\tnews: Displays the latest Warframe news (same as the news segment in the orbiter)")
-            }.build()
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "Cannot display help text",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
-            e.printStackTrace()
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
         }
     }
 
@@ -92,10 +90,9 @@ object Warframe : IBase, IConsoleLogger {
         logger.debug("getNews(): JSON parsing took ${timer}ms.")
 
         thread {
-            MessageBuilder(event.client).apply {
+            buildMessage(event.channel) {
                 withCode("", eventStr.dropLastWhile { it == '\n' })
-                withChannel(event.channel)
-            }.build()
+            }
         }
 
         return Parser.HandleState.HANDLED
@@ -120,7 +117,7 @@ object Warframe : IBase, IConsoleLogger {
         }
         WorldState.lastModified = Instant.ofEpochSecond(time)
 
-        Log.modifyPersistent("Warframe", "WorldState Last Modified", WorldState.lastModified.toString(), true)
+        PersistentMessage.modify("Warframe", "WorldState Last Modified", WorldState.lastModified.toString(), true)
     }
 
     /**
@@ -145,7 +142,7 @@ object Warframe : IBase, IConsoleLogger {
         /**
          * When the JSON is last modified server-side.
          */
-        var lastModified = Instant.EPOCH
+        var lastModified = Instant.EPOCH!!
         /**
          * JSON string.
          */

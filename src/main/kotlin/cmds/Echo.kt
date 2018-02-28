@@ -1,18 +1,18 @@
 package cmds
 
 import Parser
+import core.BuilderHelper.buildMessage
 import core.Core
-import core.Log
+import core.IChannelLogger
 import popFirstWord
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MessageBuilder
 
 /**
  * Singleton handling "echo" commands.
  */
-object Echo : IBase {
+object Echo : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.getArgumentList(event.message.content).isEmpty() &&
                 Core.getArgumentList(event.message.content)[0] == "--help") {
@@ -27,28 +27,26 @@ object Echo : IBase {
             try {
                 event.message.delete()
             } catch (e: DiscordException) {
-                Log.minus(javaClass.name,
-                        "Cannot delete \"$message\"",
-                        null,
-                        event.author,
-                        event.channel,
-                        e.errorMessage)
+                log(IChannelLogger.LogLevel.ERROR, "Cannot delete \"$message\"") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
                 e.printStackTrace()
             }
         }
 
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(channel)
+            buildMessage(channel) {
                 withContent(message.removeQuotes())
-            }.build()
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "\"$message\" not handled",
-                    event.message,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
+            log(IChannelLogger.LogLevel.ERROR,"\"$message\" not handled") {
+                message { event.message }
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
             e.printStackTrace()
         }
 
@@ -61,18 +59,16 @@ object Echo : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            MessageBuilder(event.client).apply {
-                withChannel(event.channel)
+            buildMessage(event.channel) {
                 withCode("","Usage: echo [string]\n" +
                         "Echo: Repeats a string.")
-            }.build()
+            }
         } catch (e: DiscordException) {
-            Log.minus(javaClass.name,
-                    "Cannot display help text",
-                    null,
-                    event.author,
-                    event.channel,
-                    e.errorMessage)
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
             e.printStackTrace()
         }
     }
