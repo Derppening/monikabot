@@ -14,9 +14,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import java.net.URL
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
@@ -28,7 +28,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split("\n")
 
         return when (args[0]) {
-            "news" -> getNews(event)
+            "news" -> getAllNews(event)
             else -> Parser.HandleState.UNHANDLED
         }
     }
@@ -63,38 +63,39 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
      *
      * @return Parser.HandleState.HANDLED
      */
-    private fun getNews(event: MessageReceivedEvent): Parser.HandleState {
+    private fun getAllNews(event: MessageReceivedEvent): Parser.HandleState {
+        // TODO(Derppening): Split this into two functions: One for all news, one for
+
         // potentially long operation. toggle typing to show that the bot is loading.
         event.channel.toggleTypingStatus()
 
-        var eventStr = ""
-        val timer = measureTimeMillis {
-            val events = JsonParser().parse(WorldState.json).asJsonObject.get("Events")
-            val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
+        buildEmbed(event.channel) {
+            withTitle("Warframe News")
 
-            for (wfEvent in eventList) {
-                val eventJson = wfEvent.asJsonObject
-                val time = gson.fromJson(wfEvent.asJsonObject.get("Date").asJsonObject.get("\$date").asJsonObject.get("\$numberLong"), Long::class.java)
+            val timer = measureTimeMillis {
+                val events = JsonParser().parse(WorldState.json).asJsonObject.get("Events")
+                val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
 
-                for (it in eventJson.get("Messages").asJsonArray) {
-                    if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
-                        val rfctime = DateTimeFormatter.RFC_1123_DATE_TIME
-                                .withZone(ZoneId.of("UTC"))
-                                .format(Instant.ofEpochMilli(time))
+                for (wfEvent in eventList) {
+                    val eventJson = wfEvent.asJsonObject
+                    val time = gson.fromJson(wfEvent.asJsonObject.get("Date").asJsonObject.get("\$date").asJsonObject.get("\$numberLong"), Long::class.java)
 
-                        eventStr += "$rfctime - ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}\n"
-                        break
+                    for (it in eventJson.get("Messages").asJsonArray) {
+                        if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
+                            val rfctime = DateTimeFormatter.RFC_1123_DATE_TIME
+                                    .withZone(ZoneId.of("UTC"))
+                                    .format(Instant.ofEpochMilli(time))
+
+                            appendField(gson.fromJson(it.asJsonObject.get("Message"), String::class.java), rfctime, false)
+                            break
+                        }
                     }
                 }
             }
-        }
 
-        logger.debug("getNews(): JSON parsing took ${timer}ms.")
+            logger.debug("getAllNews(): JSON parsing took ${timer}ms.")
 
-        thread {
-            buildMessage(event.channel) {
-                withCode("", eventStr.dropLastWhile { it == '\n' })
-            }
+            withTimestamp(LocalDateTime.ofInstant(WorldState.lastModified, ZoneId.of("UTC")))
         }
 
         return Parser.HandleState.HANDLED
