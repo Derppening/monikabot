@@ -29,9 +29,9 @@ object Core {
             event.channel == serverDebugChannel || event.channel == adminPrivateChannel
 
     /**
-     * @return Whether event is from superuser.
+     * @return Whether event is from a superuser.
      */
-    fun isEventFromSuperuser(event: MessageEvent) = event.author == Client.fetchUser(botAdminId)
+    fun isEventFromSuperuser(event: MessageEvent) = suIds.any { it == event.author.longID }
 
     /**
      * @return List of arguments.
@@ -102,7 +102,15 @@ object Core {
     /**
      * ID of bot admin.
      */
-    private val botAdminId = getProperties(SOURCE_PROP).getProperty("botAdminId").toLong()
+    private val botAdminId = getProperties(SOURCE_PROP).getProperty("adminId").toLong()
+    /**
+     * IDs for bot superusers.
+     */
+    private val suIds = getProperties(SOURCE_PROP)
+            .getProperty("suId")
+            .split(',')
+            .map { it.toLong() }
+            .union(listOf(botAdminId))
     /**
      * ID of Debug channel.
      */
