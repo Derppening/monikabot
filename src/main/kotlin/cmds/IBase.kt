@@ -1,7 +1,7 @@
 package cmds
 
 import Parser
-import core.BuilderHelper.buildMessage
+import core.BuilderHelper.buildEmbed
 import core.Core
 import core.IChannelLogger
 import popFirstWord
@@ -39,8 +39,10 @@ interface IBase : IChannelLogger {
      */
     fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            buildMessage(event.channel) {
-                withCode("", "No help text is available for this command.")
+            buildEmbed(event.channel) {
+                withTitle("Help Text")
+                withDesc("No help text is available for this command.")
+                withFooterText("Package: ${this@IBase.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

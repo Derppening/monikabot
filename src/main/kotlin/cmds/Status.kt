@@ -1,7 +1,7 @@
 package cmds
 
 import Parser
-import core.BuilderHelper.buildMessage
+import core.BuilderHelper.buildEmbed
 import core.Client
 import core.Core
 import core.IChannelLogger
@@ -74,10 +74,17 @@ object Status : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            buildMessage(event.channel) {
-                withCode("", "Usage: status [--online|--idle|--dnd|--offline|--reset] [PLAYINGTEXT]\n" +
-                        "Sets the status and playing text of the bot.\n\n" +
-                        "If PLAYINGTEXT is not specified, none will be set.")
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `status`")
+                withDesc("Sets the status and playing text of the bot.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```status [--online|--idle|--dnd|--offline] [TEXT]```", false)
+                appendField("`--online|--idle|--dnd|--offline`", "New status of the bot", false)
+                appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```status [--reset]```", false)
+                appendField("`--reset`", "Resets the status to the default.", false)
+                withFooterText("Packages: ${this@Status.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Unable to display help text") {

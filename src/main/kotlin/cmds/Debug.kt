@@ -43,6 +43,7 @@ object Debug : IBase, IChannelLogger {
                     withColor(Color.RED)
                     withTitle("Error")
                     withDesc("Cannot display help text")
+                    appendField("\u200B", "\u200B", false)
                     appendField("Caused by", "`${event.message.content}`", false)
                     appendField("From", getDiscordTag(event.author), false)
                     appendField("In", getChannelName(event.channel), false)
@@ -55,6 +56,7 @@ object Debug : IBase, IChannelLogger {
                     buildEmbed(event.channel) {
                         withTitle("Help Text for `debug-persist`")
                         withDesc("Directly modifies persistence text.")
+                        appendField("\u200B", "\u200B", false)
                         appendField("Usage", "```debug persist [header] [key] [value]```", false)
                         appendField("`[header]`", "Header to put the key/value pair", false)
                         appendField("`[key]`", "Name of the value", false)

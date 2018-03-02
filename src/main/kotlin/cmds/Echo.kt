@@ -1,6 +1,7 @@
 package cmds
 
 import Parser
+import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.Core
 import core.IChannelLogger
@@ -41,7 +42,7 @@ object Echo : IBase, IChannelLogger {
                 withContent(message.removeQuotes())
             }
         } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR,"\"$message\" not handled") {
+            log(IChannelLogger.LogLevel.ERROR, "\"$message\" not handled") {
                 message { event.message }
                 author { event.author }
                 channel { event.channel }
@@ -59,9 +60,13 @@ object Echo : IBase, IChannelLogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            buildMessage(event.channel) {
-                withCode("","Usage: echo [string]\n" +
-                        "Echo: Repeats a string.")
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `echo`")
+                withDesc("Echo: Repeats a string, and erases it from the current channel.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```echo [string]```", false)
+                appendField("`[string]`", "String to repeat.", false)
+                withFooterText("Package: ${this@Echo.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

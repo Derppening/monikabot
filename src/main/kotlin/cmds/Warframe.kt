@@ -4,7 +4,7 @@ import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
-import core.BuilderHelper.buildMessage
+import core.BuilderHelper.buildEmbed
 import core.Client
 import core.IChannelLogger
 import core.IConsoleLogger
@@ -39,11 +39,13 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            buildMessage(event.channel) {
-                withCode("", "Usage: warframe [subcommand] [args...]\n" +
-                        "Warframe: Wrapper for Warframe-related commands.\n\n" +
-                        "Currently supported subcommands are:\n" +
-                        "\tnews: Displays the latest Warframe news (same as the news segment in the orbiter)")
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `warframe`")
+                withDesc("Wrapper for Warframe-related commands.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```warframe [subcommand] [args]```", false)
+                appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
+                withFooterText("Package: ${this@Warframe.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

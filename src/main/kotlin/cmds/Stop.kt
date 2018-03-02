@@ -1,7 +1,7 @@
 package cmds
 
 import Parser
-import core.BuilderHelper.buildMessage
+import core.BuilderHelper.buildEmbed
 import core.Client
 import core.Core
 import core.IChannelLogger
@@ -44,9 +44,12 @@ object Stop : IBase, IChannelLogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         if (isSu) {
             try {
-                buildMessage(event.channel) {
-                    withCode("", "Usage: stop\n" +
-                            "Stops the execution of the bot.")
+                buildEmbed(event.channel) {
+                    withTitle("Help Text for `stop`")
+                    withDesc("Stops the execution of the bot.")
+                    appendField("\u200B", "\u200B", false)
+                    appendField("Usage", "```stop```", false)
+                    withFooterText("Package: ${this@Stop.javaClass.name}")
                 }
             } catch (e: DiscordException) {
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

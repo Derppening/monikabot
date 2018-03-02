@@ -1,6 +1,7 @@
 package cmds
 
 import Parser
+import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import popFirstWord
@@ -68,11 +69,16 @@ object Random : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
-            buildMessage(event.channel) {
-                withCode("", "Usage: random [min] [max]\n" +
-                        "       random [coin|dice]" +
-                        "Random: Randomizes a number, with range of [min] to [max] (inclusive).\n\n" +
-                        "Using \"coin\"/\"dice\" as the argument does what you expect it to do.")
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `random`")
+                withDesc("Randomly generates numbers. Also works for dices and coins.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```random [min] [max]```", false)
+                appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```random [coin|dice]```", false)
+                appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
+                withFooterText("Package: ${this@Random.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
