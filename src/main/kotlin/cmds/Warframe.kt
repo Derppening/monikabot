@@ -13,10 +13,10 @@ import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.net.URL
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
@@ -25,7 +25,7 @@ import kotlin.system.measureTimeMillis
  */
 object Warframe : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Parser.popLeadingMention(event.message.content).popFirstWord().split("\n")
+        val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ")
 
         return when (args[0]) {
             "news" -> getAllNews(event)
@@ -64,6 +64,19 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
      * @return Parser.HandleState.HANDLED
      */
     private fun getAllNews(event: MessageReceivedEvent): Parser.HandleState {
+        val args = Parser.popLeadingMention(event.message.content).split(" ").drop(2)
+        if (args.isNotEmpty() && args[0].matches("-{0,2}help".toRegex())) {
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `warframe-news`")
+                withDesc("Displays the latest Warframe news.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```warframe news```", false)
+                withFooterText("Package: ${this@Warframe.javaClass.name}")
+            }
+
+            return Parser.HandleState.HANDLED
+        }
+
         // TODO(Derppening): Split this into two functions: One for all news, one for
 
         // potentially long operation. toggle typing to show that the bot is loading.
@@ -82,11 +95,15 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
 
                     for (it in eventJson.get("Messages").asJsonArray) {
                         if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
-                            val rfctime = DateTimeFormatter.RFC_1123_DATE_TIME
-                                    .withZone(ZoneId.of("UTC"))
-                                    .format(Instant.ofEpochMilli(time))
+                            val diff = Duration.between(Instant.ofEpochMilli(time), Instant.now())
+                            val diffString = when {
+                                diff.toDays() > 0 -> "${diff.toDays()}d"
+                                diff.toHours() > 0 -> "${diff.toHours()}h"
+                                diff.toMinutes() > 0 -> "${diff.toMinutes()}m"
+                                else -> "${diff.seconds}s"
+                            }
 
-                            appendField(gson.fromJson(it.asJsonObject.get("Message"), String::class.java), rfctime, false)
+                            appendDesc("\n[$diffString] ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}")
                             break
                         }
                     }
