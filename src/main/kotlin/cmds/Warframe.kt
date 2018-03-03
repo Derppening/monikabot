@@ -1,14 +1,10 @@
 package cmds
 
-import Parser
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import core.*
 import core.BuilderHelper.buildEmbed
-import core.Client
-import core.IChannelLogger
-import core.IConsoleLogger
-import core.PersistentMessage
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -61,7 +57,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
      *
      * @param event Event which invoked this function.
      *
-     * @return Parser.HandleState.HANDLED
+     * @return core.Parser.HandleState.HANDLED
      */
     private fun getAllNews(event: MessageReceivedEvent): Parser.HandleState {
         val args = Parser.popLeadingMention(event.message.content).split(" ").drop(2)

@@ -1,5 +1,6 @@
 import cmds.Warframe
 import core.Client
+import core.Parser
 
 fun setupDispatchers() {
     // core

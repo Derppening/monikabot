@@ -1,8 +1,8 @@
+package core
+
 import cmds.*
 import core.BuilderHelper.buildMessage
-import core.Client
-import core.Core
-import core.IChannelLogger
+import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException

@@ -1,10 +1,10 @@
 package cmds
 
-import Parser
 import core.BuilderHelper.buildEmbed
 import core.Client
 import core.Core
 import core.IChannelLogger
+import core.Parser
 import popFirstWord
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent

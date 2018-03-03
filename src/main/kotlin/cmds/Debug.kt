@@ -1,11 +1,11 @@
 package cmds
 
-import Parser
 import core.BuilderHelper.buildEmbed
 import core.Core
 import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.IChannelLogger
+import core.Parser
 import core.PersistentMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException

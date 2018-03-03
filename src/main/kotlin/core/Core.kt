@@ -1,6 +1,5 @@
 package core
 
-import Parser
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 import sx.blah.discord.handle.obj.IChannel

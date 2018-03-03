@@ -1,9 +1,9 @@
 package cmds
 
-import Parser
 import core.BuilderHelper.buildEmbed
 import core.Core
 import core.IChannelLogger
+import core.Parser
 import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
