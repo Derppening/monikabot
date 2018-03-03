@@ -30,6 +30,7 @@ object Parser : IChannelLogger {
             "clear" -> Clear.delegateCommand(event)
             "debug" -> Debug.delegateCommand(event)
             "echo" -> Echo.delegateCommand(event)
+            "help" -> Help.delegateCommand(event)
             "random" -> Random.delegateCommand(event)
             "status" -> Status.delegateCommand(event)
             "stop" -> Stop.delegateCommand(event)
