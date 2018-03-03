@@ -32,6 +32,7 @@ object Parser : IChannelLogger {
             "echo" -> Echo.delegateCommand(event)
             "help" -> Help.delegateCommand(event)
             "random" -> Random.delegateCommand(event)
+            "rng" -> RNG.delegateCommand(event)
             "status" -> Status.delegateCommand(event)
             "stop" -> Stop.delegateCommand(event)
             "warframe" -> Warframe.delegateCommand(event)

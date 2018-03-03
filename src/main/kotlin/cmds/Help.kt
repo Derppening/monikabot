@@ -25,6 +25,7 @@ object Help : IBase {
         return embed.apply {
             appendField("`echo`", "Repeats a string.", false)
             appendField("`random`", "Randomly generates numbers.", false)
+            appendField("`rng`", "Computes statistics for drop tables.", false)
             appendField("`warframe`", "Warframe-related commands.", false)
         }
     }
