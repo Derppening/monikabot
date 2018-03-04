@@ -2,7 +2,6 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
@@ -16,10 +15,6 @@ object Clear : IBase, IChannelLogger {
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        if (!Core.isEventFromOwner(event)) {
-            return Parser.HandleState.PERMISSION_DENIED
-        }
-
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ").toMutableList()
 
         if (args[0].matches("-{0,2}help".toRegex())) {
