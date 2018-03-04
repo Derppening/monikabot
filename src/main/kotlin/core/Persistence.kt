@@ -1,6 +1,6 @@
 package core
 
-import core.Core.adminPrivateChannel
+import core.Core.ownerPrivateChannel
 import core.Core.privateKey
 import core.Core.serverDebugChannel
 import sx.blah.discord.api.ClientBuilder
@@ -32,7 +32,7 @@ object Persistence : IConsoleLogger {
     val debugChannel: IChannel by lazy {
         try {
             serverDebugChannel.apply { this?.bulkDelete() }
-                    ?: adminPrivateChannel
+                    ?: ownerPrivateChannel
         } catch (e: Exception) {
             logger.error("Cannot initialize debug channel")
             e.printStackTrace()

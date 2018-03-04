@@ -18,7 +18,9 @@ object Stop : IBase, IChannelLogger {
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        if (!Core.isSudoLocationValid(event)) {
+        if (!Core.isEventFromOwner(event)) {
+            return Parser.HandleState.PERMISSION_DENIED
+        } else if (!Core.isOwnerLocationValid(event)) {
             return Parser.HandleState.UNHANDLED
         }
 

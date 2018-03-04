@@ -19,7 +19,7 @@ object Parser : IChannelLogger {
     fun onReceiveMessage(event: MessageReceivedEvent) {
         if (!event.channel.isPrivate &&
                 !event.message.content.startsWith(Client.ourUser.mention(false))) {
-            if (!Core.isSudoLocationValid(event)) {
+            if (!Core.isOwnerLocationValid(event)) {
                 return
             }
         }

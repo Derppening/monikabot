@@ -24,9 +24,13 @@ object Core {
     /**
      * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
      */
-    fun isSudoLocationValid(event: MessageEvent) =
-            event.channel == serverDebugChannel || event.channel == adminPrivateChannel
-
+    fun isOwnerLocationValid(event: MessageEvent) =
+            event.channel == serverDebugChannel || event.channel == ownerPrivateChannel
+    /**
+     * @return Whether event is from the bot owner.
+     */
+    fun isEventFromOwner(event: MessageEvent) =
+            event.author.longID == ownerId
     /**
      * @return Whether event is from a superuser.
      */
@@ -83,7 +87,7 @@ object Core {
     /**
      * PM Channel of bot admin.
      */
-    val adminPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(botAdminId).orCreatePMChannel }
+    val ownerPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(ownerId).orCreatePMChannel }
     /**
      * Debug channel.
      */
@@ -101,7 +105,7 @@ object Core {
     /**
      * ID of bot admin.
      */
-    private val botAdminId = getProperties(SOURCE_PROP).getProperty("adminId").toLong()
+    private val ownerId = getProperties(SOURCE_PROP).getProperty("adminId").toLong()
     /**
      * IDs for bot superusers.
      */
@@ -109,7 +113,7 @@ object Core {
             .getProperty("suId")
             .split(',')
             .map { it.toLong() }
-            .union(listOf(botAdminId))
+            .union(listOf(ownerId))
     /**
      * ID of Debug channel.
      */

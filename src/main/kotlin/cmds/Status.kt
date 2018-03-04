@@ -19,7 +19,9 @@ object Status : IBase {
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        if (!Core.isSudoLocationValid(event)) {
+        if (!Core.isOwnerLocationValid(event)) {
+            return Parser.HandleState.UNHANDLED
+        } else if (!Core.isOwnerLocationValid(event)) {
             return Parser.HandleState.UNHANDLED
         }
 
