@@ -5,7 +5,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import core.*
 import core.BuilderHelper.buildEmbed
-import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.net.URL
@@ -21,7 +20,7 @@ import kotlin.system.measureTimeMillis
  */
 object Warframe : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ")
+        val args = Core.getArgumentList(event.message.content)
 
         if (args.isEmpty()) {
             return Parser.HandleState.NOT_FOUND
@@ -67,7 +66,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
      * @return core.Parser.HandleState.HANDLED
      */
     private fun getAllNews(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Parser.popLeadingMention(event.message.content).split(" ").drop(2)
+        val args = Core.getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args[0].matches("-{0,2}help".toRegex())) {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `warframe-news`")

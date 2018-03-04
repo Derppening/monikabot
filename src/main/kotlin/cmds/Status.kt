@@ -5,7 +5,6 @@ import core.Client
 import core.Core
 import core.IChannelLogger
 import core.Parser
-import popFirstWord
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -19,45 +18,39 @@ object Status : IBase {
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        if (!Core.isOwnerLocationValid(event)) {
-            return Parser.HandleState.UNHANDLED
+        if (!Core.isEventFromOwner(event)) {
+            return Parser.HandleState.PERMISSION_DENIED
         } else if (!Core.isOwnerLocationValid(event)) {
             return Parser.HandleState.UNHANDLED
         }
 
-        if (!Core.getArgumentList(event.message.content).isEmpty() &&
-                Core.getArgumentList(event.message.content)[0] == "--help") {
-            help(event, true)
-            return Parser.HandleState.HANDLED
-        }
+        val args = Core.getArgumentList(event.message.content).toMutableList()
 
-        val list = event.message.content.popFirstWord().split(' ').toMutableList()
-
-        val status = when (list[0]) {
+        val status = when (args[0]) {
             "--reset" -> {
                 Client.resetStatus()
                 return Parser.HandleState.HANDLED
             }
             "--idle" -> {
-                list.removeAt(0)
+                args.removeAt(0)
                 Client.Status.IDLE
             }
             "--dnd", "--busy" -> {
-                list.removeAt(0)
+                args.removeAt(0)
                 Client.Status.BUSY
             }
             "--offline", "--invisible" -> {
-                list.removeAt(0)
+                args.removeAt(0)
                 Client.Status.OFFLINE
             }
             "--online" -> {
-                list.removeAt(0)
+                args.removeAt(0)
                 Client.Status.ONLINE
             }
             else -> Client.Status.ONLINE
         }
 
-        val message = list.joinToString(" ").removeQuotes()
+        val message = args.joinToString(" ").removeQuotes()
 
         try {
             Client.setStatus(status, message)

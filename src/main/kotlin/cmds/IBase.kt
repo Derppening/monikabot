@@ -79,6 +79,6 @@ interface IBase : IChannelLogger {
         return Parser.popLeadingMention(arg0)
                 .popFirstWord()
                 .split(" ").also { if (it.isEmpty()) return false }[0]
-                .matches("-{0,2}help".toRegex())
+                .matches(Regex("-{0,2}help"))
     }
 }

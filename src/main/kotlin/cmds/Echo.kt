@@ -15,10 +15,10 @@ import sx.blah.discord.util.DiscordException
  */
 object Echo : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        if (!Core.getArgumentList(event.message.content).isEmpty() &&
-                Core.getArgumentList(event.message.content)[0] == "--help") {
+        val args = Core.getArgumentList(event.message.content)
+        if (args.isEmpty()) {
             help(event, false)
-            return Parser.HandleState.UNHANDLED
+            return Parser.HandleState.HANDLED
         }
 
         val channel = event.channel

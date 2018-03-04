@@ -24,10 +24,13 @@ object Debug : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = Core.getArgumentList(event.message.content)
 
-        assert(args.size > 1)
+        if (args.isEmpty()) {
+            help(event, true)
+            return Parser.HandleState.HANDLED
+        }
 
-        when (args[0]) {
-            "buildEmbed" -> run {
+        when (args[0].toLowerCase()) {
+            "buildembed" -> run {
                 buildEmbed(event.channel) {
                     withTitle("Title")
                     withDesc("Description")

@@ -2,21 +2,18 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.Core
 import core.IChannelLogger
 import core.Parser
-import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
 object Random : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ").toMutableList()
+        val args = Core.getArgumentList(event.message.content).toMutableList()
 
         // special cases
-        if (args[0].matches("-{0,2}help".toRegex())) {
-            help(event, false)
-            return Parser.HandleState.HANDLED
-        } else if (args.size == 1 && args[0].matches("dic?e".toRegex())) {
+        if (args.size == 1 && args[0].matches(Regex("dic?e"))) {
             rollDie(event)
             return Parser.HandleState.HANDLED
         } else if (args.size == 1 && args[0] == "coin") {
@@ -25,6 +22,7 @@ object Random : IBase {
         }
 
         val isReal = args.contains("real").also { args.removeIf { it.contains("real") } }
+        args.remove("from")
         args.remove("to")
 
         if (args.size != 2) {

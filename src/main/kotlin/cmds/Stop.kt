@@ -24,12 +24,6 @@ object Stop : IBase, IChannelLogger {
             return Parser.HandleState.UNHANDLED
         }
 
-        if (!Core.getArgumentList(event.message.content).isEmpty() &&
-                Core.getArgumentList(event.message.content)[0] == "--help") {
-            help(event, true)
-            return Parser.HandleState.HANDLED
-        }
-
         log(IChannelLogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
             author { event.author }
             channel { event.channel}

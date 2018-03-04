@@ -2,10 +2,10 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.Core
 import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
-import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -15,13 +15,14 @@ object Clear : IBase, IChannelLogger {
     }
 
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ").toMutableList()
+        val args = Core.getArgumentList(event.message.content)
 
-        if (args[0].matches("-{0,2}help".toRegex())) {
+        if (args[0].matches(Regex("-{0,2}help"))) {
             Random.help(event, false)
             return Parser.HandleState.HANDLED
         }
-        val all = args.contains("all") || args.contains("--all")
+        val allFlag = args.any { it.matches(Regex("-{0,2}all")) }
+
 
         if (event.channel.isPrivate) {
             buildMessage(event.channel) {
@@ -34,7 +35,7 @@ object Clear : IBase, IChannelLogger {
                 info { "In a private channel" }
             }
         } else {
-            val messages = if (all) event.channel.fullMessageHistory else event.channel.messageHistory
+            val messages = if (allFlag) event.channel.fullMessageHistory else event.channel.messageHistory
             event.channel.bulkDelete(messages.filterNot { it.longID == PersistentMessage.messageId })
         }
 

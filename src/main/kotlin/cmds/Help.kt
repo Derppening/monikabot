@@ -37,6 +37,7 @@ object Help : IBase {
         return embed.apply {
             appendField("Superuser: `clear`", "Clears all messages in a channel.", false)
             appendField("Superuser: `debug`", "Debugging commands.", false)
+            appendField("Superuser: `reload`", "Reload important bot properties.", false)
             appendField("Owner: `status`", "Changes the status of the bot.", false)
             appendField("Owner: `stop`", "Terminates the bot.", false)
         }

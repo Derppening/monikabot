@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.*
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 object Core {
@@ -53,6 +54,10 @@ object Core {
     fun reload() {
         loadVersion()
         loadSuIds()
+
+        thread {
+            PersistentMessage.modify("Misc", "Version", monikaVersion, true)
+        }
     }
 
     /**
