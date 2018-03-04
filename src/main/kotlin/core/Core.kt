@@ -13,15 +13,6 @@ import kotlin.system.exitProcess
 
 object Core {
     /**
-     * Filename of source.properties.
-     */
-    private const val SOURCE_PROP = "source.properties"
-    /**
-     * Filename of version.properties.
-     */
-    private const val VERSION_PROP = "version.properties"
-
-    /**
      * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
      */
     fun isOwnerLocationValid(event: MessageEvent) =
@@ -57,6 +48,34 @@ object Core {
     }
 
     /**
+     * Performs a full reload of the bot.
+     */
+    fun reload() {
+        loadVersion()
+        loadSuIds()
+    }
+
+    /**
+     * Reloads the bot's version and returns itself.
+     */
+    private fun loadVersion(): String {
+        monikaVersion = "${getProperties(VERSION_PROP).getProperty("version")!!}+${getProperties(VERSION_PROP).getProperty("gitbranch")!!}"
+        return monikaVersion
+    }
+
+    /**
+     * Reloads superuser IDs and returns itself.
+     */
+    private fun loadSuIds(): Set<Long> {
+        suIds = getProperties(SOURCE_PROP)
+                .getProperty("suId")
+                .split(',')
+                .map { it.toLong() }
+                .union(listOf(ownerId))
+        return suIds
+    }
+
+    /**
      * Gets the method name which invoked this method.
      */
     fun getMethodName(): String {
@@ -85,6 +104,15 @@ object Core {
     }
 
     /**
+     * Filename of source.properties.
+     */
+    private const val SOURCE_PROP = "source.properties"
+    /**
+     * Filename of version.properties.
+     */
+    private const val VERSION_PROP = "version.properties"
+
+    /**
      * PM Channel of bot admin.
      */
     val ownerPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(ownerId).orCreatePMChannel }
@@ -99,8 +127,7 @@ object Core {
     /**
      * Version of the bot.
      */
-    val monikaVersion =
-            "${getProperties(VERSION_PROP).getProperty("version")!!}+${getProperties(VERSION_PROP).getProperty("gitbranch")!!}"
+    var monikaVersion = loadVersion()
 
     /**
      * ID of bot admin.
@@ -109,11 +136,7 @@ object Core {
     /**
      * IDs for bot superusers.
      */
-    private val suIds = getProperties(SOURCE_PROP)
-            .getProperty("suId")
-            .split(',')
-            .map { it.toLong() }
-            .union(listOf(ownerId))
+    private var suIds = loadSuIds()
     /**
      * ID of Debug channel.
      */
