@@ -24,7 +24,7 @@ object Random : IBase {
             return Parser.HandleState.HANDLED
         }
 
-        val isReal = args.contains("real").also { args.remove("real") }
+        val isReal = args.contains("real").also { args.removeIf { it.contains("real") } }
         args.remove("to")
 
         if (args.size != 2) {
@@ -73,7 +73,8 @@ object Random : IBase {
                 withTitle("Help Text for `random`")
                 withDesc("Randomly generates numbers. Also works for dices and coins.")
                 appendField("\u200B", "\u200B", false)
-                appendField("Usage", "```random [min] [max]```", false)
+                appendField("Usage", "```random [real] [min] [max]```", false)
+                appendField("`real`", "If specified, generate a real number instead of an integer.", false)
                 appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```random [coin|dice]```", false)
