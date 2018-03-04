@@ -80,8 +80,6 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             return Parser.HandleState.HANDLED
         }
 
-        // TODO(Derppening): Split this into two functions: One for all news, one for one news
-
         // potentially long operation. toggle typing to show that the bot is loading.
         event.channel.toggleTypingStatus()
 

@@ -1,6 +1,7 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
+import core.Core
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
@@ -13,7 +14,9 @@ object Help : IBase {
                     "Derppening#9062.")
             apply {
                 handler(this)
-                handlerSu(this)
+                if (Core.isEventFromSuperuser(event)) {
+                    handlerSu(this)
+                }
             }
             withFooterText("Package: ${this@Help.javaClass.name}")
         }
