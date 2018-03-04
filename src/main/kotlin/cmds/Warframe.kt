@@ -23,9 +23,16 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = Parser.popLeadingMention(event.message.content).popFirstWord().split(" ")
 
+        if (args.isEmpty()) {
+            return Parser.HandleState.NOT_FOUND
+        }
+
         return when (args[0]) {
             "news" -> getAllNews(event)
-            else -> Parser.HandleState.UNHANDLED
+            else -> {
+                help(event, false)
+                Parser.HandleState.HANDLED
+            }
         }
     }
 
@@ -73,7 +80,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             return Parser.HandleState.HANDLED
         }
 
-        // TODO(Derppening): Split this into two functions: One for all news, one for
+        // TODO(Derppening): Split this into two functions: One for all news, one for one news
 
         // potentially long operation. toggle typing to show that the bot is loading.
         event.channel.toggleTypingStatus()
@@ -84,6 +91,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             val timer = measureTimeMillis {
                 val events = JsonParser().parse(WorldState.json).asJsonObject.get("Events")
                 val eventList = gson.fromJson(events, JsonArray::class.java).asJsonArray
+                val eventPairs = mutableMapOf<Duration, String>()
 
                 for (wfEvent in eventList) {
                     val eventJson = wfEvent.asJsonObject
@@ -92,17 +100,21 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
                     for (it in eventJson.get("Messages").asJsonArray) {
                         if (gson.fromJson(it.asJsonObject.get("LanguageCode"), String::class.java) == "en") {
                             val diff = Duration.between(Instant.ofEpochMilli(time), Instant.now())
-                            val diffString = when {
-                                diff.toDays() > 0 -> "${diff.toDays()}d"
-                                diff.toHours() > 0 -> "${diff.toHours()}h"
-                                diff.toMinutes() > 0 -> "${diff.toMinutes()}m"
-                                else -> "${diff.seconds}s"
-                            }
-
-                            appendDesc("\n[$diffString] ${gson.fromJson(it.asJsonObject.get("Message"), String::class.java)}")
+                            eventPairs[diff] = gson.fromJson(it.asJsonObject.get("Message"), String::class.java)
                             break
                         }
                     }
+                }
+
+                val sortedPairs = eventPairs.entries.sortedBy { it.key.seconds }
+                sortedPairs.forEach { (k, v) ->
+                    val diffString = when {
+                        k.toDays() > 0 -> "${k.toDays()}d"
+                        k.toHours() > 0 -> "${k.toHours()}h"
+                        k.toMinutes() > 0 -> "${k.toMinutes()}m"
+                        else -> "${k.seconds}s"
+                    }
+                    appendDesc("\n[$diffString] $v")
                 }
             }
 
