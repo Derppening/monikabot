@@ -6,6 +6,7 @@ import popFirstWord
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
+import java.io.File
 
 object Parser : IChannelLogger {
     enum class HandleState {
@@ -25,6 +26,13 @@ object Parser : IChannelLogger {
         }
 
         val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase()
+
+        if (cmd.isBlank()) {
+            buildMessage(event.channel) {
+                withContent(getRandomNullResponse())
+            }
+            return
+        }
 
         val retval = when (cmd) {
             "clear" -> Clear.delegateCommand(event)
@@ -85,5 +93,16 @@ object Parser : IChannelLogger {
         }
     }
 
+    fun loadNullResponses(): List<String> {
+        nullResponses = File(Thread.currentThread().contextClassLoader.getResource("lang/NullResponse.txt").toURI()).readLines()
+        return nullResponses
+    }
+
     private fun getCommand(message: String): String = message.split(' ')[0]
+
+    private fun getRandomNullResponse(): String {
+        return nullResponses[java.util.Random().nextInt(nullResponses.size)]
+    }
+
+    private var nullResponses = loadNullResponses()
 }

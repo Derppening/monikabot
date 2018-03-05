@@ -10,6 +10,7 @@ import sx.blah.discord.util.DiscordException
 object Reload : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         Core.reload()
+        Parser.loadNullResponses()
 
         log(IChannelLogger.LogLevel.INFO, "Properties have been reloaded.") {
             author { event.author }
