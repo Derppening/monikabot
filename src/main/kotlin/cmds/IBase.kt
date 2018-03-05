@@ -60,7 +60,7 @@ interface IBase : IChannelLogger {
      * @return Whether the action is handled.
      */
     fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        return Parser.HandleState.UNHANDLED
+        return Parser.HandleState.PERMISSION_DENIED
     }
 
     /**
