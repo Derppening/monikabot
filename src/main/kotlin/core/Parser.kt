@@ -36,6 +36,7 @@ object Parser : IChannelLogger {
             "rng" -> RNG.delegateCommand(event)
             "status" -> Status.delegateCommand(event)
             "stop" -> Stop.delegateCommand(event)
+            "version" -> Version.delegateCommand(event)
             "warframe" -> Warframe.delegateCommand(event)
             else -> HandleState.NOT_FOUND
         }
