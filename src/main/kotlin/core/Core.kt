@@ -61,15 +61,23 @@ object Core {
     }
 
     /**
-     * Reloads the bot's version and returns itself.
+     * Loads the bot's version and returns itself.
      */
     private fun loadVersion(): String {
-        monikaVersion = "${getProperties(VERSION_PROP).getProperty("version")!!}+${getProperties(VERSION_PROP).getProperty("gitbranch")!!}"
+        monikaVersion = "${loadSemVersion()}+$monikaVersionBranch"
         return monikaVersion
     }
 
     /**
-     * Reloads superuser IDs and returns itself.
+     * Loads the bot's SemVer portion of version and returns itself.
+     */
+    private fun loadSemVersion(): String {
+        monikaSemVersion = getProperties(VERSION_PROP).getProperty("version")!!
+        return monikaSemVersion
+    }
+
+    /**
+     * Loads superuser IDs and returns itself.
      */
     private fun loadSuIds(): Set<Long> {
         suIds = getProperties(SOURCE_PROP)
@@ -129,10 +137,21 @@ object Core {
      * Bot private key.
      */
     val privateKey = getProperties(SOURCE_PROP).getProperty("privateKey")!!
+
+    /**
+     * SemVer version of the bot.
+     */
+    var monikaSemVersion = loadSemVersion()
+        private set
+    /**
+     * The git branch of this bot.
+     */
+    val monikaVersionBranch = getProperties(VERSION_PROP).getProperty("gitbranch")!!
     /**
      * Version of the bot.
      */
     var monikaVersion = loadVersion()
+        private set
 
     /**
      * ID of bot admin.

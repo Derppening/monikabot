@@ -20,6 +20,14 @@ object Stop : IBase, IChannelLogger {
             return Parser.HandleState.UNHANDLED
         }
 
+        val args = Core.getArgumentList(event.message.content)
+        if (args.any { it.matches(Regex("-{0,2}staging")) } && Core.monikaVersionBranch != "staging") {
+            return Parser.HandleState.HANDLED
+        }
+        if (args.any { it.matches(Regex("-{0,2}deploy(ment)?")) } && Core.monikaVersionBranch != "deployment") {
+            return Parser.HandleState.HANDLED
+        }
+
         log(IChannelLogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
             author { event.author }
             channel { event.channel}
@@ -40,7 +48,8 @@ object Stop : IBase, IChannelLogger {
                     withTitle("Help Text for `stop`")
                     withDesc("Stops the execution of the bot.")
                     appendField("\u200B", "\u200B", false)
-                    appendField("Usage", "```stop```", false)
+                    appendField("Usage", "```stop [staging|deployment]```", false)
+                    appendField("`[staging|deployment]`", "Optional: Which specific instance(s) to stop.", false)
                     withFooterText("Package: ${this@Stop.javaClass.name}")
                 }
             } catch (e: DiscordException) {
