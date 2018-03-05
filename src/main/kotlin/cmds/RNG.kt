@@ -45,10 +45,10 @@ object RNG : IBase {
                 throw Exception("I need the probability!")
             } else if (prob.second <= 0.0 || prob.second > 1.0) {
                 throw Exception("Probability must be between 0.0 and 1.0!")
-            } else if (attempts.second < success.second) {
-                throw Exception("You can't succeed more times than you tried!")
             } else if (attempts.second < 0 || success.second < 0) {
                 throw Exception("You cannot try or succeed a negative amount of times!")
+            } else if (attempts.second < success.second) {
+                throw Exception("You can't succeed more times than you tried!")
             } else if (round.first == Rounding.DECIMAL_PLACES && round.second < 0) {
                 throw Exception("You cannot format a number to a negative number of decimal places!")
             } else if (round.first == Rounding.SIGNIFICANT_FIGURES && round.second <= 0) {
