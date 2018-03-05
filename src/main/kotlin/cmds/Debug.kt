@@ -17,10 +17,6 @@ import java.time.ZoneId
  * Singleton handling "debug" commands.
  */
 object Debug : IBase, IChannelLogger {
-    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        return Parser.HandleState.PERMISSION_DENIED
-    }
-
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = Core.getArgumentList(event.message.content)
 

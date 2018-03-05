@@ -13,10 +13,6 @@ import sx.blah.discord.util.DiscordException
  * Singleton handling "status" commands
  */
 object Status : IBase {
-    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        return Parser.HandleState.PERMISSION_DENIED
-    }
-
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.isEventFromOwner(event)) {
             return Parser.HandleState.PERMISSION_DENIED

@@ -6,10 +6,6 @@ import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Reload : IBase, IChannelLogger {
-    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        return Parser.HandleState.PERMISSION_DENIED
-    }
-
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         Core.reload()
 

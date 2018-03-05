@@ -10,10 +10,6 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 
 object Clear : IBase, IChannelLogger {
-    override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        return Parser.HandleState.PERMISSION_DENIED
-    }
-
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = Core.getArgumentList(event.message.content)
 

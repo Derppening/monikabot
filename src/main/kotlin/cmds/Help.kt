@@ -13,9 +13,9 @@ object Help : IBase {
             withDesc("MonikaBot is a command-based bot, supporting a wide range of features. Written by " +
                     "Derppening#9062.\nSpecify `--help` to get help text specific to the command.")
             apply {
-                handler(this)
+                listFunctions(this)
                 if (Core.isEventFromSuperuser(event)) {
-                    handlerSu(this)
+                    listSuFunctions(this)
                 }
             }
             withFooterText("Package: ${this@Help.javaClass.name}")
@@ -24,7 +24,7 @@ object Help : IBase {
         return Parser.HandleState.HANDLED
     }
 
-    private fun handler(embed: EmbedBuilder): EmbedBuilder {
+    private fun listFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
             appendField("`echo`", "Repeats a string.", false)
             appendField("`random`", "Randomly generates numbers.", false)
@@ -33,7 +33,7 @@ object Help : IBase {
         }
     }
 
-    private fun handlerSu(embed: EmbedBuilder): EmbedBuilder {
+    private fun listSuFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
             appendField("Superuser: `clear`", "Clears all messages in a channel.", false)
             appendField("Superuser: `debug`", "Debugging commands.", false)

@@ -124,10 +124,6 @@ object RNG : IBase {
         return Parser.HandleState.HANDLED
     }
 
-    override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        return Parser.HandleState.UNHANDLED
-    }
-
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             buildEmbed(event.channel) {
