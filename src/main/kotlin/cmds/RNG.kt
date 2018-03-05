@@ -43,7 +43,7 @@ object RNG : IBase {
 
             if (!prob.first) {
                 throw Exception("I need the probability!")
-            } else if (prob.second < 0.0 || prob.second > 1.0) {
+            } else if (prob.second <= 0.0 || prob.second > 1.0) {
                 throw Exception("Probability must be between 0.0 and 1.0!")
             } else if (attempts.second < success.second) {
                 throw Exception("You can't succeed more times than you tried!")
@@ -74,7 +74,7 @@ object RNG : IBase {
             val k = success.second
 
             withTitle("Probability Calculations")
-            withDesc("With probability=${prob.second}, " +
+            withDesc("With probability=$p, " +
                     "attempts=${if (attempts.first) n.toString() else "(not given)"}, " +
                     "successes=${if (success.first) k.toString() else "(not given)"}")
 
