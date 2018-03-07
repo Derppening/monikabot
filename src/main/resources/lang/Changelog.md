@@ -18,3 +18,6 @@
 [v1.0.0]
 - Okay Everyone! MonikaBot is officially released!
     - Use the help command to see what you can do with her!
+
+[v1.0.1]
+- Improved wording of help text.

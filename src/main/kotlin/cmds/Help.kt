@@ -11,7 +11,7 @@ object Help : IBase {
         buildEmbed(event.channel) {
             withTitle("Help Text for MonikaBot")
             withDesc("MonikaBot is a command-based bot, supporting a wide range of features. Written by " +
-                    "Derppening#9062.\nSpecify `--help` to get help text specific to the command.")
+                    "Derppening#9062.\nUse `[command] --help` to get help text for any command listed below.")
             apply {
                 listFunctions(this)
                 if (Core.isEventFromSuperuser(event)) {
