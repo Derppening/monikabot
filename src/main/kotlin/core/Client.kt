@@ -102,9 +102,9 @@ object Client : IChannelLogger, IDiscordClient by client {
     /**
      * Default status.
      */
-    private val defaultState = Status.IDLE
+    private val defaultState = Status.ONLINE
     /**
      * Default playing text.
      */
-    private const val defaultStatus = "I'm still learning (>.<)"
+    private const val defaultStatus = "Okay Everyone! d(^_^)b"
 }
