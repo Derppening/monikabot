@@ -35,6 +35,7 @@ object Parser : IChannelLogger {
         }
 
         val retval = when (cmd) {
+            "changelog" -> Changelog.delegateCommand(event)
             "clear" -> Clear.delegateCommand(event)
             "debug" -> Debug.delegateCommand(event)
             "echo" -> Echo.delegateCommand(event)
