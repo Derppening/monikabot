@@ -2,7 +2,7 @@ package core
 
 import cmds.*
 import core.BuilderHelper.buildMessage
-import popFirstWord
+import core.Core.popLeadingMention
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -64,14 +64,6 @@ object Parser : IChannelLogger {
         }
 
         postCommandHandler(retval, cmd, event)
-    }
-
-    fun popLeadingMention(message: String): String {
-        return if (message.startsWith(Client.ourUser.mention(false))) {
-            message.popFirstWord()
-        } else {
-            message
-        }
     }
 
     fun loadNullResponses(): List<String> {

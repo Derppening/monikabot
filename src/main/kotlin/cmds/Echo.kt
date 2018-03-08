@@ -5,8 +5,6 @@ import core.BuilderHelper.buildMessage
 import core.Core
 import core.IChannelLogger
 import core.Parser
-import popFirstWord
-import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -22,7 +20,7 @@ object Echo : IBase, IChannelLogger {
         }
 
         val channel = event.channel
-        val message = Parser.popLeadingMention(event.message.content).popFirstWord()
+        val message = Core.getArgumentList(event.message.content)
 
         if (!event.channel.isPrivate) {
             try {
@@ -39,7 +37,7 @@ object Echo : IBase, IChannelLogger {
 
         try {
             buildMessage(channel) {
-                withContent(message.removeQuotes())
+                withContent(message.joinToString(" "))
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "\"$message\" not handled") {

@@ -21,3 +21,13 @@
 
 [v1.0.1]
 - Improved wording of help text.
+
+[v1.1.0-beta]
+- Run experimental and stable features in parallel
+- Add `warframe market` command
+- Improve help text for many command
+- Many backend improvements
+- Superusers: Add `config` command
+
+[v1.1.0-beta.1]
+- Fixed bug where several commands cannot be properly invoked

@@ -4,7 +4,6 @@ import core.BuilderHelper.buildEmbed
 import core.Core
 import core.IChannelLogger
 import core.Parser
-import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -75,9 +74,8 @@ interface IBase : IChannelLogger {
      * Check whether argument list contains a "help" flag.
      */
     private fun hasHelpFlag(arg0: String): Boolean {
-        return Parser.popLeadingMention(arg0)
-                .popFirstWord()
-                .split(" ").also { if (it.isEmpty()) return false }[0]
+        return Core.getArgumentList(arg0)
+                .also { if (it.isEmpty()) return false }[0]
                 .matches(Regex("-{0,2}help"))
     }
 }

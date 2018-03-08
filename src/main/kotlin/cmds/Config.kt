@@ -1,12 +1,12 @@
 package cmds
 
-import core.BuilderHelper
+import core.*
 import core.BuilderHelper.buildMessage
-import core.Core
-import core.IChannelLogger
-import core.Parser
+import sx.blah.discord.api.events.EventSubscriber
+import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
+import kotlin.concurrent.thread
 
 object Config : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -45,6 +45,11 @@ object Config : IBase, IChannelLogger {
         }
     }
 
+    @EventSubscriber
+    fun onReadyReceiver(event: ReadyEvent) {
+        PersistentMessage.modify("Config", "Experimental Features", enableExperimentalFeatures.toString(), true)
+    }
+
     private fun experimentalHandler(args: List<String>, event: MessageReceivedEvent) {
         if (args.size == 1) {
             buildMessage(event.channel) {
@@ -67,6 +72,10 @@ object Config : IBase, IChannelLogger {
         enableExperimentalFeatures = args[1].toBoolean() || args[1] == "enable"
         buildMessage(event.channel) {
             withContent("Experimental Features are now ${if (enableExperimentalFeatures) "enabled" else "disabled"}.")
+        }
+
+        thread {
+            PersistentMessage.modify("Config", "Experimental Features", enableExperimentalFeatures.toString(), true)
         }
     }
 

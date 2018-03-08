@@ -1,3 +1,4 @@
+import cmds.Config
 import cmds.Warframe
 import core.Client
 import core.Parser
@@ -8,6 +9,7 @@ fun setupDispatchers() {
 
     // cmds
     Client.dispatcher.registerListener(Parser)
+    Client.dispatcher.registerListener(Config)
 }
 
 fun registerTimers() {

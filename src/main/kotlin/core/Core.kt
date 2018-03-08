@@ -1,5 +1,6 @@
 package core
 
+import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
@@ -27,11 +28,20 @@ object Core {
      */
     fun isEventFromSuperuser(event: MessageEvent) = suIds.any { it == event.author.longID }
 
+    fun popLeadingMention(message: String): String {
+        return if (message.startsWith(Client.ourUser.mention(false))) {
+            message.popFirstWord()
+        } else {
+            message
+        }
+    }
+
     /**
      * @return List of arguments.
      */
     fun getArgumentList(str: String): List<String> {
-        val tokens = str.split(" ").drop(1).joinToString(" ")
+        val cmdStr = popLeadingMention(str)
+        val tokens = cmdStr.split(" ").drop(1).joinToString(" ")
         val list = mutableListOf<String>()
 
         var parseQuote = false

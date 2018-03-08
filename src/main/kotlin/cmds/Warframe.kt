@@ -135,8 +135,6 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             gson.fromJson(timeElement, Long::class.java)
         }
         WorldState.lastModified = Instant.ofEpochSecond(time)
-
-        PersistentMessage.modify("Warframe", "WorldState Last Modified", WorldState.lastModified.toString(), true)
     }
 
     /**
