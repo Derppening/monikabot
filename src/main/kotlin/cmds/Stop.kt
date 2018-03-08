@@ -21,10 +21,10 @@ object Stop : IBase, IChannelLogger {
         }
 
         val args = Core.getArgumentList(event.message.content)
-        if (args.any { it.matches(Regex("-{0,2}staging")) } && Core.monikaVersionBranch != "staging") {
+        if (args.any { it.matches(Regex("-{0,2}dev(elopment)?")) } && Core.monikaVersionBranch != "development") {
             return Parser.HandleState.HANDLED
         }
-        if (args.any { it.matches(Regex("-{0,2}deploy(ment)?")) } && Core.monikaVersionBranch != "deployment") {
+        if (args.any { it.matches(Regex("-{0,2}stable")) } && Core.monikaVersionBranch != "stable") {
             return Parser.HandleState.HANDLED
         }
 
@@ -48,8 +48,8 @@ object Stop : IBase, IChannelLogger {
                     withTitle("Help Text for `stop`")
                     withDesc("Stops the execution of the bot.")
                     appendField("\u200B", "\u200B", false)
-                    appendField("Usage", "```stop [staging|deployment]```", false)
-                    appendField("`[staging|deployment]`", "Optional: Which specific instance(s) to stop.", false)
+                    appendField("Usage", "```stop [stable|development]```", false)
+                    appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
                 }
             } catch (e: DiscordException) {
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
