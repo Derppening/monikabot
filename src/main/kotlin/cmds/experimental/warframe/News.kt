@@ -54,11 +54,10 @@ object News : IBase {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-news`")
+                withTitle("Help Text for `warframe-news` (Experimental)")
                 withDesc("Displays the latest Warframe news.")
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```warframe news```", false)
-                withFooterText("Package: ${this@News.javaClass.name}")
             }
         } catch (e: DiscordException) {
             Debug.log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

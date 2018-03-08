@@ -43,12 +43,12 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe`")
+                withTitle("Help Text for `warframe` (Experimental)")
                 withDesc("Wrapper for Warframe-related commands.")
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```warframe [subcommand] [args]```", false)
                 appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
-                withFooterText("Package: ${this@Warframe.javaClass.name}")
+                appendField("Subcommand: `market`", "Displays market information about an item.", false)
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

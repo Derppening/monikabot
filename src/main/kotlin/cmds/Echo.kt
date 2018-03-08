@@ -62,7 +62,6 @@ object Echo : IBase, IChannelLogger {
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```echo [string]```", false)
                 appendField("`[string]`", "String to repeat.", false)
-                withFooterText("Package: ${this@Echo.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

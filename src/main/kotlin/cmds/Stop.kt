@@ -50,7 +50,6 @@ object Stop : IBase, IChannelLogger {
                     appendField("\u200B", "\u200B", false)
                     appendField("Usage", "```stop [staging|deployment]```", false)
                     appendField("`[staging|deployment]`", "Optional: Which specific instance(s) to stop.", false)
-                    withFooterText("Package: ${this@Stop.javaClass.name}")
                 }
             } catch (e: DiscordException) {
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

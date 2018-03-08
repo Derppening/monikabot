@@ -73,7 +73,6 @@ object Random : IBase {
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```random [coin|dice]```", false)
                 appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
-                withFooterText("Package: ${this@Random.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

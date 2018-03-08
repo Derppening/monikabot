@@ -13,12 +13,7 @@ object Clear : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = Core.getArgumentList(event.message.content)
 
-        if (args[0].matches(Regex("-{0,2}help"))) {
-            Random.help(event, false)
-            return Parser.HandleState.HANDLED
-        }
         val allFlag = args.any { it.matches(Regex("-{0,2}all")) }
-
 
         if (event.channel.isPrivate) {
             buildMessage(event.channel) {
@@ -48,7 +43,6 @@ object Clear : IBase, IChannelLogger {
                 appendField("Usage", "```clear [--all]```", false)
                 appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
                         "are locally cached.", false)
-                withFooterText("Package: ${this@Clear.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

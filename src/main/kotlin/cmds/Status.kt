@@ -75,7 +75,6 @@ object Status : IBase {
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```status [--reset]```", false)
                 appendField("`--reset`", "Resets the status to the default.", false)
-                withFooterText("Packages: ${this@Status.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Unable to display help text") {

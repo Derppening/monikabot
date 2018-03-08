@@ -18,7 +18,6 @@ object Help : IBase {
                     listSuFunctions(this)
                 }
             }
-            withFooterText("Package: ${this@Help.javaClass.name}")
         }
 
         return Parser.HandleState.HANDLED

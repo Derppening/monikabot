@@ -43,7 +43,6 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```warframe [subcommand] [args]```", false)
                 appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
-                withFooterText("Package: ${this@Warframe.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
@@ -69,7 +68,6 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
                 withDesc("Displays the latest Warframe news.")
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```warframe news```", false)
-                withFooterText("Package: ${this@Warframe.javaClass.name}")
             }
 
             return Parser.HandleState.HANDLED

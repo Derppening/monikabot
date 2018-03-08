@@ -42,7 +42,6 @@ interface IBase : IChannelLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text")
                 withDesc("No help text is available for this command.")
-                withFooterText("Package: ${this@IBase.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

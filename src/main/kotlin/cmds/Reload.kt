@@ -26,7 +26,6 @@ object Reload : IBase, IChannelLogger {
                 withDesc("Reloads essential bot properties from their respective files.")
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```reload```", false)
-                withFooterText("Package: ${this@Reload.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

@@ -24,7 +24,6 @@ object Version : IBase, IChannelLogger {
                 withDesc("Displays the version information.")
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```version```", false)
-                withFooterText("Package: ${this@Version.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

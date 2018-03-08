@@ -6,20 +6,29 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import core.BuilderHelper
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.Core
+import core.IChannelLogger
 import core.Parser
 import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object Market : IBase {
+object Market : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val item = Core.getArgumentList(event.message.content)
-                .toMutableList()
+        val args = Core.getArgumentList(event.message.content).drop(2)
+        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) } ) {
+            help(event, false)
+
+            return Parser.HandleState.HANDLED
+        }
+
+        val item = args.toMutableList()
                 .apply {
                     removeIf {
                         it =="--experimental" || it == "market"
@@ -117,6 +126,25 @@ object Market : IBase {
         }
 
         return Parser.HandleState.HANDLED
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            BuilderHelper.buildEmbed(event.channel) {
+                withTitle("Help Text for `warframe-market` (Experimental)")
+                withDesc("Displays market information of any item.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```warframe market [item]```", false)
+                appendField("`[item]`", "Item to lookup.", false)
+            }
+        } catch (e: DiscordException) {
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
+            e.printStackTrace()
+        }
     }
 
     private const val imageLink = "https://warframe.market/static/assets/"

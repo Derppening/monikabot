@@ -136,7 +136,6 @@ object RNG : IBase {
                 appendField("`[k=SUCCESSFUL_TRIAL]`", "Optional: Specifies the number of trial which you got the item.", false)
                 appendField("`[r=ROUND]`", "Optional: Specifies rounding. You may use dp to signify decimal places and " +
                         "sf to signify significant figures. \nDefaults to 3 decimal places.", false)
-                withFooterText("Package: ${this@RNG.javaClass.name}")
             }
         } catch (e: DiscordException) {
             Random.log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

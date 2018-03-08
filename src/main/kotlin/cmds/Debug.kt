@@ -47,7 +47,6 @@ object Debug : IBase, IChannelLogger {
                     appendField("From", getDiscordTag(event.author), false)
                     appendField("In", getChannelName(event.channel), false)
                     appendField("Additional Info", ":(", false)
-                    withFooterText("Package: ${this@Debug::class.java.name}")
                 }
             }
             "persist" -> run {
@@ -60,7 +59,6 @@ object Debug : IBase, IChannelLogger {
                         appendField("`[header]`", "Header to put the key/value pair", false)
                         appendField("`[key]`", "Name of the value", false)
                         appendField("`[value]`", "Value", false)
-                        withFooterText("Package: ${this@Debug.javaClass.name}")
                     }
                 }
                 if (args.size != 4) { return@run }
@@ -83,7 +81,6 @@ object Debug : IBase, IChannelLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `debug`")
                 withDesc("Enables superuser debugging methods.")
-                withFooterText("Package: ${this@Debug.javaClass.name}")
             }
         } catch (e: DiscordException) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

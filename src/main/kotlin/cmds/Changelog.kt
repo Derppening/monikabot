@@ -37,7 +37,6 @@ object Changelog : IBase, IChannelLogger {
                 appendField("Usage", "```changelog [release] [all]```", false)
                 appendField("`release`", "Only show changes for release builds.", false)
                 appendField("`all`", "Show 5 most recent builds instead of 1.", false)
-                withFooterText("Package: ${this@Changelog.javaClass.name}")
             }
         } catch (e: DiscordException) {
             Clear.log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
@@ -66,7 +65,6 @@ object Changelog : IBase, IChannelLogger {
                             appendField(ver, changetext.joinToString("\n"), false)
                         }
             }
-            withFooterText("Package: ${this@Changelog.javaClass.name}")
         }
     }
 
@@ -90,7 +88,6 @@ object Changelog : IBase, IChannelLogger {
         buildEmbed(event.channel) {
             withTitle("Changelog for ${displayChange.first}")
             withDesc(displayChange.second.joinToString("\n"))
-            withFooterText("Package: ${this@Changelog.javaClass.name}")
         }
 
     }
