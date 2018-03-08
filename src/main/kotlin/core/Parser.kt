@@ -34,23 +34,60 @@ object Parser : IChannelLogger {
             return
         }
 
-        val retval = when (cmd) {
-            "changelog" -> Changelog.delegateCommand(event)
-            "clear" -> Clear.delegateCommand(event)
-            "debug" -> Debug.delegateCommand(event)
-            "echo" -> Echo.delegateCommand(event)
-            "help" -> Help.delegateCommand(event)
-            "random" -> Random.delegateCommand(event)
-            "reload" -> Reload.delegateCommand(event)
-            "rng" -> RNG.delegateCommand(event)
-            "status" -> Status.delegateCommand(event)
-            "stop" -> Stop.delegateCommand(event)
-            "version" -> Version.delegateCommand(event)
-            "warframe" -> Warframe.delegateCommand(event)
-            else -> HandleState.NOT_FOUND
+        val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
+        val retval: HandleState
+        if (runExperimental && Config.enableExperimentalFeatures) {
+            retval = parseExperimental(event, cmd)
+        } else {
+            if (runExperimental && Core.isEventFromSuperuser(event)) {
+                buildMessage(event.channel) {
+                    withContent("It seems like you're trying to invoke an experimental command without it being on...")
+                }
+            }
+
+            retval = when (cmd) {
+                "changelog" -> Changelog.delegateCommand(event)
+                "clear" -> Clear.delegateCommand(event)
+                "config" -> Config.delegateCommand(event)
+                "debug" -> Debug.delegateCommand(event)
+                "echo" -> Echo.delegateCommand(event)
+                "help" -> Help.delegateCommand(event)
+                "random" -> Random.delegateCommand(event)
+                "reload" -> Reload.delegateCommand(event)
+                "rng" -> RNG.delegateCommand(event)
+                "status" -> Status.delegateCommand(event)
+                "stop" -> Stop.delegateCommand(event)
+                "version" -> Version.delegateCommand(event)
+                "warframe" -> Warframe.delegateCommand(event)
+                else -> HandleState.NOT_FOUND
+            }
         }
 
-        when (retval) {
+        postCommandHandler(retval, cmd, event)
+    }
+
+    fun popLeadingMention(message: String): String {
+        return if (message.startsWith(Client.ourUser.mention(false))) {
+            message.popFirstWord()
+        } else {
+            message
+        }
+    }
+
+    fun loadNullResponses(): List<String> {
+        nullResponses = File(Thread.currentThread().contextClassLoader.getResource("lang/NullResponse.txt").toURI()).readLines()
+        return nullResponses
+    }
+
+    private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
+        return when (cmd) {
+            "warframe" -> cmds.experimental.Warframe.delegateCommand(event)
+            else -> HandleState.NOT_FOUND
+        }
+    }
+
+    private fun postCommandHandler(state: HandleState, cmd: String, event: MessageReceivedEvent) {
+        when (state) {
             HandleState.HANDLED -> {}
             HandleState.UNHANDLED -> {
                 log(IChannelLogger.LogLevel.ERROR, "Command \"$cmd\" not handled") {
@@ -86,24 +123,9 @@ object Parser : IChannelLogger {
         }
     }
 
-    fun popLeadingMention(message: String): String {
-        return if (message.startsWith(Client.ourUser.mention(false))) {
-            message.popFirstWord()
-        } else {
-            message
-        }
-    }
-
-    fun loadNullResponses(): List<String> {
-        nullResponses = File(Thread.currentThread().contextClassLoader.getResource("lang/NullResponse.txt").toURI()).readLines()
-        return nullResponses
-    }
-
     private fun getCommand(message: String): String = message.split(' ')[0]
 
-    private fun getRandomNullResponse(): String {
-        return nullResponses[java.util.Random().nextInt(nullResponses.size)]
-    }
+    private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
 
     private var nullResponses = loadNullResponses()
 }

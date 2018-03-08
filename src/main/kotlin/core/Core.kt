@@ -1,6 +1,5 @@
 package core
 
-import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
@@ -32,13 +31,48 @@ object Core {
      * @return List of arguments.
      */
     fun getArgumentList(str: String): List<String> {
-        return Parser.popLeadingMention(str).popFirstWord().split(" ")
+        val tokens = str.split(" ").drop(1).joinToString(" ")
+        val list = mutableListOf<String>()
+
+        var parseQuote = false
+        var s = ""
+        tokens.forEach {
+            when {
+                it == '\"' -> {
+                    if (parseQuote) {
+                        if (s.isNotBlank()) list.add(s)
+                        s = ""
+                    }
+                    parseQuote = !parseQuote
+                }
+                it == ' ' && !parseQuote -> {
+                    if (s.isNotBlank()) list.add(s)
+                    s = ""
+                }
+                else -> s += it
+            }
+        }
+        if (s.isNotBlank()) list.add(s)
+
+        return list.toList()
     }
 
     /**
      * @return Discord tag.
      */
     fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"
+
+//    fun getUserId(username: String, discriminator: Int): IUser {
+//        return Persistence.client.getUsersByName(username).find { it.discriminator == discriminator.toString() }
+//    }
+
+//    fun getGuildByName(name: String): IGuild {
+//        return Persistence.client.guilds.find { it.name == name }
+//    }
+
+//    fun getChannelByName(name: String, guild: IGuild): IChannel {
+//        return guild.channels.find { it.name == name }
+//    }
 
     /**
      * @return Channel name in "Server/Channel" format.
