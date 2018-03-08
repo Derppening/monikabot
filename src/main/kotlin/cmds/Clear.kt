@@ -2,7 +2,6 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
@@ -11,7 +10,7 @@ import sx.blah.discord.util.DiscordException
 
 object Clear : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
 
         val allFlag = args.any { it.matches(Regex("-{0,2}all")) }
 

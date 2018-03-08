@@ -9,7 +9,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import org.jsoup.Jsoup
@@ -21,7 +20,7 @@ import java.time.ZoneId
 
 object Market : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content).drop(2)
+        val args = getArgumentList(event.message.content).drop(2)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) } ) {
             help(event, false)
 

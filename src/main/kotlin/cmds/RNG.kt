@@ -2,7 +2,6 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -18,7 +17,7 @@ object RNG : IBase {
     }
 
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
 
         var prob = Pair(false, 0.0)
         var attempts = Pair(false, 0)

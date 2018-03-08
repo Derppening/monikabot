@@ -8,8 +8,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import core.*
 import core.BuilderHelper.buildEmbed
+import core.Client
+import core.IChannelLogger
+import core.IConsoleLogger
+import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.net.URL
@@ -18,7 +21,7 @@ import kotlin.system.measureTimeMillis
 
 object Warframe : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
                 .toMutableList()
                 .apply {
                     removeIf {

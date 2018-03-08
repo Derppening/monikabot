@@ -20,7 +20,7 @@ object Status : IBase {
             return Parser.HandleState.UNHANDLED
         }
 
-        val args = Core.getArgumentList(event.message.content).toMutableList()
+        val args = getArgumentList(event.message.content).toMutableList()
 
         val status = when (args[0]) {
             "--reset" -> {

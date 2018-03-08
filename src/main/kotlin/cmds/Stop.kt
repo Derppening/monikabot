@@ -20,7 +20,7 @@ object Stop : IBase, IChannelLogger {
             return Parser.HandleState.UNHANDLED
         }
 
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
         if (args.any { it.matches(Regex("-{0,2}dev(elopment)?")) } && Core.monikaVersionBranch != "development") {
             return Parser.HandleState.HANDLED
         }

@@ -2,7 +2,6 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -11,7 +10,7 @@ import java.io.File
 
 object Changelog : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
 
         val changes = readChangelog()
 

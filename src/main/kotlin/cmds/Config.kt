@@ -1,7 +1,10 @@
 package cmds
 
-import core.*
+import core.BuilderHelper
 import core.BuilderHelper.buildMessage
+import core.IChannelLogger
+import core.Parser
+import core.PersistentMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -10,7 +13,7 @@ import kotlin.concurrent.thread
 
 object Config : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
 
         if (args.isEmpty()) {
             Config.help(event, true)

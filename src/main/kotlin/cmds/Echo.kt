@@ -2,7 +2,6 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -13,14 +12,14 @@ import sx.blah.discord.util.DiscordException
  */
 object Echo : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
         if (args.isEmpty()) {
             help(event, false)
             return Parser.HandleState.HANDLED
         }
 
         val channel = event.channel
-        val message = Core.getArgumentList(event.message.content)
+        val message = getArgumentList(event.message.content)
 
         if (!event.channel.isPrivate) {
             try {

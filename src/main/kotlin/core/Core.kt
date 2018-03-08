@@ -37,37 +37,6 @@ object Core {
     }
 
     /**
-     * @return List of arguments.
-     */
-    fun getArgumentList(str: String): List<String> {
-        val cmdStr = popLeadingMention(str)
-        val tokens = cmdStr.split(" ").drop(1).joinToString(" ")
-        val list = mutableListOf<String>()
-
-        var parseQuote = false
-        var s = ""
-        tokens.forEach {
-            when {
-                it == '\"' -> {
-                    if (parseQuote) {
-                        if (s.isNotBlank()) list.add(s)
-                        s = ""
-                    }
-                    parseQuote = !parseQuote
-                }
-                it == ' ' && !parseQuote -> {
-                    if (s.isNotBlank()) list.add(s)
-                    s = ""
-                }
-                else -> s += it
-            }
-        }
-        if (s.isNotBlank()) list.add(s)
-
-        return list.toList()
-    }
-
-    /**
      * @return Discord tag.
      */
     fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"

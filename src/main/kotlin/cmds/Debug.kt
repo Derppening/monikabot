@@ -1,7 +1,6 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
-import core.Core
 import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.IChannelLogger
@@ -18,7 +17,7 @@ import java.time.ZoneId
  */
 object Debug : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content)
+        val args = getArgumentList(event.message.content)
 
         if (args.isEmpty()) {
             help(event, true)

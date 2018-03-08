@@ -4,7 +4,6 @@ import cmds.Debug
 import cmds.IBase
 import cmds.experimental.Warframe
 import core.BuilderHelper
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -17,7 +16,7 @@ import java.util.*
 
 object News : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content).drop(1)
+        val args = getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args[0].matches("-{0,2}help".toRegex())) {
             help(event, false)
 

@@ -2,7 +2,6 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -10,7 +9,7 @@ import sx.blah.discord.util.DiscordException
 
 object Random : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = Core.getArgumentList(event.message.content).toMutableList()
+        val args = getArgumentList(event.message.content).toMutableList()
 
         // special cases
         if (args.size == 1 && args[0].matches(Regex("dic?e"))) {

@@ -71,10 +71,41 @@ interface IBase : IChannelLogger {
     }
 
     /**
+     * @return List of arguments.
+     */
+    fun getArgumentList(str: String): List<String> {
+        val cmdStr = Core.popLeadingMention(str)
+        val tokens = cmdStr.split(" ").drop(1).joinToString(" ")
+        val list = mutableListOf<String>()
+
+        var parseQuote = false
+        var s = ""
+        tokens.forEach {
+            when {
+                it == '\"' -> {
+                    if (parseQuote) {
+                        if (s.isNotBlank()) list.add(s)
+                        s = ""
+                    }
+                    parseQuote = !parseQuote
+                }
+                it == ' ' && !parseQuote -> {
+                    if (s.isNotBlank()) list.add(s)
+                    s = ""
+                }
+                else -> s += it
+            }
+        }
+        if (s.isNotBlank()) list.add(s)
+
+        return list.toList()
+    }
+
+    /**
      * Check whether argument list contains a "help" flag.
      */
     private fun hasHelpFlag(arg0: String): Boolean {
-        return Core.getArgumentList(arg0)
+        return getArgumentList(arg0)
                 .also { if (it.isEmpty()) return false }[0]
                 .matches(Regex("-{0,2}help"))
     }
