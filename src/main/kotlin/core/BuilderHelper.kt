@@ -5,6 +5,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageBuilder
+import sx.blah.discord.util.RateLimitException
 
 object BuilderHelper {
     fun buildEmbed(action: EmbedBuilder.() -> Unit): EmbedObject {
@@ -12,10 +13,22 @@ object BuilderHelper {
     }
 
     fun buildEmbed(channel: IChannel, action: EmbedBuilder.() -> Unit): IMessage {
-        return buildEmbed(action).let { channel.sendMessage(it) }
+        while (true) {
+            try {
+                return buildEmbed(action).let { channel.sendMessage(it) }
+            } catch (rle: RateLimitException) {
+                Thread.sleep(rle.retryDelay)
+            }
+        }
     }
 
     fun buildMessage(channel: IChannel, action: MessageBuilder.() -> Unit): IMessage {
-        return MessageBuilder(Client).withChannel(channel).apply(action).build()
+        while (true) {
+            try {
+                return MessageBuilder(Client).withChannel(channel).apply(action).build()
+            } catch (rle: RateLimitException) {
+                Thread.sleep(rle.retryDelay)
+            }
+        }
     }
 }
