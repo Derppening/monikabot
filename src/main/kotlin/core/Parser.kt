@@ -18,6 +18,10 @@ object Parser : IChannelLogger {
 
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
+        if (cmds.experimental.Trivia.users.any { it == event.author.longID }) {
+            return
+        }
+
         if (!event.channel.isPrivate &&
                 !event.message.content.startsWith(Client.ourUser.mention(false))) {
             if (!Core.isOwnerLocationValid(event)) {
@@ -73,6 +77,7 @@ object Parser : IChannelLogger {
 
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
         return when (cmd) {
+            "trivia" -> cmds.experimental.Trivia.delegateCommand(event)
             "warframe" -> cmds.experimental.Warframe.delegateCommand(event)
             else -> HandleState.NOT_FOUND
         }

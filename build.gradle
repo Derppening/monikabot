@@ -9,6 +9,7 @@ buildscript {
     ext.jackson_module_kotlin_version = '2.9.4.1'
     ext.jackson_datatype_jsr310_version = '2.9.4'
     ext.jsoup_version = '1.11.2'
+    ext.apache_commons_text_version = '1.2'
 
     repositories {
         mavenCentral()
@@ -19,7 +20,7 @@ buildscript {
 }
 
 setGroup("hk.derppening.monikabot")
-setVersion("1.1.0-beta.1")
+setVersion("1.1.0-beta.2")
 
 apply plugin: 'application'
 apply plugin: 'java'
@@ -51,6 +52,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_module_kotlin_version"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_datatype_jsr310_version"
     compile "org.jsoup:jsoup:$jsoup_version"
+    compile "org.apache.commons:commons-text:$apache_commons_text_version"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
