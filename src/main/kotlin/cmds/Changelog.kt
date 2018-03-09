@@ -59,10 +59,11 @@ object Changelog : IBase, IChannelLogger {
             if (displayChanges.isEmpty()) {
                 withDesc("There are no official releases (yet)!")
             } else {
-                displayChanges.filterIndexed { index, _ -> index >= changes.size - 5 }
-                        .forEach { (ver, changetext) ->
-                            appendField(ver, changetext.joinToString("\n"), false)
-                        }
+                displayChanges.filterIndexed {
+                    index, _ -> index >= changes.size - 5
+                }.forEach { (ver, changetext) ->
+                    appendField(ver, changetext.joinToString("\n"), false)
+                }
             }
         }
     }

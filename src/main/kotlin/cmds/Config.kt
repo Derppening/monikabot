@@ -11,6 +11,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread
 
+/**
+ * Singleton handling "config" commands.
+ */
 object Config : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
@@ -48,11 +51,24 @@ object Config : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Listener for onReady event.
+     *
+     * Inserts all configuration data into the persistent message.
+     *
+     * @param event ReadyEvent.
+     */
     @EventSubscriber
     fun onReadyReceiver(event: ReadyEvent) {
         PersistentMessage.modify("Config", "Experimental Features", enableExperimentalFeatures.toString(), true)
     }
 
+    /**
+     * Handler for "config experimental" commands.
+     *
+     * @param args List of arguments.
+     * @param event Event of the original message.
+     */
     private fun experimentalHandler(args: List<String>, event: MessageReceivedEvent) {
         if (args.size == 1) {
             buildMessage(event.channel) {
@@ -82,6 +98,9 @@ object Config : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Whether to enable experimental features.
+     */
     var enableExperimentalFeatures = false
         private set
 }

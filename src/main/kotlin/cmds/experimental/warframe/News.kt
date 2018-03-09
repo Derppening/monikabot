@@ -17,7 +17,7 @@ import java.util.*
 object News : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
-        if (args.isNotEmpty() && args[0].matches("-{0,2}help".toRegex())) {
+        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) } ) {
             help(event, false)
 
             return Parser.HandleState.HANDLED

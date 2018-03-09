@@ -8,10 +8,25 @@ import sx.blah.discord.util.MessageBuilder
 import sx.blah.discord.util.RateLimitException
 
 object BuilderHelper {
+    /**
+     * A helper for building embeds.
+     *
+     * @param action The actions to be applied to the embed builder.
+     *
+     * @return An EmbedObject.
+     */
     fun buildEmbed(action: EmbedBuilder.() -> Unit): EmbedObject {
         return EmbedBuilder().apply(action).build()
     }
 
+    /**
+     * A helper for building and sending embeds.
+     *
+     * @param channel Channel to send the embed into.
+     * @param action The actions to be applied to the embed builder.
+     *
+     * @return The message of the embed.
+     */
     fun buildEmbed(channel: IChannel, action: EmbedBuilder.() -> Unit): IMessage {
         while (true) {
             try {

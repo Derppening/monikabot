@@ -36,40 +36,21 @@ object Market : IBase, IChannelLogger {
 
         event.channel.toggleTypingStatus()
 
-        var useFallback = false
-        val link = "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}/statistics"
-        val linkFallback = "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}_set/statistics"
-        val jsonToParse = Jsoup.connect(link)
-                .timeout(5000)
-                .get()
-                .select("#application-state")
-
-        var market: MarketStats
-        try {
-            market = jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(jsonToParse.html())
-        } catch (e: Exception) {
-            val jsonToParseFallback = Jsoup.connect(linkFallback)
-                    .timeout(5000)
-                    .get()
-                    .select("#application-state")
-
-            try {
-                market = jacksonObjectMapper().apply {
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readValue(jsonToParseFallback.html())
-
-                useFallback = true
-            } catch (e: Exception) {
+        val (useFallback, market) = getMarketJson(item).let {
+            if (it.first == 2) {
                 buildMessage(event.channel) {
                     withContent("Cannot find item $item!")
                 }
 
                 return Parser.HandleState.HANDLED
             }
+            Pair(it.first == 1, it.second)
+        }
+
+        val link = if (useFallback) {
+            "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}_set/statistics"
+        } else {
+            "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}/statistics"
         }
 
         val itemInSet = market.include.item.itemsInSet.find {
@@ -146,8 +127,57 @@ object Market : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Gets and parses the market JSON.
+     *
+     * @param item Item to retrieve.
+     *
+     * @return Pair of return code and MarketStats object.
+     */
+    private fun getMarketJson(item: String): Pair<Int, MarketStats> {
+        var useFallback = 0
+        val link = "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}/statistics"
+        val linkFallback = "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}_set/statistics"
+        val jsonToParse = Jsoup.connect(link)
+                .timeout(5000)
+                .get()
+                .select("#application-state")
+
+        var market: MarketStats
+        try {
+            market = jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            }.readValue(jsonToParse.html())
+        } catch (e: Exception) {
+            val jsonToParseFallback = Jsoup.connect(linkFallback)
+                    .timeout(5000)
+                    .get()
+                    .select("#application-state")
+
+            try {
+                market = jacksonObjectMapper().apply {
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                }.readValue(jsonToParseFallback.html())
+
+                useFallback = 1
+            } catch (e: Exception) {
+                return Pair(0, MarketStats())
+            }
+        }
+
+        return Pair(useFallback, market)
+    }
+
+    /**
+     * Fixed link for warframe market images.
+     */
     private const val imageLink = "https://warframe.market/static/assets/"
 
+    /**
+     * Data class for market statistics.
+     */
     class MarketStats {
         val payload = Payload()
         val include = Include()

@@ -28,6 +28,11 @@ object Core {
      */
     fun isEventFromSuperuser(event: MessageEvent) = suIds.any { it == event.author.longID }
 
+    /**
+     * Removes the leading MonikaBot mention from a message.
+     *
+     * @return Message without a leading mention.
+     */
     fun popLeadingMention(message: String): String {
         return if (message.startsWith(Client.ourUser.mention(false))) {
             message.popFirstWord()
