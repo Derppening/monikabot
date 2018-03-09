@@ -1,6 +1,7 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.buildMessage
 import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.IChannelLogger
@@ -62,6 +63,13 @@ object Debug : IBase, IChannelLogger {
                 }
                 if (args.size != 4) { return@run }
                 PersistentMessage.modify(args[1], args[2], args[3], true)
+            }
+            "warframe-language" -> run {
+                if (args.size != 2) { return@run }
+
+                buildMessage(event.channel) {
+                    withContent(cmds.experimental.Warframe.getLanguageFromAsset(args[1]))
+                }
             }
             else -> {
                 log(IChannelLogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {

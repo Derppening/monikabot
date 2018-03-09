@@ -62,6 +62,19 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
         }
     }
 
+    fun getLanguageFromAsset(encoded: String): String {
+        return try {
+            jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            }.readTree(URL("https://raw.githubusercontent.com/WFCD/warframe-worldstate-data/master/data/languages.json"))
+                    .get(encoded.toLowerCase())
+                    .get("value").asText()
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
     private fun updateWorldState() {
         if (!Client.isReady) {
             return
