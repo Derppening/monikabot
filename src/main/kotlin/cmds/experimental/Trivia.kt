@@ -8,19 +8,38 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.Core
+import core.IChannelLogger
+import core.IConsoleLogger
 import core.Parser
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
 import java.net.URL
 import kotlin.concurrent.thread
 
-object Trivia : IBase {
+object Trivia : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
+        val args = getArgumentList(event.message.content).dropWhile {
+            it == "--experimental"
+        }
+
+        val questions = if (args.isNotEmpty() && args[0].toIntOrNull() != null) {
+            args[0].toInt()
+        } else {
+            5
+        }
+        val difficulty = if (args.isNotEmpty() && args.any { it.matches(Regex("(easy|medium|hard|any)"))} ) {
+            args.find { it.matches(Regex("(easy|medium|hard|any)")) }
+        } else {
+            "easy"
+        }
+
         val channel = event.author.orCreatePMChannel
         val triviaData = jacksonObjectMapper().apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue<TriviaData>(URL("https://opentdb.com/api.php?amount=5"))
+        }.readValue<TriviaData>(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
 
         if (triviaData.responseCode != 0) {
             buildMessage(channel) {
@@ -35,10 +54,13 @@ object Trivia : IBase {
         }
 
         buildMessage(channel) {
-            withContent("Let's play Trivia!")
+            withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
+            appendContent("\nType \"exit\" to quit any time!")
         }
 
         thread {
+            logger.info("Trivia Thread detached for ${Core.getDiscordTag(event.author)}")
+
             users.add(event.author.longID)
 
             var correctAnswers = 0
@@ -57,13 +79,15 @@ object Trivia : IBase {
                     }
                 }
 
-
                 var lastMessageId = embed.longID
+                logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
                 checkResponse@ while (true) {
                     if (channel.messageHistory.latestMessage.longID != lastMessageId) {
-                        lastMessageId = channel.messageHistory.latestMessage.longID
+                        val message = channel.messageHistory.latestMessage
 
-                        if (channel.messageHistory.latestMessage.content.toLowerCase() == "exit") {
+                        lastMessageId = message.longID
+
+                        if (message.content.toLowerCase() == "exit") {
                             break@game
                         }
 
@@ -72,8 +96,8 @@ object Trivia : IBase {
                                 break@checkResponse
                             }
                             "multiple" -> {
-                                if (answers.any { it.toLowerCase() == channel.messageHistory.latestMessage.content.toLowerCase() } ||
-                                        (channel.messageHistory.latestMessage.content.length == 1 && (channel.messageHistory.latestMessage.content[0].toInt() - 65) < 4)) {
+                                if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
+                                        (message.content.length == 1 && (message.content[0].toInt() - 65) < 4)) {
                                     break@checkResponse
                                 }
                             }
@@ -83,7 +107,17 @@ object Trivia : IBase {
                     }
                 }
 
-                val ans = channel.messageHistory.latestMessage.content!!
+                val ans = try {
+                    channel.messageHistory.latestMessage.content ?: throw Exception("Latest message is a NullPointer")
+                } catch (e: Exception) {
+                    buildMessage(event.channel) {
+                        withContent("Monika hit a hiccup and needs to take a break :(")
+                    }
+
+                    e.printStackTrace()
+                    break@game
+                }
+
                 when (trivia.type) {
                     "boolean" -> {
                         when {
@@ -95,7 +129,7 @@ object Trivia : IBase {
                             }
                             else -> {
                                 buildMessage(channel) {
-                                    withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}")
+                                    withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}.")
                                 }
                             }
                         }
@@ -126,9 +160,43 @@ object Trivia : IBase {
             }
 
             users.remove(event.author.longID)
+
+            logger.info("Trivia Thread joined for ${Core.getDiscordTag(event.author)}")
         }
 
         return Parser.HandleState.HANDLED
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `trivia` (Experimental)")
+                withDesc("Starts a trivia game with Monika.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```trivia [questions] [difficulty]```", false)
+                appendField("`[questions]`", "Number of questions to ask.\nDefaults to 5", false)
+                appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)
+            }
+        } catch (e: DiscordException) {
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
+        }
+    }
+
+    fun checkUserTriviaStatus(event: MessageReceivedEvent): Boolean {
+        if (users.any { it == event.author.longID }) {
+            if (!event.channel.isPrivate) {
+                buildMessage(event.channel) {
+                    withContent("It looks like you're still in a trivia game... Type \"exit\" in my private chat to quit it!")
+                }
+            }
+            return true
+        }
+
+        return false
     }
 
     var users = mutableListOf<Long>()

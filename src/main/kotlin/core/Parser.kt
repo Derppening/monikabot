@@ -18,9 +18,7 @@ object Parser : IChannelLogger {
 
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (cmds.experimental.Trivia.users.any { it == event.author.longID }) {
-            return
-        }
+        if (cmds.experimental.Trivia.checkUserTriviaStatus(event)) { return }
 
         if (!event.channel.isPrivate &&
                 !event.message.content.startsWith(Client.ourUser.mention(false))) {
