@@ -25,9 +25,12 @@ object Help : IBase {
 
     private fun listFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
+            appendField("`changelog`", "Views the changelog of MonikaBot.", false)
             appendField("`echo`", "Repeats a string.", false)
+            appendField("`help`", "Displays help for primary commands.", false)
             appendField("`random`", "Randomly generates numbers.", false)
             appendField("`rng`", "Computes statistics for drop tables.", false)
+            appendField("`version`", "Displays the current version of MonikaBot.", false)
             appendField("`warframe`", "Warframe-related commands.", false)
         }
     }
@@ -35,6 +38,7 @@ object Help : IBase {
     private fun listSuFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
             appendField("Superuser: `clear`", "Clears all messages in a channel.", false)
+            appendField("Superuser: `config`", "Configures properties of MonikaBot.", false)
             appendField("Superuser: `debug`", "Debugging commands.", false)
             appendField("Superuser: `reload`", "Reload important bot properties.", false)
             appendField("Owner: `status`", "Changes the status of the bot.", false)
