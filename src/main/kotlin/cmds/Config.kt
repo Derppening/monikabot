@@ -5,8 +5,6 @@ import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
-import sx.blah.discord.api.events.EventSubscriber
-import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread
@@ -49,18 +47,6 @@ object Config : IBase, IChannelLogger {
             }
             e.printStackTrace()
         }
-    }
-
-    /**
-     * Listener for onReady event.
-     *
-     * Inserts all configuration data into the persistent message.
-     *
-     * @param event ReadyEvent.
-     */
-    @EventSubscriber
-    fun onReadyReceiver(event: ReadyEvent) {
-        PersistentMessage.modify("Config", "Experimental Features", enableExperimentalFeatures.toString(), true)
     }
 
     /**

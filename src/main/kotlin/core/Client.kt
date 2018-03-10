@@ -1,5 +1,6 @@
 package core
 
+import cmds.Config
 import core.Persistence.client
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
@@ -32,6 +33,7 @@ object Client : IChannelLogger, IDiscordClient by client {
             setStatus(defaultState, defaultStatus)
 
             thread {
+                PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())
                 PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
             }
 
