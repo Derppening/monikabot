@@ -106,6 +106,7 @@ interface IBase : IChannelLogger {
      */
     private fun hasHelpFlag(arg0: String): Boolean {
         return getArgumentList(arg0)
+                .dropWhile { it == "--experimental" }
                 .also { if (it.isEmpty()) return false }[0]
                 .matches(Regex("-{0,2}help"))
     }
