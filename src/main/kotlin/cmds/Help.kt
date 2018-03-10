@@ -12,6 +12,8 @@ object Help : IBase {
             withTitle("Help Text for MonikaBot")
             withDesc("MonikaBot is a command-based bot, supporting a wide range of features. Written by " +
                     "Derppening#9062.\nUse `[command] --help` to get help text for any command listed below.")
+            appendDesc("\nCommands listed as *experimental* can be accessed by appending `--experimental` to the " +
+                    "command itself, but note that these commands are subject to change and may not be stable.")
             apply {
                 listFunctions(this)
                 if (Core.isEventFromSuperuser(event)) {
@@ -32,6 +34,8 @@ object Help : IBase {
             appendField("`rng`", "Computes statistics for drop tables.", false)
             appendField("`version`", "Displays the current version of MonikaBot.", false)
             appendField("`warframe`", "Warframe-related commands.", false)
+            appendField("Experimental: `trivia`", "Starts a game of trivia.", false)
+            appendField("Experimental: `warframe`", "Experimental set of Warframe-related commands.", false)
         }
     }
 
