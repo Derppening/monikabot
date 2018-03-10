@@ -1,10 +1,7 @@
 package cmds
 
-import core.BuilderHelper
+import core.*
 import core.BuilderHelper.buildMessage
-import core.IChannelLogger
-import core.Parser
-import core.PersistentMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread
@@ -87,6 +84,6 @@ object Config : IBase, IChannelLogger {
     /**
      * Whether to enable experimental features.
      */
-    var enableExperimentalFeatures = false
+    var enableExperimentalFeatures = Core.monikaVersionBranch == "development"
         private set
 }
