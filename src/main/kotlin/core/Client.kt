@@ -108,5 +108,5 @@ object Client : IChannelLogger, IDiscordClient by client {
     /**
      * Default playing text.
      */
-    private const val defaultStatus = "Okay Everyone! d(^_^)b"
+    private const val defaultStatus = "Okay Everyone!"
 }

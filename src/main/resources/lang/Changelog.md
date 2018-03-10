@@ -34,3 +34,7 @@
 
 [v1.1.0-beta.2]
 - Various behind-the-scene changes
+
+[v1.1.0-beta.3]
+- Add experimental `trivia` command
+- Update list of commands in `help`
