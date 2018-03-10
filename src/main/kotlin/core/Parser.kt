@@ -41,9 +41,13 @@ object Parser : IChannelLogger {
         if (runExperimental && Config.enableExperimentalFeatures) {
             retval = parseExperimental(event, cmd)
         } else {
-            if (runExperimental && Core.isEventFromSuperuser(event)) {
+            if (runExperimental) {
                 buildMessage(event.channel) {
-                    withContent("It seems like you're trying to invoke an experimental command without it being on...")
+                    if (Core.isEventFromSuperuser(event)) {
+                        withContent("It seems like you're trying to invoke an experimental command without it being on...")
+                    } else {
+                        withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
+                    }
                 }
             }
 
