@@ -68,18 +68,17 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
 
             game@ for (trivia in triviaData.results) {
                 val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled()
-                val embed = buildEmbed(channel) {
+                buildEmbed(channel) {
                     withAuthorName("Difficulty: ${trivia.difficulty.capitalize()}")
                     withTitle("Category: ${trivia.category}")
                     withDesc(StringEscapeUtils.unescapeHtml4(trivia.question))
-
 
                     answers.forEachIndexed { i, answer ->
                         appendField((i + 65).toChar().toString(), StringEscapeUtils.unescapeHtml4(answer), true)
                     }
                 }
 
-                var lastMessageId = embed.longID
+                var lastMessageId = channel.messageHistory.latestMessage.longID
                 logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
                 checkResponse@ while (true) {
                     if (channel.messageHistory.latestMessage.longID != lastMessageId) {
@@ -91,16 +90,9 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
                             break@game
                         }
 
-                        when (trivia.type) {
-                            "boolean" -> {
-                                break@checkResponse
-                            }
-                            "multiple" -> {
-                                if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
-                                        (message.content.length == 1 && (message.content[0].toInt() - 65) < 4)) {
-                                    break@checkResponse
-                                }
-                            }
+                        if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
+                                (message.content.length == 1 && (message.content[0].toInt() - 65) < answers.size)) {
+                            break@checkResponse
                         }
                     } else {
                         Thread.sleep(500)
