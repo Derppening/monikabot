@@ -1,4 +1,4 @@
-package cmds.experimental.warframe
+package cmds.warframe
 
 import cmds.IBase
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -20,7 +20,7 @@ import java.time.ZoneId
 
 object Market : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).drop(2)
+        val args = getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) } ) {
             help(event, false)
 
@@ -30,7 +30,7 @@ object Market : IBase, IChannelLogger {
         val item = args.toMutableList()
                 .apply {
                     removeIf {
-                        it =="--experimental" || it == "market"
+                        it == "market"
                     }
                 }.joinToString(" ")
 
@@ -132,7 +132,7 @@ object Market : IBase, IChannelLogger {
      *
      * @param item Item to retrieve.
      *
-     * @return Pair of return code and MarketStats object.
+     * @return Pair of return code and MarketStats object. If return code is 2, the requested item cannot be found.
      */
     private fun getMarketJson(item: String): Pair<Int, MarketStats> {
         var useFallback = 0
@@ -163,7 +163,7 @@ object Market : IBase, IChannelLogger {
 
                 useFallback = 1
             } catch (e: Exception) {
-                return Pair(0, MarketStats())
+                return Pair(2, MarketStats())
             }
         }
 

@@ -12,7 +12,6 @@ fun setupDispatchers() {
 
 fun registerTimers() {
     Client.registerTimer(Warframe.updateWorldStateTask)
-    Client.registerTimer(cmds.experimental.Warframe.updateWorldStateTask)
 }
 
 fun main(args: Array<String>) {

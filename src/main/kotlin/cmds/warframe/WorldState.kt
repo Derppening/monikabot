@@ -1,4 +1,4 @@
-package cmds.experimental.warframe
+package cmds.warframe
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
@@ -242,7 +242,7 @@ class WorldState {
 
         class DateInner {
             @JsonProperty("\$numberLong")
-            @JsonDeserialize(using = WorldState.TimeMillisDeserializer::class)
+            @JsonDeserialize(using = TimeMillisDeserializer::class)
             val numberLong = Instant.EPOCH
         }
     }

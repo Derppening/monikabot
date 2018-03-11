@@ -35,7 +35,6 @@ object Help : IBase {
             appendField("`version`", "Displays the current version of MonikaBot.", false)
             appendField("`warframe`", "Warframe-related commands.", false)
             appendField("Experimental: `trivia`", "Starts a game of trivia.", false)
-            appendField("Experimental: `warframe`", "Experimental set of Warframe-related commands.", false)
         }
     }
 

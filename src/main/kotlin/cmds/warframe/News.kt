@@ -1,8 +1,8 @@
-package cmds.experimental.warframe
+package cmds.warframe
 
 import cmds.Debug
 import cmds.IBase
-import cmds.experimental.Warframe
+import cmds.Warframe
 import core.BuilderHelper
 import core.IChannelLogger
 import core.Parser
@@ -41,7 +41,9 @@ object News : IBase {
                     diff.toMinutes() > 0 -> "${diff.toMinutes()}m"
                     else -> "${diff.seconds}s"
                 }
-                appendDesc("\n[$diffString] $v")
+                if (v.isNotBlank()) {
+                    appendDesc("\n[$diffString] $v")
+                }
             }
 
             withTimestamp(LocalDateTime.ofInstant(Warframe.worldState.time, ZoneId.of("UTC")))

@@ -80,7 +80,6 @@ object Parser : IChannelLogger {
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
         return when (cmd) {
             "trivia" -> cmds.experimental.Trivia.delegateCommand(event)
-            "warframe" -> cmds.experimental.Warframe.delegateCommand(event)
             else -> HandleState.NOT_FOUND
         }
     }
