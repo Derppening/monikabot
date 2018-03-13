@@ -34,6 +34,14 @@ object Market : IBase, IChannelLogger {
                     }
                 }.joinToString(" ")
 
+        if (item.isBlank()) {
+            buildMessage(event.channel) {
+                withContent("Please specify an item to lookup!")
+            }
+
+            return Parser.HandleState.HANDLED
+        }
+
         event.channel.toggleTypingStatus()
 
         val (useFallback, market) = getMarketJson(item).let {
