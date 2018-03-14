@@ -11,6 +11,7 @@ fun setupDispatchers() {
 }
 
 fun registerTimers() {
+    Client.registerTimer(Warframe.updateDropTablesTask)
     Client.registerTimer(Warframe.updateWorldStateTask)
 }
 
