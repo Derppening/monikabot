@@ -11,6 +11,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -78,18 +79,18 @@ object Market : IBase, IChannelLogger {
                 appendField("48-Hour Median", market.payload.statistics.stat48.last().median.toString(), true)
                 appendField("48-Hour Average", market.payload.statistics.stat48.last().avgPrice.toString(), true)
                 appendField("48-Hour Maximum", market.payload.statistics.stat48.last().maxPrice.toString(), true)
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("90-Day Minimum", market.payload.statistics.stat90.last().minPrice.toString(), true)
                 appendField("90-Day Median", market.payload.statistics.stat90.last().median.toString(), true)
                 appendField("90-Day Average", market.payload.statistics.stat90.last().avgPrice.toString(), true)
                 appendField("90-Day Maximum", market.payload.statistics.stat90.last().maxPrice.toString(), true)
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Items in Set", market.include.item.itemsInSet.joinToString("\n") { it.en.itemName }, false)
             }
 
             if (itemInSet != null) {
                 appendDescription(itemInSet.en.codex)
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Item Mastery Rank", itemInSet.masteryLevel.toString(), false)
                 if (itemInSet.ducats == 0) {
                     appendField("Ducats", "(Cannot be traded into Ducats)", true)
@@ -121,7 +122,7 @@ object Market : IBase, IChannelLogger {
             BuilderHelper.buildEmbed(event.channel) {
                 withTitle("Help Text for `warframe-market` (Experimental)")
                 withDesc("Displays market information of any item.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```warframe market [item]```", false)
                 appendField("`[item]`", "Item to lookup.", false)
             }

@@ -4,6 +4,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.math.BigDecimal
@@ -101,19 +102,18 @@ object RNG : IBase {
             appendField("Number of Attempts for >90% Chance", min.second.toString(), true)
 
             if (attempts.first) {
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Mean of Successes", formatReal(n * p, round), true)
                 appendField("Variance of Successes", formatReal(n * p * (1 - p), round), true)
                 appendField("Chance of Failure after $n Attempts", formatReal((1 - p).pow(n), round, true), true)
             }
 
             if (success.first) {
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Chance of Success during Run $k", formatReal((1 - p).pow(k - 1) * p, round, true), true)
 
                 val percentile = run {
-                    val c = (1..k).sumByDouble { ((1 - p).pow(it - 1) * p) }
-                    c
+                   (1..k).sumByDouble { ((1 - p).pow(it - 1) * p) }
                 }
 
                 appendField("Percentile", formatReal(percentile, round, true), true)
@@ -128,7 +128,7 @@ object RNG : IBase {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `rng`")
                 withDesc("Computes distribution statistics for drop tables.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]```", false)
                 appendField("`[PROBABILITY]`", "Specifies item drop chance.", false)
                 appendField("`[n=ATTEMPTS]`", "Optional: Specifies number of attempts to get the item.", false)

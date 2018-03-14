@@ -1,18 +1,18 @@
 package cmds
 
+import cmds.warframe.DropTable
 import cmds.warframe.Market
 import cmds.warframe.News
 import cmds.warframe.WorldState
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
-import core.Client
 import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.net.URL
@@ -43,7 +43,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `warframe`")
                 withDesc("Wrapper for Warframe-related commands.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```warframe [subcommand] [args]```", false)
                 appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
                 appendField("Subcommand: `market`", "Displays market information about an item.", false)

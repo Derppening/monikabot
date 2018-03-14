@@ -4,6 +4,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -65,11 +66,11 @@ object Random : IBase {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `random`")
                 withDesc("Randomly generates numbers. Also works for dices and coins.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```random [real] [min] [max]```", false)
                 appendField("`real`", "If specified, generate a real number instead of an integer.", false)
                 appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```random [coin|dice]```", false)
                 appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
             }

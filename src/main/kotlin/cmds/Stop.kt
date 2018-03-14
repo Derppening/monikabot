@@ -5,6 +5,7 @@ import core.Client
 import core.Core
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import kotlin.system.exitProcess
@@ -47,7 +48,7 @@ object Stop : IBase, IChannelLogger {
                 buildEmbed(event.channel) {
                     withTitle("Help Text for `stop`")
                     withDesc("Stops the execution of the bot.")
-                    appendField("\u200B", "\u200B", false)
+                    insertSeparator()
                     appendField("Usage", "```stop [stable|development]```", false)
                     appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
                 }

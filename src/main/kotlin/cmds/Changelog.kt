@@ -4,6 +4,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.io.File
@@ -32,7 +33,7 @@ object Changelog : IBase, IChannelLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `changelog`")
                 withDesc("Displays the changelog for the most recent build(s).")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```changelog [release] [all]```", false)
                 appendField("`release`", "Only show changes for release builds.", false)
                 appendField("`all`", "Show 5 most recent builds instead of 1.", false)

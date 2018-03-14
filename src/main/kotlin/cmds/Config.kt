@@ -2,6 +2,7 @@ package cmds
 
 import core.*
 import core.BuilderHelper.buildMessage
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread
@@ -32,7 +33,7 @@ object Config : IBase, IChannelLogger {
             BuilderHelper.buildEmbed(event.channel) {
                 withTitle("Help Text for `config`")
                 withDesc("Core configurations for MonikaBot.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```config [configuration] [options...]```", false)
                 appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
             }

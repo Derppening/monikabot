@@ -12,6 +12,7 @@ import core.Core
 import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
+import insertSeparator
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -164,7 +165,7 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `trivia` (Experimental)")
                 withDesc("Starts a trivia game with Monika.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```trivia [questions] [difficulty]```", false)
                 appendField("`[questions]`", "Number of questions to ask.\nDefaults to 5", false)
                 appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)

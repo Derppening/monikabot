@@ -5,6 +5,7 @@ import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -38,7 +39,7 @@ object Clear : IBase, IChannelLogger {
                 withTitle("Help Text for `clear`")
                 withDesc("Clears all channel messages that are younger than 14 days.")
                 appendDesc("\nThis command does not work in private channels.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```clear [--all]```", false)
                 appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
                         "are locally cached.", false)

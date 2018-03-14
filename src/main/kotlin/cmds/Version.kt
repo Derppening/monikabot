@@ -5,6 +5,7 @@ import core.BuilderHelper.buildMessage
 import core.Core
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -22,7 +23,7 @@ object Version : IBase, IChannelLogger {
             BuilderHelper.buildEmbed(event.channel) {
                 withTitle("Help Text for `version`")
                 withDesc("Displays the version information.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```version```", false)
             }
         } catch (e: DiscordException) {

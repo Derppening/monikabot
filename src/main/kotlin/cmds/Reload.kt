@@ -4,6 +4,7 @@ import core.BuilderHelper
 import core.Core
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -24,7 +25,7 @@ object Reload : IBase, IChannelLogger {
             BuilderHelper.buildEmbed(event.channel) {
                 withTitle("Help Text for `reload`")
                 withDesc("Reloads essential bot properties from their respective files.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```reload```", false)
             }
         } catch (e: DiscordException) {

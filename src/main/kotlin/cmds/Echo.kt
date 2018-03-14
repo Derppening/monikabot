@@ -4,6 +4,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
@@ -56,7 +57,7 @@ object Echo : IBase, IChannelLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `echo`")
                 withDesc("Echo: Repeats a string, and erases it from the current channel.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```echo [string]```", false)
                 appendField("`[string]`", "String to repeat.", false)
             }

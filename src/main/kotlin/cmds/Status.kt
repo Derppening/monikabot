@@ -5,6 +5,7 @@ import core.Client
 import core.Core
 import core.IChannelLogger
 import core.Parser
+import insertSeparator
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -68,11 +69,11 @@ object Status : IBase {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `status`")
                 withDesc("Sets the status and playing text of the bot.")
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```status [--online|--idle|--dnd|--offline] [TEXT]```", false)
                 appendField("`--online|--idle|--dnd|--offline`", "New status of the bot", false)
                 appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
-                appendField("\u200B", "\u200B", false)
+                insertSeparator()
                 appendField("Usage", "```status [--reset]```", false)
                 appendField("`--reset`", "Resets the status to the default.", false)
             }
