@@ -24,6 +24,8 @@ import core.Persistence.client
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.DiscordException
 import java.util.*
 import kotlin.concurrent.thread
@@ -33,23 +35,14 @@ import kotlin.concurrent.thread
  */
 object Client : IChannelLogger, IDiscordClient by client {
     /**
-     * Enumeration for bot status.
-     */
-    enum class Status {
-        ONLINE,
-        IDLE,
-        BUSY,
-        OFFLINE
-    }
-
-    /**
      * Listener for ReadyEvent.
      */
     @EventSubscriber
     fun onReadyListener(event: ReadyEvent) {
         try {
             event.client.changeUsername(defaultUserName)
-            setStatus(defaultState, defaultStatus)
+            resetStatus()
+
 
             thread {
                 PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())
@@ -81,34 +74,11 @@ object Client : IChannelLogger, IDiscordClient by client {
     }
 
     /**
-     * Sets the bot's status and playing message.
-     *
-     * @param status Status of the bot.
-     * @param playingText Playing message of the bot.
-     */
-    fun setStatus(status: Status, playingText: String = "") {
-        if (playingText != "") {
-            when (status) {
-                Status.ONLINE -> client.online(playingText)
-                Status.IDLE -> client.idle(playingText)
-                Status.BUSY -> client.dnd(playingText)
-                Status.OFFLINE -> client.invisible()
-            }
-        } else {
-            when (status) {
-                Status.ONLINE -> client.online()
-                Status.IDLE -> client.idle()
-                Status.BUSY -> client.dnd()
-                Status.OFFLINE -> client.invisible()
-            }
-        }
-    }
-
-    /**
      * Resets the bot's status and playing message to the default.
      */
     fun resetStatus() {
-        setStatus(defaultState, defaultStatus)
+        changePresence(defaultState, defaultActivity, defaultText)
+        log(IChannelLogger.LogLevel.INFO, "Successfully updated")
     }
 
     /**
@@ -117,15 +87,19 @@ object Client : IChannelLogger, IDiscordClient by client {
     private val timers = mutableListOf<Timer>()
 
     /**
+     * Default activity.
+     */
+    private val defaultActivity = ActivityType.PLAYING
+    /**
      * Default user name.
      */
     private const val defaultUserName = "MonikaBot"
     /**
-     * Default status.
+     * Default state.
      */
-    private val defaultState = Status.ONLINE
+    private val defaultState = StatusType.ONLINE
     /**
-     * Default playing text.
+     * Default text.
      */
-    private const val defaultStatus = "Okay Everyone!"
+    private const val defaultText = "Okay Everyone!"
 }

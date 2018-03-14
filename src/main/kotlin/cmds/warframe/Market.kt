@@ -35,8 +35,6 @@ import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 object Market : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -130,7 +128,7 @@ object Market : IBase, IChannelLogger {
             }
 
             withUrl(link)
-            withTimestamp(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")))
+            withTimestamp(Instant.now())
         }
 
         return Parser.HandleState.HANDLED

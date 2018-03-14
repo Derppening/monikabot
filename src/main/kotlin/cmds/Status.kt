@@ -27,6 +27,8 @@ import core.Parser
 import insertSeparator
 import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.DiscordException
 
 /**
@@ -42,6 +44,12 @@ object Status : IBase {
 
         val args = getArgumentList(event.message.content).toMutableList()
 
+        if (args.size == 0) {
+            Client.resetStatus()
+
+            return Parser.HandleState.HANDLED
+        }
+
         val status = when (args[0]) {
             "--reset" -> {
                 Client.resetStatus()
@@ -49,27 +57,59 @@ object Status : IBase {
             }
             "--idle" -> {
                 args.removeAt(0)
-                Client.Status.IDLE
+                StatusType.IDLE
             }
             "--dnd", "--busy" -> {
                 args.removeAt(0)
-                Client.Status.BUSY
+                StatusType.DND
             }
             "--offline", "--invisible" -> {
                 args.removeAt(0)
-                Client.Status.OFFLINE
+                StatusType.INVISIBLE
             }
             "--online" -> {
                 args.removeAt(0)
-                Client.Status.ONLINE
+                StatusType.ONLINE
             }
-            else -> Client.Status.ONLINE
+            else -> StatusType.ONLINE
         }
 
-        val message = args.joinToString(" ").removeQuotes()
+        val activity = when (args[0]) {
+            "--play", "--playing" -> {
+                args.removeAt(0)
+                ActivityType.PLAYING
+            }
+            "--stream", "--streaming" -> {
+                args.removeAt(0)
+                ActivityType.STREAMING
+            }
+            "--listen", "--listening" -> {
+                args.removeAt(0)
+                ActivityType.LISTENING
+            }
+            "--watch", "--watching" -> {
+                args.removeAt(0)
+                ActivityType.WATCHING
+            }
+            else -> ActivityType.PLAYING
+        }
+
+        val arg = args.joinToString(" ").removeQuotes()
+        val streamUrl = arg.substringAfter("--").trim().dropWhile { it == '<' }.dropLastWhile { it == '>' }
+        val message = arg.let {
+            if (activity == ActivityType.STREAMING) {
+                it.substringBefore("--").trim()
+            } else {
+                it
+            }
+        }
 
         try {
-            Client.setStatus(status, message)
+            if (activity == ActivityType.STREAMING) {
+                Client.changeStreamingPresence(status, message, streamUrl)
+            } else {
+                Client.changePresence(status, activity, message)
+            }
             log(IChannelLogger.LogLevel.INFO, "Successfully updated")
         } catch (e: Exception) {
             log(IChannelLogger.LogLevel.ERROR, "Cannot set status") {
@@ -89,9 +129,13 @@ object Status : IBase {
                 withTitle("Help Text for `status`")
                 withDesc("Sets the status and playing text of the bot.")
                 insertSeparator()
-                appendField("Usage", "```status [--online|--idle|--dnd|--offline] [TEXT]```", false)
-                appendField("`--online|--idle|--dnd|--offline`", "New status of the bot", false)
+                appendField("Usage", "```status [STATUS] [ACTIVITY] [TEXT] -- [URL]```", false)
+                appendField("`[STATUS]`", "New status for the bot. Can be one of the following:" +
+                        "\n\t`--online`\n\t--idle\n\t--dnd\n\t--offline", false)
+                appendField("`[ACTIVITY]`", "New activity for the bot. Can be one of the following:" +
+                        "\n\t`--play`\n\t`--stream`\n\t`--listen`\n\t`--watch`", false)
                 appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
+                appendField("`[URL]`", "If `ACTIVITY` is set to streaming, the link of the Twitch stream.", false)
                 insertSeparator()
                 appendField("Usage", "```status [--reset]```", false)
                 appendField("`--reset`", "Resets the status to the default.", false)

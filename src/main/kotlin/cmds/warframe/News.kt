@@ -30,8 +30,6 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 
 object News : IBase {
@@ -66,7 +64,7 @@ object News : IBase {
                 }
             }
 
-            withTimestamp(LocalDateTime.ofInstant(Warframe.worldState.time, ZoneId.of("UTC")))
+            withTimestamp(Warframe.worldState.time)
         }
 
         return Parser.HandleState.HANDLED

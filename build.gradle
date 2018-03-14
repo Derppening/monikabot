@@ -1,14 +1,14 @@
 buildscript {
-    ext.kotlin_version = '1.2.30'
-    ext.discord4j_version = '2.9.3'
-    ext.logback_version = '1.2.3'
-    ext.jackson_core_version = '2.9.4'
-    ext.jackson_databind_version = '2.9.4'
-    ext.jackson_annotations_version = '2.9.4'
-    ext.jackson_module_kotlin_version = '2.9.4.1'
-    ext.jackson_datatype_jsr310_version = '2.9.4'
-    ext.jsoup_version = '1.11.2'
-    ext.apache_commons_text_version = '1.2'
+    ext.kotlin_version = '1.+'
+    ext.discord4j_version = '2.+'
+    ext.logback_version = '1.2.+'
+    ext.jackson_core_version = '2.+'
+    ext.jackson_databind_version = '2.+'
+    ext.jackson_annotations_version = '2.+'
+    ext.jackson_module_kotlin_version = '2.+'
+    ext.jackson_datatype_jsr310_version = '2.+'
+    ext.jsoup_version = '1.+'
+    ext.apache_commons_text_version = '1.+'
 
     repositories {
         mavenCentral()
