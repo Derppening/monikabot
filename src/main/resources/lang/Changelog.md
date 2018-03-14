@@ -38,3 +38,11 @@
 [v1.1.0-beta.3]
 - Add experimental `trivia` command
 - Update list of commands in `help`
+
+[v1.1.0-beta.4]
+- `warframe market` is now out of the experimental branch
+    - `--experimental` flag is not required any more
+    - Fixed bug when user does not enter an item, the same "item not found" message will appear
+- `trivia`: Fixed bug where True/False questions may be skipped
+- Various behind-the-scene refactoring
+- Released the source code of this bot to Github
