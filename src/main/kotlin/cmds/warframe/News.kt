@@ -73,7 +73,7 @@ object News : IBase {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-news` (Experimental)")
+                withTitle("Help Text for `warframe-news`")
                 withDesc("Displays the latest Warframe news.")
                 insertSeparator()
                 appendField("Usage", "```warframe news```", false)

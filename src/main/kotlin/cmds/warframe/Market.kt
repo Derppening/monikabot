@@ -137,7 +137,7 @@ object Market : IBase, IChannelLogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-market` (Experimental)")
+                withTitle("Help Text for `warframe-market`")
                 withDesc("Displays market information of any item.")
                 insertSeparator()
                 appendField("Usage", "```warframe market [item]```", false)
