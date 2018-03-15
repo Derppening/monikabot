@@ -21,6 +21,7 @@ package cmds.warframe
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -74,6 +75,7 @@ class WorldState {
         val imageUrl = ""
         val priority = false
         val mobileOnly = false
+        val eventLiveURL = ""
 
         class Message {
             val languageCode = Locale.ROOT
@@ -185,7 +187,8 @@ class WorldState {
         val goal = 0
         val locTag = ""
         val completed = false
-        val attackerReward: JsonNode? = null
+        @JsonDeserialize(using = RewardDeserializer::class)
+        val attackerReward = listOf<MissionReward>()
         val attackerMissionInfo = MissionInfo()
         val defenderReward = MissionReward()
         val defenderMissionInfo = MissionInfo()
@@ -196,6 +199,22 @@ class WorldState {
             val faction = ""
             val missionReward = listOf<Any>()
         }
+
+        class RewardDeserializer : JsonDeserializer<List<MissionReward>>() {
+            override fun deserialize(parser: JsonParser, context: DeserializationContext?): List<MissionReward> {
+                return if (parser.currentToken == JsonToken.START_OBJECT) {
+                    val mapper = ObjectMapper().apply {
+                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    }.readValue<MissionReward>(parser.readValueAsTree<JsonNode>().toString())
+
+                    listOf(mapper)
+                } else {
+                    ObjectMapper().apply {
+                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    }.readValue(parser.readValueAsTree<JsonNode>().toString())
+                }
+            }
+        }
     }
 
     class NodeOverride {
@@ -203,6 +222,10 @@ class WorldState {
         val id = ID()
         val node = ""
         val hide = false
+        val faction = ""
+        val enemySpec = ""
+        val extraEnemySpec = ""
+        val expiry = Date()
     }
 
     class BadlandNode {
@@ -361,7 +384,7 @@ class WorldState {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 }.readTree(URL("$worldStateDataUrl/languages.json"))
-                        .get(encoded)
+                        .get(encoded.toLowerCase())
                         .get("value").asText()
             } catch (e: Exception) {
                 ""
