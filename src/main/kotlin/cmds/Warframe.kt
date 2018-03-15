@@ -19,10 +19,7 @@
 
 package cmds
 
-import cmds.warframe.DropTable
-import cmds.warframe.Market
-import cmds.warframe.News
-import cmds.warframe.WorldState
+import cmds.warframe.*
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -47,9 +44,10 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             return Parser.HandleState.HANDLED
         }
 
-        return when (args[0]) {
-            "news" -> News.handler(event)
-            "market" -> Market.handler(event)
+        return when {
+            args[0].matches(Regex("invasions?")) -> Invasion.handler(event)
+            args[0] == "news" -> News.handler(event)
+            args[0] == "market" -> Market.handler(event)
             else -> {
                 help(event, false)
                 Parser.HandleState.HANDLED
@@ -64,6 +62,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
                 withDesc("Wrapper for Warframe-related commands.")
                 insertSeparator()
                 appendField("Usage", "```warframe [subcommand] [args]```", false)
+                appendField("Subcommand: `invasion`", "Displays the ongoing invasions, as well as construction status of mini-bosses.", false)
                 appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
                 appendField("Subcommand: `market`", "Displays market information about an item.", false)
             }
