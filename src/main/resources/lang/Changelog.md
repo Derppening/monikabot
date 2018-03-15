@@ -46,3 +46,6 @@
 - `trivia`: Fixed bug where True/False questions may be skipped
 - Various behind-the-scene refactoring
 - Released the source code of this bot to Github
+
+[v1.1.0-beta.5]
+- Add `warframe invasions` command
