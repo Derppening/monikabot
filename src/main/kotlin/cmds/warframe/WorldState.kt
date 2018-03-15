@@ -3,24 +3,25 @@
  *
  * Copyright (C) 2018 Derppening <david.18.19.21@gmail.com>
  *
- * RTLib is free software: you can redistribute it and/or modify
+ * MonikaBot is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * RTLib is distributed in the hope that it will be useful,
+ * MonikaBot is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with RTLib.  If not, see <http://www.gnu.org/licenses/>.
+ * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package cmds.warframe
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -74,6 +75,7 @@ class WorldState {
         val imageUrl = ""
         val priority = false
         val mobileOnly = false
+        val eventLiveURL = ""
 
         class Message {
             val languageCode = Locale.ROOT
@@ -185,7 +187,8 @@ class WorldState {
         val goal = 0
         val locTag = ""
         val completed = false
-        val attackerReward: JsonNode? = null
+        @JsonDeserialize(using = RewardDeserializer::class)
+        val attackerReward = listOf<MissionReward>()
         val attackerMissionInfo = MissionInfo()
         val defenderReward = MissionReward()
         val defenderMissionInfo = MissionInfo()
@@ -196,6 +199,22 @@ class WorldState {
             val faction = ""
             val missionReward = listOf<Any>()
         }
+
+        class RewardDeserializer : JsonDeserializer<List<MissionReward>>() {
+            override fun deserialize(parser: JsonParser, context: DeserializationContext?): List<MissionReward> {
+                return if (parser.currentToken == JsonToken.START_OBJECT) {
+                    val mapper = ObjectMapper().apply {
+                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    }.readValue<MissionReward>(parser.readValueAsTree<JsonNode>().toString())
+
+                    listOf(mapper)
+                } else {
+                    ObjectMapper().apply {
+                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    }.readValue(parser.readValueAsTree<JsonNode>().toString())
+                }
+            }
+        }
     }
 
     class NodeOverride {
@@ -203,6 +222,10 @@ class WorldState {
         val id = ID()
         val node = ""
         val hide = false
+        val faction = ""
+        val enemySpec = ""
+        val extraEnemySpec = ""
+        val expiry = Date()
     }
 
     class BadlandNode {
@@ -361,7 +384,7 @@ class WorldState {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 }.readTree(URL("$worldStateDataUrl/languages.json"))
-                        .get(encoded)
+                        .get(encoded.toLowerCase())
                         .get("value").asText()
             } catch (e: Exception) {
                 ""

@@ -3,18 +3,18 @@
  *
  * Copyright (C) 2018 Derppening <david.18.19.21@gmail.com>
  *
- * RTLib is free software: you can redistribute it and/or modify
+ * MonikaBot is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * RTLib is distributed in the hope that it will be useful,
+ * MonikaBot is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with RTLib.  If not, see <http://www.gnu.org/licenses/>.
+ * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package cmds.warframe
@@ -137,7 +137,7 @@ object Market : IBase, IChannelLogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-market` (Experimental)")
+                withTitle("Help Text for `warframe-market`")
                 withDesc("Displays market information of any item.")
                 insertSeparator()
                 appendField("Usage", "```warframe market [item]```", false)
