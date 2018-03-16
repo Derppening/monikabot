@@ -40,7 +40,7 @@ class WorldState {
     @JsonDeserialize(using = TimeSecondsDeserializer::class)
     val date = Instant.EPOCH
     val events = listOf<Event>()
-    val goals = listOf<Any>()
+    val goals = listOf<Goal>()
     val alerts = listOf<Alert>()
     val sorties = listOf<Sorties>()
     val syndicateMissions = listOf<SyndicateMission>()
@@ -80,6 +80,28 @@ class WorldState {
         class Message {
             val languageCode = Locale.ROOT
             val message = ""
+        }
+    }
+
+    class Goal {
+        @JsonProperty("_id")
+        val id = ID()
+        val activation = Date()
+        val expiry = Date()
+        val count = 0
+        val goal = 1
+        val success = 0
+        val personal = false
+        val clampNodeScores = false
+        val node = ""
+        val missionKeyName = ""
+        val desc = ""
+        val icon = ""
+        val tag = ""
+        val reward = Reward()
+
+        class Reward {
+            val items = listOf<String>()
         }
     }
 

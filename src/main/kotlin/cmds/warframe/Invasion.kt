@@ -78,7 +78,7 @@ object Invasion : IBase, IChannelLogger {
                 withTimestamp(Warframe.worldState.time)
             }
 
-            Thread.sleep(250)
+            Thread.sleep(100)
         }
     }
 
