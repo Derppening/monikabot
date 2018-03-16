@@ -45,6 +45,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
         }
 
         return when {
+            args[0].matches(Regex("cetus")) -> Cetus.handler(event)
             args[0].matches(Regex("invasions?")) -> Invasion.handler(event)
             args[0] == "news" -> News.handler(event)
             args[0] == "market" -> Market.handler(event)
@@ -62,6 +63,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
                 withDesc("Wrapper for Warframe-related commands.")
                 insertSeparator()
                 appendField("Usage", "```warframe [subcommand] [args]```", false)
+                appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
                 appendField("Subcommand: `invasion`", "Displays the ongoing invasions, as well as construction status of mini-bosses.", false)
                 appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
                 appendField("Subcommand: `market`", "Displays market information about an item.", false)

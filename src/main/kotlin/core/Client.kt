@@ -41,8 +41,7 @@ object Client : IChannelLogger, IDiscordClient by client {
     fun onReadyListener(event: ReadyEvent) {
         try {
             event.client.changeUsername(defaultUserName)
-            resetStatus()
-
+            changePresence(defaultState, defaultActivity, defaultText)
 
             thread {
                 PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())

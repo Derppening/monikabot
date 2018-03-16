@@ -38,6 +38,7 @@ object Invasion : IBase, IChannelLogger {
             args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
             args.isEmpty() -> getInvasionData(event)
             args[0] == "timer" -> getInvasionTimer(event)
+            else -> return Parser.HandleState.UNHANDLED
         }
 
         return Parser.HandleState.HANDLED
@@ -78,7 +79,7 @@ object Invasion : IBase, IChannelLogger {
                 withTimestamp(Warframe.worldState.time)
             }
 
-            Thread.sleep(250)
+            Thread.sleep(100)
         }
     }
 
