@@ -23,14 +23,21 @@ object Cetus : IBase, IChannelLogger {
             removeIf { it.matches(Regex("cetus")) }
         }
 
-        when {
-            args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
-            args[0] == "time" -> getTime(event)
-            else -> {
-                buildMessage(event.channel) {
-                    withContent("Stay tuned for more features!")
+        try {
+            when {
+                args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
+                args.isEmpty() -> getBounties(event)
+                args[0] == "time" -> getTime(event)
+                else -> {
+                    help(event, false)
                 }
             }
+        } catch (e: Exception) {
+            buildMessage(event.channel) {
+                withContent("Warframe is currently updating its information. Please be patient!")
+            }
+
+            log(IChannelLogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
         }
 
         return Parser.HandleState.HANDLED
@@ -55,6 +62,29 @@ object Cetus : IBase, IChannelLogger {
         }
     }
 
+    private fun getBounties(event: MessageReceivedEvent) {
+        val cetusInfo = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
+                ?: throw Exception("Cannot find Cetus information")
+        val timeLeft = Duration.between(Instant.now(), cetusInfo.expiry.date.numberLong)
+        val timeLeftString = formatTimeDuration(timeLeft)
+
+        val bounties = cetusInfo.jobs
+
+        bounties.forEachIndexed { i, v ->
+            buildEmbed(event.channel) {
+                withAuthorName("Cetus Bounties - Tier ${i + 1}")
+                withTitle(WorldState.getLanguageFromAsset(v.jobType))
+
+                appendField("Mastery Requirement", v.masteryReq.toString(), false)
+                appendField("Enemy Level", "${v.minEnemyLevel}-${v.maxEnemyLevel}", true)
+                appendField("Total Standing Reward", v.xpAmounts.sum().toString(), true)
+
+                appendField("Expires in", timeLeftString, false)
+                withTimestamp(Instant.now())
+            }
+        }
+    }
+
     private fun getTime(event: MessageReceivedEvent) {
         val cetusCycleStart = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }?.activation?.date?.numberLong
                 ?: throw Exception("Cannot find Cetus information")
@@ -68,9 +98,6 @@ object Cetus : IBase, IChannelLogger {
                 Pair(false, Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)))
             }
         }
-        val hour = cetusTimeLeft.second.toHours() % 24
-        val minute = cetusTimeLeft.second.toMinutes() % 60
-        val second = cetusTimeLeft.second.seconds % 60
         val cetusNextDayTime = dateTimeFormatter.format(cetusCycleEnd)
         val cetusNextNightTime = if (!cetusTimeLeft.first) {
             dateTimeFormatter.format(cetusCycleEnd.minus(50, ChronoUnit.MINUTES))
@@ -78,14 +105,10 @@ object Cetus : IBase, IChannelLogger {
             dateTimeFormatter.format(cetusCycleEnd.plus(100, ChronoUnit.MINUTES))
         }
         val cetusNextStateString = if (!cetusTimeLeft.first) "Day" else "Night"
-        val timeString = (if (hour > 0) "${hour}h " else "") +
-                (if (minute > 0) "${minute}m " else "") +
-                "${second}s"
+        val timeString = formatTimeDuration(cetusTimeLeft.second)
 
         val cetusDayCycleTime = Duration.between(cetusCycleStart, cetusCycleEnd)
-        val dayLengthString = (if (cetusDayCycleTime.toHours() > 0) "${cetusDayCycleTime.toHours()}h " else "") +
-                (if (cetusDayCycleTime.toMinutes() % 60 > 0) "${cetusDayCycleTime.toMinutes() % 60}m " else "") +
-                if (cetusDayCycleTime.seconds % 60 > 0) "${cetusDayCycleTime.seconds % 60}s" else ""
+        val dayLengthString = formatTimeDuration(cetusDayCycleTime)
 
         buildEmbed(event.channel) {
             withTitle("Cetus Time")
@@ -97,6 +120,13 @@ object Cetus : IBase, IChannelLogger {
             }
             withTimestamp(Instant.now())
         }
+    }
+    
+    private fun formatTimeDuration(duration: Duration): String {
+        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
+                (if (duration.toHours() % 24 > 0) "${duration.toHours()}h " else "") +
+                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
+                "${duration.seconds % 60}s"
     }
 
     private val dateTimeFormatter = DateTimeFormatter
