@@ -124,7 +124,7 @@ object Cetus : IBase, IChannelLogger {
     
     private fun formatTimeDuration(duration: Duration): String {
         return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours()}h " else "") +
+                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
                 (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
                 "${duration.seconds % 60}s"
     }
