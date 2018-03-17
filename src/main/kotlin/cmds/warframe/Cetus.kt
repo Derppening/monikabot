@@ -93,26 +93,26 @@ object Cetus : IBase, IChannelLogger {
 
         val cetusTimeLeft = run {
             if (Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)).seconds <= 0) {
-                Pair(true, Duration.between(Instant.now(), cetusCycleEnd))
+                Pair(CetusTimeState.NIGHT, Duration.between(Instant.now(), cetusCycleEnd))
             } else {
-                Pair(false, Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)))
+                Pair(CetusTimeState.DAY, Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)))
             }
         }
+        val cetusCurrentStateString = cetusTimeLeft.first.toString().toLowerCase().capitalize()
+        val timeString = formatTimeDuration(cetusTimeLeft.second)
+
         val cetusNextDayTime = dateTimeFormatter.format(cetusCycleEnd)
-        val cetusNextNightTime = if (!cetusTimeLeft.first) {
+        val cetusNextNightTime = if (cetusTimeLeft.first == CetusTimeState.DAY) {
             dateTimeFormatter.format(cetusCycleEnd.minus(50, ChronoUnit.MINUTES))
         } else {
             dateTimeFormatter.format(cetusCycleEnd.plus(100, ChronoUnit.MINUTES))
         }
-        val cetusNextStateString = if (!cetusTimeLeft.first) "Day" else "Night"
-        val timeString = formatTimeDuration(cetusTimeLeft.second)
 
-        val cetusDayCycleTime = Duration.between(cetusCycleStart, cetusCycleEnd)
-        val dayLengthString = formatTimeDuration(cetusDayCycleTime)
+        val dayLengthString = formatTimeDuration(Duration.between(cetusCycleStart, cetusCycleEnd))
 
         buildEmbed(event.channel) {
             withTitle("Cetus Time")
-            appendField("Current Time", "$cetusNextStateString - $timeString remaining", false)
+            appendField("Current Time", "$cetusCurrentStateString - $timeString remaining", false)
             appendField("Next Day Time", "$cetusNextDayTime UTC", true)
             appendField("Next Night Time", "$cetusNextNightTime UTC", true)
             if (dayLengthString.isNotBlank()) {
@@ -133,4 +133,11 @@ object Cetus : IBase, IChannelLogger {
             .ofLocalizedDateTime(FormatStyle.MEDIUM)
             .withLocale(Locale.ENGLISH)
             .withZone(ZoneId.of("UTC"))
+
+    private enum class CetusTimeState {
+        SUNRISE,
+        DAY,
+        DUSK,
+        NIGHT
+    }
 }
