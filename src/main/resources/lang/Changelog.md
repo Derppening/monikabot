@@ -49,3 +49,7 @@
 
 [v1.1.0-beta.5]
 - Add `warframe invasions` command
+
+[v1.1.0-beta.6]
+- Add `warframe alert` and `warframe cetus` commands
+- `warframe-invasion` now shows help text if unknown arguments are given
