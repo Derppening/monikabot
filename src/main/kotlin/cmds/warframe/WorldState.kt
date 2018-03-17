@@ -111,8 +111,11 @@ class WorldState {
         val activation = Date()
         val expiry = Date()
         val missionInfo = MissionInfo()
+        val forceUnlock = false
+        val tag = ""
 
         class MissionInfo {
+            val descText = ""
             val missionType = ""
             val faction = ""
             val location = ""
@@ -130,6 +133,7 @@ class WorldState {
             @JsonProperty("isSharkwingMission")
             val isSharkwingMission = false
             val missionReward = MissionReward()
+            val nightmare = false
         }
     }
 

@@ -31,9 +31,6 @@ import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.DiscordException
 
-/**
- * Singleton handling "status" commands
- */
 object Status : IBase {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.isEventFromOwner(event)) {

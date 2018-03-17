@@ -77,6 +77,13 @@ interface IChannelLogger {
         }
     }
 
+    /**
+     * Logs a message to the debug channel.
+     *
+     * @param level Level of logging.
+     * @param message Message to log.
+     * @param action Actions to apply to the logger.
+     */
     fun log(level: LogLevel, message: String, action: LogHelper.() -> Unit = {}) {
         LogHelper(level, message, this.javaClass).apply(action).build()
     }

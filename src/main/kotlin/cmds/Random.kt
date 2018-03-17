@@ -103,12 +103,18 @@ object Random : IBase {
         }
     }
 
+    /**
+     * Rolls a dice.
+     */
     private fun rollDie(event: MessageReceivedEvent) {
         buildMessage(event.channel) {
             withContent("You got a ${generateInt(1, 7)}!")
         }
     }
 
+    /**
+     * Flips a coin
+     */
     private fun flipCoin(event: MessageReceivedEvent) {
         buildMessage(event.channel) {
             withContent("You got ${if (generateInt(0, 2) == 0) "tails" else "heads"}!")

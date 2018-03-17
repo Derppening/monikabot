@@ -38,12 +38,34 @@ object Invasion : IBase, IChannelLogger {
             args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
             args.isEmpty() -> getInvasionData(event)
             args[0] == "timer" -> getInvasionTimer(event)
-            else -> return Parser.HandleState.UNHANDLED
+            else -> help(event, false)
         }
 
         return Parser.HandleState.HANDLED
     }
 
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `warframe-invasion`")
+                withDesc("Displays the invasion progress in Warframe.")
+                insertSeparator()
+                appendField("Usage", "```warframe invasion [timer]```", false)
+                appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
+            }
+        } catch (e: DiscordException) {
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Retrieves and outputs the list of current invasions.
+     */
     private fun getInvasionData(event: MessageReceivedEvent) {
         val invasions = Warframe.worldState.invasions.filterNot { it.completed }
 
@@ -83,6 +105,9 @@ object Invasion : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Outputs the current build progress of Balor Fomorian/Razorback.
+     */
     private fun getInvasionTimer(event: MessageReceivedEvent) {
         buildEmbed(event.channel) {
             withTitle("Invasions - Construction Status")
@@ -92,26 +117,10 @@ object Invasion : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Reformats a real number to 2 decimal places.
+     */
     private fun formatReal(double: Double): String {
         return "%.2f%%".format(double)
-    }
-
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-invasion`")
-                withDesc("Displays the invasion progress in Warframe.")
-                insertSeparator()
-                appendField("Usage", "```warframe invasion [timer]```", false)
-                appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
-            }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
-        }
     }
 }

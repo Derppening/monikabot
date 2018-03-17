@@ -29,9 +29,6 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import kotlin.system.exitProcess
 
-/**
- * Singleton handling "stop" command.
- */
 object Stop : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.isEventFromOwner(event)) {

@@ -35,6 +35,11 @@ object Parser : IChannelLogger {
         NOT_FOUND
     }
 
+    /**
+     * Command delegator for all messages.
+     *
+     * @param event Event triggered by the message.
+     */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
         if (cmds.experimental.Trivia.checkUserTriviaStatus(event)) { return }
@@ -91,11 +96,17 @@ object Parser : IChannelLogger {
         postCommandHandler(retval, cmd, event)
     }
 
+    /**
+     * Reloads responses when bot is invoked but no command is given.
+     */
     fun loadNullResponses(): List<String> {
         nullResponses = File(Thread.currentThread().contextClassLoader.getResource("lang/NullResponse.txt").toURI()).readLines()
         return nullResponses
     }
 
+    /**
+     * Parses commands with "--experimental" flag given.
+     */
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
         return when (cmd) {
             "trivia" -> cmds.experimental.Trivia.delegateCommand(event)
@@ -103,6 +114,13 @@ object Parser : IChannelLogger {
         }
     }
 
+    /**
+     * Handler for after the command is delegated.
+     *
+     * @param state Whether the command is successfully handled.
+     * @param cmd The original invoked command.
+     * @param event The event triggered by the message.
+     */
     private fun postCommandHandler(state: HandleState, cmd: String, event: MessageReceivedEvent) {
         when (state) {
             HandleState.HANDLED -> {}
@@ -140,8 +158,14 @@ object Parser : IChannelLogger {
         }
     }
 
+    /**
+     * Returns the command from a string.
+     */
     private fun getCommand(message: String): String = message.split(' ')[0]
 
+    /**
+     * Returns a random message from nullResponses.
+     */
     private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
 
     private var nullResponses = loadNullResponses()

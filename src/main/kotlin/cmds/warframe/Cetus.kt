@@ -1,3 +1,22 @@
+/**
+ * This file is part of MonikaBot.
+ *
+ * Copyright (C) 2018 Derppening <david.18.19.21@gmail.com>
+ *
+ * MonikaBot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MonikaBot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package cmds.warframe
 
 import cmds.IBase
@@ -23,14 +42,21 @@ object Cetus : IBase, IChannelLogger {
             removeIf { it.matches(Regex("cetus")) }
         }
 
-        when {
-            args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
-            args[0] == "time" -> getTime(event)
-            else -> {
-                buildMessage(event.channel) {
-                    withContent("Stay tuned for more features!")
+        try {
+            when {
+                args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
+                args.isEmpty() -> getBounties(event)
+                args[0] == "time" -> getTime(event)
+                else -> {
+                    help(event, false)
                 }
             }
+        } catch (e: Exception) {
+            buildMessage(event.channel) {
+                withContent("Warframe is currently updating its information. Please be patient!")
+            }
+
+            log(IChannelLogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
         }
 
         return Parser.HandleState.HANDLED
@@ -55,6 +81,35 @@ object Cetus : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Retrieves and outputs a list of all current bounties.
+     */
+    private fun getBounties(event: MessageReceivedEvent) {
+        val cetusInfo = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
+                ?: throw Exception("Cannot find Cetus information")
+        val timeLeft = Duration.between(Instant.now(), cetusInfo.expiry.date.numberLong)
+        val timeLeftString = formatTimeDuration(timeLeft)
+
+        val bounties = cetusInfo.jobs
+
+        bounties.forEachIndexed { i, v ->
+            buildEmbed(event.channel) {
+                withAuthorName("Cetus Bounties - Tier ${i + 1}")
+                withTitle(WorldState.getLanguageFromAsset(v.jobType))
+
+                appendField("Mastery Requirement", v.masteryReq.toString(), false)
+                appendField("Enemy Level", "${v.minEnemyLevel}-${v.maxEnemyLevel}", true)
+                appendField("Total Standing Reward", v.xpAmounts.sum().toString(), true)
+
+                appendField("Expires in", timeLeftString, false)
+                withTimestamp(Instant.now())
+            }
+        }
+    }
+
+    /**
+     * Outputs the current time in Cetus.
+     */
     private fun getTime(event: MessageReceivedEvent) {
         val cetusCycleStart = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }?.activation?.date?.numberLong
                 ?: throw Exception("Cannot find Cetus information")
@@ -63,33 +118,26 @@ object Cetus : IBase, IChannelLogger {
 
         val cetusTimeLeft = run {
             if (Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)).seconds <= 0) {
-                Pair(true, Duration.between(Instant.now(), cetusCycleEnd))
+                Pair(CetusTimeState.NIGHT, Duration.between(Instant.now(), cetusCycleEnd))
             } else {
-                Pair(false, Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)))
+                Pair(CetusTimeState.DAY, Duration.between(Instant.now(), cetusCycleEnd.minus(50, ChronoUnit.MINUTES)))
             }
         }
-        val hour = cetusTimeLeft.second.toHours() % 24
-        val minute = cetusTimeLeft.second.toMinutes() % 60
-        val second = cetusTimeLeft.second.seconds % 60
+        val cetusCurrentStateString = cetusTimeLeft.first.toString().toLowerCase().capitalize()
+        val timeString = formatTimeDuration(cetusTimeLeft.second)
+
         val cetusNextDayTime = dateTimeFormatter.format(cetusCycleEnd)
-        val cetusNextNightTime = if (!cetusTimeLeft.first) {
+        val cetusNextNightTime = if (cetusTimeLeft.first == CetusTimeState.DAY) {
             dateTimeFormatter.format(cetusCycleEnd.minus(50, ChronoUnit.MINUTES))
         } else {
             dateTimeFormatter.format(cetusCycleEnd.plus(100, ChronoUnit.MINUTES))
         }
-        val cetusNextStateString = if (!cetusTimeLeft.first) "Day" else "Night"
-        val timeString = (if (hour > 0) "${hour}h " else "") +
-                (if (minute > 0) "${minute}m " else "") +
-                "${second}s"
 
-        val cetusDayCycleTime = Duration.between(cetusCycleStart, cetusCycleEnd)
-        val dayLengthString = (if (cetusDayCycleTime.toHours() > 0) "${cetusDayCycleTime.toHours()}h " else "") +
-                (if (cetusDayCycleTime.toMinutes() % 60 > 0) "${cetusDayCycleTime.toMinutes() % 60}m " else "") +
-                if (cetusDayCycleTime.seconds % 60 > 0) "${cetusDayCycleTime.seconds % 60}s" else ""
+        val dayLengthString = formatTimeDuration(Duration.between(cetusCycleStart, cetusCycleEnd))
 
         buildEmbed(event.channel) {
             withTitle("Cetus Time")
-            appendField("Current Time", "$cetusNextStateString - $timeString remaining", false)
+            appendField("Current Time", "$cetusCurrentStateString - $timeString remaining", false)
             appendField("Next Day Time", "$cetusNextDayTime UTC", true)
             appendField("Next Night Time", "$cetusNextNightTime UTC", true)
             if (dayLengthString.isNotBlank()) {
@@ -99,8 +147,25 @@ object Cetus : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Formats a duration.
+     */
+    private fun formatTimeDuration(duration: Duration): String {
+        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
+                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
+                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
+                "${duration.seconds % 60}s"
+    }
+
     private val dateTimeFormatter = DateTimeFormatter
             .ofLocalizedDateTime(FormatStyle.MEDIUM)
             .withLocale(Locale.ENGLISH)
             .withZone(ZoneId.of("UTC"))
+
+    private enum class CetusTimeState {
+        SUNRISE,
+        DAY,
+        DUSK,
+        NIGHT
+    }
 }

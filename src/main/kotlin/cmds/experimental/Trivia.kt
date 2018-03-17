@@ -198,6 +198,9 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
         }
     }
 
+    /**
+     * Checks whether the current user is playing trivia.
+     */
     fun checkUserTriviaStatus(event: MessageReceivedEvent): Boolean {
         if (users.any { it == event.author.longID }) {
             if (!event.channel.isPrivate) {

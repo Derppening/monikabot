@@ -201,9 +201,6 @@ object Market : IBase, IChannelLogger {
      */
     private const val imageLink = "https://warframe.market/static/assets/"
 
-    /**
-     * Data class for market statistics.
-     */
     class MarketStats {
         val payload = Payload()
         val include = Include()
