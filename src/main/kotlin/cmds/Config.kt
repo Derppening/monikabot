@@ -26,9 +26,6 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread
 
-/**
- * Singleton handling "config" commands.
- */
 object Config : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)

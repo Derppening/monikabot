@@ -165,6 +165,14 @@ object RNG : IBase {
         }
     }
 
+    /**
+     * Formats a real number.
+     *
+     * @param double Number to format.
+     * @param rounding Type of rounding to use.
+     *
+     * @return String of formatted number.
+     */
     private fun formatReal(double: Double, rounding: Pair<Rounding, Int>, isPercent: Boolean = false): String {
         return when (rounding.first) {
             Rounding.DECIMAL_PLACES -> formatRealDecimal(double, rounding.second, isPercent)
@@ -172,6 +180,13 @@ object RNG : IBase {
         }
     }
 
+    /**
+     * Formats a real number by decimal places.
+     *
+     * @param double Number to format.
+     * @param dp Decimal places.
+     * @param isPercent whether to format as a percentage.
+     */
     private fun formatRealDecimal(double: Double, dp: Int, isPercent: Boolean): String {
         return if (isPercent) {
             "%.${dp}f%%".format(double * 100)
@@ -180,6 +195,13 @@ object RNG : IBase {
         }
     }
 
+    /**
+     * Formats a real number by significant figures.
+     *
+     * @param double Number to format.
+     * @param sf Significant figures.
+     * @param isPercent whether to format as a percentage.
+     */
     private fun formatRealSigFig(double: Double, sf: Int, isPercent: Boolean): String {
         return if (isPercent) {
             "${BigDecimal(double * 100).round(MathContext(sf)).toDouble()}%"

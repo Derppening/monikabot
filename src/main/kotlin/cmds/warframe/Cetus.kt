@@ -81,6 +81,9 @@ object Cetus : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Retrieves and outputs a list of all current bounties.
+     */
     private fun getBounties(event: MessageReceivedEvent) {
         val cetusInfo = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
                 ?: throw Exception("Cannot find Cetus information")
@@ -104,6 +107,9 @@ object Cetus : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Outputs the current time in Cetus.
+     */
     private fun getTime(event: MessageReceivedEvent) {
         val cetusCycleStart = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }?.activation?.date?.numberLong
                 ?: throw Exception("Cannot find Cetus information")
@@ -140,7 +146,10 @@ object Cetus : IBase, IChannelLogger {
             withTimestamp(Instant.now())
         }
     }
-    
+
+    /**
+     * Formats a duration.
+     */
     private fun formatTimeDuration(duration: Duration): String {
         return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
                 (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +

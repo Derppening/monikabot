@@ -44,6 +44,9 @@ object Help : IBase {
         return Parser.HandleState.HANDLED
     }
 
+    /**
+     * Displays a list of commands for all users.
+     */
     private fun listFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
             appendField("`changelog`", "Views the changelog of MonikaBot.", false)
@@ -57,6 +60,9 @@ object Help : IBase {
         }
     }
 
+    /**
+     * Displays a list of commands for superusers.
+     */
     private fun listSuFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
             appendField("Superuser: `clear`", "Clears all messages in a channel.", false)

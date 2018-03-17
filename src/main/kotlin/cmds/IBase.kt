@@ -26,9 +26,6 @@ import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
-/**
- * Interface for implementing bot commands.
- */
 interface IBase : IChannelLogger {
     /**
      * Delegates [event] to the appropriate function.

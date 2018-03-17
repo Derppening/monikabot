@@ -25,9 +25,6 @@ import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
-/**
- * Singleton handling "debug" commands.
- */
 object Debug : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)

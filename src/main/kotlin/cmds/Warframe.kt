@@ -78,6 +78,9 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
         }
     }
 
+    /**
+     * Function to update drop tables.
+     */
     private fun updateDropTables() {
         val info = jacksonObjectMapper().apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -100,6 +103,9 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
         logger.debug("updateDropTables(): Parsing took ${timer}ms")
     }
 
+    /**
+     * Function to update world state.
+     */
     private fun updateWorldState() {
         val timer = measureTimeMillis {
             worldState = jacksonObjectMapper().apply {

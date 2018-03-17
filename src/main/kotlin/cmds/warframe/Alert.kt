@@ -82,6 +82,9 @@ object Alert : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Retrieves and outputs a list of alerts.
+     */
     private fun getAlerts(event: MessageReceivedEvent) {
         val alerts = Warframe.worldState.alerts
 
@@ -128,6 +131,9 @@ object Alert : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Retrieves and outputs a list of special alerts ("goals").
+     */
     private fun getGoals(event: MessageReceivedEvent) {
         val goals = Warframe.worldState.goals
 
@@ -172,6 +178,9 @@ object Alert : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Formats a duration.
+     */
     private fun formatTimeDuration(duration: Duration): String {
         return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
                 (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +

@@ -47,19 +47,29 @@ object BuilderHelper {
      * @return The message of the embed.
      */
     fun buildEmbed(channel: IChannel, action: EmbedBuilder.() -> Unit): IMessage {
+        val embed = buildEmbed(action)
         while (true) {
             try {
-                return buildEmbed(action).let { channel.sendMessage(it) }
+                return embed.let { channel.sendMessage(it) }
             } catch (rle: RateLimitException) {
                 Thread.sleep(rle.retryDelay)
             }
         }
     }
 
+    /**
+     * A helper for building and sending messages.
+     *
+     * @param channel Channel to send the message into.
+     * @param action The actions to be applied to message builder.
+     *
+     * @return The message of the message?
+     */
     fun buildMessage(channel: IChannel, action: MessageBuilder.() -> Unit): IMessage {
+        val message = MessageBuilder(Client).withChannel(channel).apply(action)
         while (true) {
             try {
-                return MessageBuilder(Client).withChannel(channel).apply(action).build()
+                return message.build()
             } catch (rle: RateLimitException) {
                 Thread.sleep(rle.retryDelay)
             }

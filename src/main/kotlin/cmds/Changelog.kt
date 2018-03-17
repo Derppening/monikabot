@@ -67,6 +67,9 @@ object Changelog : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Displays the changes of the most recent 5 builds.
+     */
     private fun outputAllChanges(event: MessageReceivedEvent, changes: List<Pair<String, List<String>>>, showRel: Boolean) {
         val displayChanges = if (showRel) {
             changes.filterNot { (k, _) -> k.contains('-') }
@@ -88,6 +91,9 @@ object Changelog : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Displays the changes of the most recent build.
+     */
     private fun outputLatestChanges(event: MessageReceivedEvent, changes: List<Pair<String, List<String>>>, showRel: Boolean) {
         val displayChange: Pair<String, List<String>>
 
@@ -112,6 +118,9 @@ object Changelog : IBase, IChannelLogger {
 
     }
 
+    /**
+     * Reads and returns the change log of the bot.
+     */
     private fun readChangelog(): List<Pair<String, List<String>>> {
         val contents = File(Thread.currentThread().contextClassLoader.getResource("lang/Changelog.md").toURI()).readLines()
 
