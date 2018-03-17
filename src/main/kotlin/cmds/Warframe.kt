@@ -45,6 +45,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
         }
 
         return when {
+            args[0].matches(Regex("alerts?")) -> Alert.handler(event)
             args[0].matches(Regex("cetus")) -> Cetus.handler(event)
             args[0].matches(Regex("invasions?")) -> Invasion.handler(event)
             args[0] == "news" -> News.handler(event)
