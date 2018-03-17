@@ -133,6 +133,7 @@ class WorldState {
             @JsonProperty("isSharkwingMission")
             val isSharkwingMission = false
             val missionReward = MissionReward()
+            val nightmare = false
         }
     }
 
