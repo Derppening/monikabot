@@ -53,3 +53,6 @@
 [v1.1.0-beta.6]
 - Add `warframe alert` and `warframe cetus` commands
 - `warframe-invasion` now shows help text if unknown arguments are given
+
+[v1.1.0-beta.6.1]
+- Separate Ghoul alerts into `warframe cetus` instead of `warframe alert`
