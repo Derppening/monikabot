@@ -64,8 +64,9 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
                 withDesc("Wrapper for Warframe-related commands.")
                 insertSeparator()
                 appendField("Usage", "```warframe [subcommand] [args]```", false)
+                appendField("Subcommand: `alerts`", "Displays ongoing alerts.", false)
                 appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
-                appendField("Subcommand: `invasion`", "Displays the ongoing invasions, as well as construction status of mini-bosses.", false)
+                appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
                 appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
                 appendField("Subcommand: `market`", "Displays market information about an item.", false)
             }

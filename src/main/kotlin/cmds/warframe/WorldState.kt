@@ -88,6 +88,9 @@ class WorldState {
         val id = ID()
         val activation = Date()
         val expiry = Date()
+        val healthPct = 0.0
+        val victimNode = ""
+        val regionIDx = 0
         val count = 0
         val goal = 1
         val success = 0
@@ -96,9 +99,12 @@ class WorldState {
         val node = ""
         val missionKeyName = ""
         val desc = ""
+        val tooltip = ""
         val icon = ""
         val tag = ""
+        val jobAffiliationTag = ""
         val reward = Reward()
+        val jobs = listOf<Job>()
 
         class Reward {
             val items = listOf<String>()
@@ -166,15 +172,6 @@ class WorldState {
         val seed = 0
         val nodes = listOf<String>()
         val jobs = listOf<Job>()
-
-        class Job {
-            val jobType = ""
-            val rewards = ""
-            val masteryReq = 0
-            val minEnemyLevel = 0
-            val maxEnemyLevel = 0
-            val xpAmounts = listOf<Int>()
-        }
     }
 
     class ActiveMission {
@@ -330,6 +327,15 @@ class WorldState {
             @JsonDeserialize(using = TimeMillisDeserializer::class)
             val numberLong = Instant.EPOCH
         }
+    }
+
+    class Job {
+        val jobType = ""
+        val rewards = ""
+        val masteryReq = 0
+        val minEnemyLevel = 0
+        val maxEnemyLevel = 0
+        val xpAmounts = listOf<Int>()
     }
 
     class MissionReward {
