@@ -47,6 +47,7 @@ object Cetus : IBase, IChannelLogger {
                 args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
                 args.isEmpty() -> getBounties(event)
                 args[0] == "time" -> getTime(event)
+                args.any { it.matches(Regex("-{0,2}ghouls?")) } -> getGhoulBounties(event, true)
                 else -> {
                     help(event, false)
                 }
@@ -105,6 +106,45 @@ object Cetus : IBase, IChannelLogger {
                 withTimestamp(Instant.now())
             }
         }
+
+        getGhoulBounties(event)
+    }
+
+    /**
+     * Retrieves and outputs a list of all Ghoul bounties.
+     */
+    private fun getGhoulBounties(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
+        val ghoulBounties = try {
+            Warframe.worldState.goals.first { it.tag == "GhoulEmergence" }
+        } catch (nsee: NoSuchElementException) {
+            if (isDirectlyInvoked) {
+                buildMessage(event.channel) {
+                    withContent("There are currently no Ghoul Bounties!")
+                }
+            }
+            return
+        }
+
+        val healthPct = formatReal(ghoulBounties.healthPct)
+        val ghoulTimeLeftString = formatTimeDuration(Duration.between(Instant.now(), ghoulBounties.expiry.date.numberLong))
+        val ghoulDesc = ghoulBounties.desc
+        val ghoulTooltip = ghoulBounties.tooltip
+
+        ghoulBounties.jobs.forEachIndexed { i, v ->
+            buildEmbed(event.channel) {
+                withAuthorName("${WorldState.getLanguageFromAsset(ghoulDesc)} - Tier ${i + 1}")
+                withTitle(WorldState.getLanguageFromAsset(v.jobType))
+                withDesc(WorldState.getLanguageFromAsset(ghoulTooltip))
+
+                appendField("Mastery Requirement", v.masteryReq.toString(), false)
+                appendField("Enemy Level", "${v.minEnemyLevel}-${v.maxEnemyLevel}", true)
+                appendField("Total Standing Reward", v.xpAmounts.sum().toString(), true)
+
+                appendField("Current Progress", healthPct, true)
+                appendField("Expires in", ghoulTimeLeftString, true)
+                withTimestamp(Instant.now())
+            }
+        }
     }
 
     /**
@@ -155,6 +195,13 @@ object Cetus : IBase, IChannelLogger {
                 (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
                 (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
                 "${duration.seconds % 60}s"
+    }
+
+    /**
+     * Reformats a real number to 2 decimal places.
+     */
+    private fun formatReal(double: Double): String {
+        return "%.2f%%".format(double)
     }
 
     private val dateTimeFormatter = DateTimeFormatter
