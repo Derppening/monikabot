@@ -28,7 +28,6 @@ import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.DiscordException
 import java.util.*
-import kotlin.concurrent.thread
 
 /**
  * A singleton IDiscordClient object.
@@ -43,10 +42,8 @@ object Client : IChannelLogger, IConsoleLogger, IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             changePresence(defaultState, defaultActivity, defaultText)
 
-            thread {
-                PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())
-                PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
-            }
+            PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())
+            PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 
             logger.info("Initialization complete with $shardCount shard(s)")
         } catch (e: DiscordException) {

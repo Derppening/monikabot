@@ -50,8 +50,11 @@ object Persistence : IConsoleLogger {
      */
     val debugChannel: IChannel by lazy {
         try {
-            serverDebugChannel.apply { this?.bulkDelete() }
-                    ?: ownerPrivateChannel
+            serverDebugChannel.apply {
+                if (this?.fullMessageHistory?.isNotEmpty() == true) {
+                    this.bulkDelete()
+                }
+            } ?: ownerPrivateChannel
         } catch (e: Exception) {
             logger.error("Cannot initialize debug channel")
             e.printStackTrace()

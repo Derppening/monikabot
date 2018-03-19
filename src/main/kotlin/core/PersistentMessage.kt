@@ -23,7 +23,6 @@ import core.BuilderHelper.buildMessage
 import core.Persistence.debugChannel
 import sx.blah.discord.handle.obj.IChannel
 import java.time.Instant
-import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
 object PersistentMessage : IConsoleLogger, IChannel by debugChannel {
@@ -75,7 +74,6 @@ object PersistentMessage : IConsoleLogger, IChannel by debugChannel {
         }
 
         thread {
-            messageLatch.await()
             Client.getMessageByID(messageId).apply {
                 edit("```md\n$s```")
             }
@@ -88,13 +86,13 @@ object PersistentMessage : IConsoleLogger, IChannel by debugChannel {
     val messageId by lazy {
         buildMessage(this@PersistentMessage) {
             withCode("", "Nothing to see here!")
-        }.longID.also { messageLatch.countDown() }
+        }.longID.also {
+            while (Client.getMessageByID(it) == null) { Thread.sleep(500) }
+        }
     }
 
     /**
      * Map of persistent information.
      */
     private val map = mutableMapOf<String, MutableMap<String, String>>()
-
-    private val messageLatch = CountDownLatch(1)
 }
