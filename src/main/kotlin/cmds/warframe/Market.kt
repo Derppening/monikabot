@@ -28,9 +28,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
-import insertSeparator
 import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException

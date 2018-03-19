@@ -25,10 +25,10 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
-import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import java.net.URL

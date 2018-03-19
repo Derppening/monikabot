@@ -75,4 +75,9 @@ object BuilderHelper {
             }
         }
     }
+
+    /**
+     * Inserts an empty key-value field as a separator.
+     */
+    fun EmbedBuilder.insertSeparator(): EmbedBuilder = this.appendField("\u200B", "\u200B", false)
 }

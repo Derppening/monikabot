@@ -27,11 +27,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.BuilderHelper.insertSeparator
 import core.Core
 import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
-import insertSeparator
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException

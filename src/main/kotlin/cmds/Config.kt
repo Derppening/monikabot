@@ -21,7 +21,7 @@ package cmds
 
 import core.*
 import core.BuilderHelper.buildMessage
-import insertSeparator
+import core.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread

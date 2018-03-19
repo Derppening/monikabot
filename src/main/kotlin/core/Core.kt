@@ -19,7 +19,6 @@
 
 package core
 
-import popFirstWord
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
@@ -133,6 +132,11 @@ object Core {
     }
 
     /**
+     * Remove quotes from a word.
+     */
+    fun String.removeQuotes(): String = dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
+
+    /**
      * Loads a property object based on a file. Application will terminate if file cannot be found.
      *
      * @param filename Filename of properties file to load.
@@ -152,6 +156,11 @@ object Core {
             exitProcess(0)
         }
     }
+
+    /**
+     * Pops the first word in a string.
+     */
+    private fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }
 
     /**
      * Filename of source.properties.
