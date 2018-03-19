@@ -56,3 +56,7 @@
 
 [v1.1.0-beta.6.1]
 - Separate Ghoul alerts into `warframe cetus` instead of `warframe alert`
+
+[v1.1.0-beta.7]
+- Add `reminder` command
+- Graduate `trivia` from experimental branch
