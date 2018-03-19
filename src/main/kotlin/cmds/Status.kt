@@ -20,12 +20,12 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.insertSeparator
 import core.Client
 import core.Core
+import core.Core.removeQuotes
 import core.IChannelLogger
 import core.Parser
-import insertSeparator
-import removeQuotes
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType

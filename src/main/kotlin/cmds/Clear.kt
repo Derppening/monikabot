@@ -21,10 +21,10 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
-import insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 

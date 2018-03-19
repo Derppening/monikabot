@@ -17,9 +17,8 @@
  * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmds.experimental
+package cmds
 
-import cmds.IBase
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
@@ -27,11 +26,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.BuilderHelper.insertSeparator
 import core.Core
 import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
-import insertSeparator
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -182,7 +181,7 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             buildEmbed(event.channel) {
-                withTitle("Help Text for `trivia` (Experimental)")
+                withTitle("Help Text for `trivia`")
                 withDesc("Starts a trivia game with Monika.")
                 insertSeparator()
                 appendField("Usage", "```trivia [questions] [difficulty]```", false)
