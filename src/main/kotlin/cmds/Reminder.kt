@@ -312,5 +312,5 @@ object Reminder : IBase, IChannelLogger, IConsoleLogger {
         }
     }
 
-    private val timerSaveFile = Paths.get("timers.json").toUri()
+    private val timerSaveFile = Paths.get("persistent/timers.json").toUri()
 }
