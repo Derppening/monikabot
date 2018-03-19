@@ -26,12 +26,15 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.BuilderHelper.insertSeparator
 import core.Client
 import core.Core.removeQuotes
+import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.util.DiscordException
 import java.io.File
 import java.nio.file.Paths
 import java.time.Duration
@@ -44,11 +47,10 @@ import java.util.*
 import kotlin.concurrent.timerTask
 import kotlin.math.roundToLong
 
-object Reminder : IBase, IConsoleLogger {
+object Reminder : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
                 .toMutableList()
-                .apply { removeIf { it == "--experimental" } }
                 .toList()
 
         when {
@@ -62,6 +64,35 @@ object Reminder : IBase, IConsoleLogger {
         }
 
         return Parser.HandleState.HANDLED
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        try {
+            buildEmbed(event.channel) {
+                withTitle("Help Text for `reminder`")
+                withDesc("Sets a reminder for yourself.")
+                appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks.")
+                insertSeparator()
+                appendField("Usage", "```reminder for [--lazy] [duration] [name]```", false)
+                appendField("`--lazy`", "If specified, only check if the time is in the future.", false)
+                appendField("`[duration]`", "Any duration, in the format of `[days]d [hours]h [minutes]m [seconds]s`." +
+                        "\nAny part of the duration can be truncated.", false)
+                appendField("`[name]`", "Name of the timer. All timers must have unique names.", false)
+                insertSeparator()
+                appendField("Usage", "```reminder remove [name]```", false)
+                appendField("`[name]`", "Name of the timer to remove.", false)
+                insertSeparator()
+                appendField("Usage", "```reminder [list|clear]```", false)
+                appendField("`list`", "Lists all ongoing reminders.", false)
+                appendField("`clear`", "Clears all ongoing reminders.", false)
+            }
+        } catch (e: DiscordException) {
+            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                author { event.author }
+                channel { event.channel }
+                info { e.errorMessage }
+            }
+        }
     }
 
     fun exportTimersToFile() {
@@ -86,7 +117,7 @@ object Reminder : IBase, IConsoleLogger {
     private fun scheduleDelay(event: MessageReceivedEvent) {
         val args = getArgumentList(event.message.content)
                 .toMutableList()
-                .apply { removeIf { it == "--experimental" || it.matches(Regex("(for|-{0,2}add)")) } }
+                .apply { removeIf { it.matches(Regex("(for|-{0,2}add)")) } }
 
         if (args.isEmpty()) {
             buildMessage(event.channel) {
@@ -199,7 +230,7 @@ object Reminder : IBase, IConsoleLogger {
     private fun removeTimer(event: MessageReceivedEvent) {
         val timerName = getArgumentList(event.message.content)
                 .toMutableList()
-                .apply { removeIf { it == "--experimental" || it.matches(Regex("-{0,2}remove")) } }
+                .apply { removeIf { it.matches(Regex("-{0,2}remove")) } }
                 .joinToString(" ")
 
         val deletedTimers = timers.filter { it.isFromUser(event.author) && it.timerName == timerName }.also {

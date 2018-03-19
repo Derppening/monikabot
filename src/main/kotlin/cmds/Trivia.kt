@@ -181,7 +181,7 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         try {
             buildEmbed(event.channel) {
-                withTitle("Help Text for `trivia` (Experimental)")
+                withTitle("Help Text for `trivia`")
                 withDesc("Starts a trivia game with Monika.")
                 insertSeparator()
                 appendField("Usage", "```trivia [questions] [difficulty]```", false)
