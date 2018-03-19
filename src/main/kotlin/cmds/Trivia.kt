@@ -17,9 +17,8 @@
  * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmds.experimental
+package cmds
 
-import cmds.IBase
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature

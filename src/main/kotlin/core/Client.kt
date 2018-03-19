@@ -20,6 +20,7 @@
 package core
 
 import cmds.Config
+import cmds.Reminder
 import core.Persistence.client
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
@@ -46,6 +47,8 @@ object Client : IChannelLogger, IConsoleLogger, IDiscordClient by client {
             PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 
             logger.info("Initialization complete with $shardCount shard(s)")
+
+            Reminder.importTimersFromFile()
         } catch (e: DiscordException) {
             e.printStackTrace()
         }

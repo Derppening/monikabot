@@ -50,6 +50,7 @@ object Stop : IBase, IChannelLogger {
             channel { event.channel}
         }
 
+        Reminder.exportTimersToFile()
         Client.clearTimers()
 
         event.client.shards.forEach {

@@ -42,7 +42,7 @@ object Parser : IChannelLogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (cmds.experimental.Trivia.checkUserTriviaStatus(event)) { return }
+        if (Trivia.checkUserTriviaStatus(event)) { return }
 
         if (!event.channel.isPrivate &&
                 !event.message.content.startsWith(Client.ourUser.mention(false))) {
@@ -61,9 +61,8 @@ object Parser : IChannelLogger {
         }
 
         val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
-        val retval: HandleState
-        if (runExperimental && Config.enableExperimentalFeatures) {
-            retval = parseExperimental(event, cmd)
+        val retval = if (runExperimental && Config.enableExperimentalFeatures) {
+            parseExperimental(event, cmd)
         } else {
             if (runExperimental) {
                 buildMessage(event.channel) {
@@ -75,22 +74,7 @@ object Parser : IChannelLogger {
                 }
             }
 
-            retval = when (cmd) {
-                "changelog" -> Changelog.delegateCommand(event)
-                "clear" -> Clear.delegateCommand(event)
-                "config" -> Config.delegateCommand(event)
-                "debug" -> Debug.delegateCommand(event)
-                "echo" -> Echo.delegateCommand(event)
-                "help" -> Help.delegateCommand(event)
-                "random" -> Random.delegateCommand(event)
-                "reload" -> Reload.delegateCommand(event)
-                "rng" -> RNG.delegateCommand(event)
-                "status" -> Status.delegateCommand(event)
-                "stop" -> Stop.delegateCommand(event)
-                "version" -> Version.delegateCommand(event)
-                "warframe" -> Warframe.delegateCommand(event)
-                else -> HandleState.NOT_FOUND
-            }
+            commands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
         }
 
         postCommandHandler(retval, cmd, event)
@@ -100,7 +84,7 @@ object Parser : IChannelLogger {
      * Reloads responses when bot is invoked but no command is given.
      */
     fun loadNullResponses(): List<String> {
-        nullResponses = File(Thread.currentThread().contextClassLoader.getResource("lang/NullResponse.txt").toURI()).readLines()
+        nullResponses = File(Thread.currentThread().contextClassLoader.getResource(nullResponsesPath).toURI()).readLines()
         return nullResponses
     }
 
@@ -108,10 +92,7 @@ object Parser : IChannelLogger {
      * Parses commands with "--experimental" flag given.
      */
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
-        return when (cmd) {
-            "trivia" -> cmds.experimental.Trivia.delegateCommand(event)
-            else -> HandleState.NOT_FOUND
-        }
+        return experimentalCommands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
     }
 
     /**
@@ -169,4 +150,28 @@ object Parser : IChannelLogger {
     private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
 
     private var nullResponses = loadNullResponses()
+
+    private const val nullResponsesPath = "lang/NullResponse.txt"
+
+    private val commands: Map<String, IBase> = mapOf(
+            "changelog" to Changelog,
+            "clear" to Clear,
+            "config" to Config,
+            "debug" to Debug,
+            "echo" to Echo,
+            "help" to Help,
+            "random" to Random,
+            "reload" to Reload,
+            "reminder" to Reminder,
+            "rng" to RNG,
+            "status" to Status,
+            "stop" to Stop,
+            "timer" to Reminder,
+            "trivia" to Trivia,
+            "version" to Version,
+            "warframe" to Warframe
+    )
+
+    private val experimentalCommands: Map<String, IBase> = mapOf(
+    )
 }
