@@ -50,8 +50,6 @@ import kotlin.math.roundToLong
 object Reminder : IBase, IChannelLogger, IConsoleLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
-                .toMutableList()
-                .toList()
 
         when {
             args.isEmpty() -> help(event, false)
@@ -71,7 +69,9 @@ object Reminder : IBase, IChannelLogger, IConsoleLogger {
             buildEmbed(event.channel) {
                 withTitle("Help Text for `reminder`")
                 withDesc("Sets a reminder for yourself.")
-                appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks.")
+                appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks. When this bot goes" +
+                        "into maintenance, all timer tasks will be paused until the bot restarts. This will likely cause" +
+                        "reminder delays!")
                 insertSeparator()
                 appendField("Usage", "```reminder for [--lazy] [duration] [name]```", false)
                 appendField("`--lazy`", "If specified, only check if the time is in the future.", false)
