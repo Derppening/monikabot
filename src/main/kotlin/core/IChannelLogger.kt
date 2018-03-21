@@ -38,11 +38,13 @@ interface IChannelLogger {
         private var srcAuthor: () -> IUser? = { null }
         private var srcChannel: () -> IChannel? = { null }
         private var info: () -> String = { "" }
+        private var stackTrace: () -> Array<StackTraceElement>? = { null }
 
         fun message(action: () -> IMessage) { srcMessage = action }
         fun author(action: () -> IUser) { srcAuthor = action }
         fun channel(action: () -> IChannel) { srcChannel = action }
         fun info(action: () -> String) { info = action }
+        fun stackTrace(action: () -> Array<StackTraceElement>) { stackTrace = action }
 
         fun build() {
             buildEmbed(PersistentMessage) {
@@ -71,6 +73,7 @@ interface IChannelLogger {
                 if (srcAuthor() != null) appendField("From", Core.getDiscordTag(srcAuthor()!!), false)
                 if (srcChannel() != null) appendField("In", Core.getChannelName(srcChannel()!!), false)
                 if (info().isNotBlank()) appendField("Additional Info", info(), false)
+                if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
 
                 withFooterText("Package: ${clazz.name}")
             }
