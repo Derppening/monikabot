@@ -105,24 +105,13 @@ object Parser : IChannelLogger {
     private fun postCommandHandler(state: HandleState, cmd: String, event: MessageReceivedEvent) {
         when (state) {
             HandleState.HANDLED -> {}
-            HandleState.UNHANDLED -> {
-                log(IChannelLogger.LogLevel.ERROR, "Command \"$cmd\" not handled") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
-                }
-            }
+            HandleState.UNHANDLED -> {}
             HandleState.NOT_FOUND -> {
                 try {
                     buildMessage(event.channel) {
                         withContent("I don't know how to do that! >.<")
                     }
                 } catch (e: DiscordException) {}
-                log(IChannelLogger.LogLevel.ERROR, "Command \"$cmd\" not found") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
-                }
             }
             HandleState.PERMISSION_DENIED -> {
                 try {
@@ -130,11 +119,6 @@ object Parser : IChannelLogger {
                         withContent("You're not allow to do this! x(")
                     }
                 } catch (e: DiscordException) {}
-                log(IChannelLogger.LogLevel.ERROR, "\"$cmd\" was not invoked by superuser") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
-                }
             }
         }
     }
