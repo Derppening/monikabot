@@ -20,6 +20,7 @@
 package core
 
 import core.BuilderHelper.buildEmbed
+import core.Persistence.debugChannel
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
@@ -47,7 +48,7 @@ interface IChannelLogger {
         fun stackTrace(action: () -> Array<StackTraceElement>) { stackTrace = action }
 
         fun build() {
-            buildEmbed(PersistentMessage) {
+            buildEmbed(debugChannel) {
                 when (type) {
                     LogLevel.DEBUG -> {
                         withColor(Color.BLACK)

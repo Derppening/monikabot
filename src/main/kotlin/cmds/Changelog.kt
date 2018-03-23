@@ -25,7 +25,6 @@ import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.io.File
 
 object Changelog : IBase, IChannelLogger {
@@ -48,22 +47,21 @@ object Changelog : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `changelog`")
-                withDesc("Displays the changelog for the most recent build(s).")
-                insertSeparator()
-                appendField("Usage", "```changelog [release] [all]```", false)
-                appendField("`release`", "Only show changes for release builds.", false)
-                appendField("`all`", "Show 5 most recent builds instead of 1.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `changelog`")
+            withDesc("Displays the changelog for the most recent build(s).")
+            insertSeparator()
+            appendField("Usage", "```changelog [release] [all]```", false)
+            appendField("`release`", "Only show changes for release builds.", false)
+            appendField("`all`", "Show 5 most recent builds instead of 1.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            Clear.log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 
@@ -82,8 +80,8 @@ object Changelog : IBase, IChannelLogger {
             if (displayChanges.isEmpty()) {
                 withDesc("There are no official releases (yet)!")
             } else {
-                displayChanges.filterIndexed {
-                    index, _ -> index >= changes.size - 5
+                displayChanges.filterIndexed { index, _ ->
+                    index >= changes.size - 5
                 }.forEach { (ver, changetext) ->
                     appendField(ver, changetext.joinToString("\n"), false)
                 }
@@ -107,7 +105,6 @@ object Changelog : IBase, IChannelLogger {
             buildMessage(event.channel) {
                 withContent("There are no official releases (yet)!")
             }
-
             return
         }
 
@@ -115,7 +112,6 @@ object Changelog : IBase, IChannelLogger {
             withTitle("Changelog for ${displayChange.first}")
             withDesc(displayChange.second.joinToString("\n"))
         }
-
     }
 
     /**

@@ -34,7 +34,6 @@ import core.IConsoleLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IUser
-import sx.blah.discord.util.DiscordException
 import java.io.File
 import java.nio.file.Paths
 import java.time.Duration
@@ -65,32 +64,32 @@ object Reminder : IBase, IChannelLogger, IConsoleLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `reminder`")
-                withDesc("Sets a reminder for yourself.")
-                appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks. When this bot goes" +
-                        "into maintenance, all timer tasks will be paused until the bot restarts. This will likely cause" +
-                        "reminder delays!")
-                insertSeparator()
-                appendField("Usage", "```reminder for [--lazy] [duration] [name]```", false)
-                appendField("`--lazy`", "If specified, only check if the time is in the future.", false)
-                appendField("`[duration]`", "Any duration, in the format of `[days]d [hours]h [minutes]m [seconds]s`." +
-                        "\nAny part of the duration can be truncated.", false)
-                appendField("`[name]`", "Name of the timer. All timers must have unique names.", false)
-                insertSeparator()
-                appendField("Usage", "```reminder remove [name]```", false)
-                appendField("`[name]`", "Name of the timer to remove.", false)
-                insertSeparator()
-                appendField("Usage", "```reminder [list|clear]```", false)
-                appendField("`list`", "Lists all ongoing reminders.", false)
-                appendField("`clear`", "Clears all ongoing reminders.", false)
-            }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `reminder`")
+            withDesc("Sets a reminder for yourself.")
+            appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks. When this bot goes" +
+                    "into maintenance, all timer tasks will be paused until the bot restarts. This will likely cause" +
+                    "reminder delays!")
+            insertSeparator()
+            appendField("Usage", "```reminder for [--lazy] [duration] [name]```", false)
+            appendField("`--lazy`", "If specified, only check if the time is in the future.", false)
+            appendField("`[duration]`", "Any duration, in the format of `[days]d [hours]h [minutes]m [seconds]s`." +
+                    "\nAny part of the duration can be truncated.", false)
+            appendField("`[name]`", "Name of the timer. All timers must have unique names.", false)
+            insertSeparator()
+            appendField("Usage", "```reminder remove [name]```", false)
+            appendField("`[name]`", "Name of the timer to remove.", false)
+            insertSeparator()
+            appendField("Usage", "```reminder [list|clear]```", false)
+            appendField("`list`", "Lists all ongoing reminders.", false)
+            appendField("`clear`", "Clears all ongoing reminders.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
         }
     }
@@ -137,7 +136,7 @@ object Reminder : IBase, IChannelLogger, IConsoleLogger {
             val numRegex = Regex("\\d+(?:.\\d+)?")
             Regex("^(($numRegex)d)?\\s*(($numRegex)h)?\\s*(($numRegex)m)?\\s*(($numRegex)s)?\\s*?(.*)", RegexOption.DOT_MATCHES_ALL)
                     .matchEntire(args.joinToString(" "))
-                    ?.destructured.also { println(it) }
+                    ?.destructured
                     ?: error("Timer duration is not formatted properly!")
         } catch (e: Exception) {
             buildMessage(event.channel) {

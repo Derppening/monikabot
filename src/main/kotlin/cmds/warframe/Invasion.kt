@@ -26,7 +26,6 @@ import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 object Invasion : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -45,21 +44,20 @@ object Invasion : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-invasion`")
-                withDesc("Displays the invasion progress in Warframe.")
-                insertSeparator()
-                appendField("Usage", "```warframe invasion [timer]```", false)
-                appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe-invasion`")
+            withDesc("Displays the invasion progress in Warframe.")
+            insertSeparator()
+            appendField("Usage", "```warframe invasion [timer]```", false)
+            appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 

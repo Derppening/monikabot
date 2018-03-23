@@ -30,7 +30,6 @@ import core.IChannelLogger
 import core.IConsoleLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.net.URL
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
@@ -58,23 +57,23 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe`")
-                withDesc("Wrapper for Warframe-related commands.")
-                insertSeparator()
-                appendField("Usage", "```warframe [subcommand] [args]```", false)
-                appendField("Subcommand: `alerts`", "Displays ongoing alerts.", false)
-                appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
-                appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
-                appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
-                appendField("Subcommand: `market`", "Displays market information about an item.", false)
-            }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe`")
+            withDesc("Wrapper for Warframe-related commands.")
+            insertSeparator()
+            appendField("Usage", "```warframe [subcommand] [args]```", false)
+            appendField("Subcommand: `alerts`", "Displays ongoing alerts.", false)
+            appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
+            appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
+            appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
+            appendField("Subcommand: `market`", "Displays market information about an item.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
         }
     }

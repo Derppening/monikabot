@@ -20,10 +20,10 @@
 package cmds
 
 import core.*
+import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import kotlin.concurrent.thread
 
 object Config : IBase, IChannelLogger {
@@ -45,21 +45,20 @@ object Config : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `config`")
-                withDesc("Core configurations for MonikaBot.")
-                insertSeparator()
-                appendField("Usage", "```config [configuration] [options...]```", false)
-                appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
+        BuilderHelper.buildEmbed(event.channel) {
+            withTitle("Help Text for `config`")
+            withDesc("Core configurations for MonikaBot.")
+            insertSeparator()
+            appendField("Usage", "```config [configuration] [options...]```", false)
+            appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 
@@ -77,14 +76,13 @@ object Config : IBase, IChannelLogger {
 
             return
         } else if (args.size != 2 || args[1].matches(Regex("-{0,2}help"))) {
-            BuilderHelper.buildEmbed(event.channel) {
+            buildEmbed(event.channel) {
                 withTitle("Help Text for config-experimental`")
                 withDesc("Whether to enable experimental features.")
                 appendField("\u200B", "\u200B", false)
                 appendField("Usage", "```config experimental [enable|disable]```", false)
                 appendField("`[enable|disable]`", "Enables/Disables experimental features.", false)
             }
-
             return
         }
 

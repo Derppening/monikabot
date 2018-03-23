@@ -22,58 +22,82 @@ package core
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageBuilder
 import sx.blah.discord.util.RateLimitException
 
 object BuilderHelper {
-    /**
-     * A helper for building embeds.
-     *
-     * @param action The actions to be applied to the embed builder.
-     *
-     * @return An EmbedObject.
-     */
-    fun buildEmbed(action: EmbedBuilder.() -> Unit): EmbedObject {
-        return EmbedBuilder().apply(action).build()
-    }
+    class EmbedHelper(val channel: IChannel) : EmbedBuilder() {
+        private var genericErrorHandler: (Exception) -> Unit = {}
+        private var discordErrorHandler: (DiscordException) -> Unit = {}
 
-    /**
-     * A helper for building and sending embeds.
-     *
-     * @param channel Channel to send the embed into.
-     * @param action The actions to be applied to the embed builder.
-     *
-     * @return The message of the embed.
-     */
-    fun buildEmbed(channel: IChannel, action: EmbedBuilder.() -> Unit): IMessage {
-        val embed = buildEmbed(action)
-        while (true) {
-            try {
-                return embed.let { channel.sendMessage(it) }
-            } catch (rle: RateLimitException) {
-                Thread.sleep(rle.retryDelay)
+        fun onGenericError(handler: (Exception) -> Unit) { genericErrorHandler = handler }
+        fun onDiscordError(handler: (DiscordException) -> Unit) { discordErrorHandler = handler }
+
+        fun data(): EmbedObject {
+            return build()
+        }
+
+        fun send(): IMessage? {
+            while (true) {
+                try {
+                    return build().let { channel.sendMessage(it) }
+                } catch (rle: RateLimitException) {
+                    Thread.sleep(rle.retryDelay)
+                } catch (e: DiscordException) {
+                    discordErrorHandler(e)
+                    e.printStackTrace()
+                    return null
+                } catch (e: Exception) {
+                    genericErrorHandler(e)
+                    e.printStackTrace()
+                    return null
+                }
             }
         }
     }
 
-    /**
-     * A helper for building and sending messages.
-     *
-     * @param channel Channel to send the message into.
-     * @param action The actions to be applied to message builder.
-     *
-     * @return The message of the message?
-     */
-    fun buildMessage(channel: IChannel, action: MessageBuilder.() -> Unit): IMessage {
-        val message = MessageBuilder(Client).withChannel(channel).apply(action)
-        while (true) {
-            try {
-                return message.build()
-            } catch (rle: RateLimitException) {
-                Thread.sleep(rle.retryDelay)
+    class MessageHelper(channel: IChannel) : MessageBuilder(Client) {
+        private var genericErrorHandler: (Exception) -> Unit = {}
+        private var discordErrorHandler: (DiscordException) -> Unit = {}
+
+        fun onGenericError(handler: (Exception) -> Unit) { genericErrorHandler = handler }
+        fun onDiscordError(handler: (DiscordException) -> Unit) { discordErrorHandler = handler }
+
+        init {
+            withChannel(channel)
+        }
+
+        fun data(): MessageBuilder {
+            return this
+        }
+
+        override fun send(): IMessage? {
+            while (true) {
+                try {
+                    return withChannel(channel).let { super.send() }
+                } catch (rle: RateLimitException) {
+                    Thread.sleep(rle.retryDelay)
+                } catch (e: DiscordException) {
+                    discordErrorHandler(e)
+                    e.printStackTrace()
+                    return null
+                } catch (e: Exception) {
+                    genericErrorHandler(e)
+                    e.printStackTrace()
+                    return null
+                }
             }
         }
+    }
+
+    fun buildEmbed(channel: IChannel, action: EmbedHelper.() -> Unit): IMessage? {
+        return EmbedHelper(channel).apply(action).send()
+    }
+
+    fun buildMessage(channel: IChannel, action: MessageHelper.() -> Unit): IMessage? {
+        return MessageHelper(channel).apply(action).send()
     }
 
     /**

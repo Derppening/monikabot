@@ -24,7 +24,6 @@ import core.BuilderHelper.buildMessage
 import core.Core.popLeadingMention
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.io.File
 
 object Parser : IChannelLogger {
@@ -42,7 +41,9 @@ object Parser : IChannelLogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (Trivia.checkUserTriviaStatus(event)) { return }
+        if (Trivia.checkUserTriviaStatus(event)) {
+            return
+        }
 
         if (!event.channel.isPrivate &&
                 !event.message.content.startsWith(Client.ourUser.mention(false))) {
@@ -104,21 +105,19 @@ object Parser : IChannelLogger {
      */
     private fun postCommandHandler(state: HandleState, cmd: String, event: MessageReceivedEvent) {
         when (state) {
-            HandleState.HANDLED -> {}
-            HandleState.UNHANDLED -> {}
+            HandleState.HANDLED -> {
+            }
+            HandleState.UNHANDLED -> {
+            }
             HandleState.NOT_FOUND -> {
-                try {
-                    buildMessage(event.channel) {
-                        withContent("I don't know how to do that! >.<")
-                    }
-                } catch (e: DiscordException) {}
+                buildMessage(event.channel) {
+                    withContent("I don't know how to do that! >.<")
+                }
             }
             HandleState.PERMISSION_DENIED -> {
-                try {
-                    buildMessage(event.channel) {
-                        withContent("You're not allow to do this! x(")
-                    }
-                } catch (e: DiscordException) {}
+                buildMessage(event.channel) {
+                    withContent("You're not allow to do this! x(")
+                }
             }
         }
     }

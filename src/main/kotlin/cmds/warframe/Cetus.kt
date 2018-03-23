@@ -27,7 +27,6 @@ import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -64,21 +63,20 @@ object Cetus : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-cetus`")
-                withDesc("Displays Cetus-related information.")
-                insertSeparator()
-                appendField("Usage", "```warframe cetus [time]```", false)
-                appendField("`timer`", "If appended, show the current time in Cetus/Plains.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe-cetus`")
+            withDesc("Displays Cetus-related information.")
+            insertSeparator()
+            appendField("Usage", "```warframe cetus [time]```", false)
+            appendField("`timer`", "If appended, show the current time in Cetus/Plains.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 

@@ -19,15 +19,13 @@
 
 package cmds.warframe
 
-import cmds.Debug
 import cmds.IBase
 import cmds.Warframe
-import core.BuilderHelper
+import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -35,13 +33,13 @@ import java.util.*
 object News : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
-        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) } ) {
+        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
             help(event, false)
 
             return Parser.HandleState.HANDLED
         }
 
-        BuilderHelper.buildEmbed(event.channel) {
+        buildEmbed(event.channel) {
             withTitle("Warframe News")
 
             val eventPairs = mutableMapOf<Instant, String>()
@@ -71,20 +69,19 @@ object News : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-news`")
-                withDesc("Displays the latest Warframe news.")
-                insertSeparator()
-                appendField("Usage", "```warframe news```", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe-news`")
+            withDesc("Displays the latest Warframe news.")
+            insertSeparator()
+            appendField("Usage", "```warframe news```", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            Debug.log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 }

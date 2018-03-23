@@ -26,7 +26,6 @@ import core.IChannelLogger
 import core.Parser
 import core.PersistentMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 object Clear : IBase, IChannelLogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -53,23 +52,22 @@ object Clear : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `clear`")
-                withDesc("Clears all channel messages that are younger than 14 days.")
-                appendDesc("\nThis command does not work in private channels.")
-                insertSeparator()
-                appendField("Usage", "```clear [--all]```", false)
-                appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
-                        "are locally cached.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `clear`")
+            withDesc("Clears all channel messages that are younger than 14 days.")
+            appendDesc("\nThis command does not work in private channels.")
+            insertSeparator()
+            appendField("Usage", "```clear [--all]```", false)
+            appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
+                    "are locally cached.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 }

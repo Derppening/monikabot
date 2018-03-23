@@ -25,7 +25,6 @@ import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 object Random : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -55,10 +54,10 @@ object Random : IBase {
         val min: Double
         val max: Double
         try {
-            min = args[0].toDoubleOrNull() ?: throw Exception("Minimum number is not a number!")
-            max = args[1].toDoubleOrNull() ?: throw Exception("Maximum number is not a number!")
+            min = args[0].toDoubleOrNull() ?: error("Minimum number is not a number!")
+            max = args[1].toDoubleOrNull() ?: error("Maximum number is not a number!")
 
-            if (min >= max) throw Exception("Minimum number is bigger than the maximum!")
+            if (min >= max) error("Minimum number is bigger than the maximum!")
         } catch (e: Exception) {
             buildMessage(event.channel) {
                 withContent("${e.message} >_>")
@@ -81,25 +80,24 @@ object Random : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `random`")
-                withDesc("Randomly generates numbers. Also works for dices and coins.")
-                insertSeparator()
-                appendField("Usage", "```random [real] [min] [max]```", false)
-                appendField("`real`", "If specified, generate a real number instead of an integer.", false)
-                appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
-                insertSeparator()
-                appendField("Usage", "```random [coin|dice]```", false)
-                appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `random`")
+            withDesc("Randomly generates numbers. Also works for dices and coins.")
+            insertSeparator()
+            appendField("Usage", "```random [real] [min] [max]```", false)
+            appendField("`real`", "If specified, generate a real number instead of an integer.", false)
+            appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
+            insertSeparator()
+            appendField("Usage", "```random [coin|dice]```", false)
+            appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 

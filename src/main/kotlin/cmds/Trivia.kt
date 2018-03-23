@@ -33,7 +33,6 @@ import core.IConsoleLogger
 import core.Parser
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.net.URL
 import kotlin.concurrent.thread
 
@@ -48,7 +47,7 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
         } else {
             5
         }
-        val difficulty = if (args.isNotEmpty() && args.any { it.matches(Regex("(easy|medium|hard|any)"))} ) {
+        val difficulty = if (args.isNotEmpty() && args.any { it.matches(Regex("(easy|medium|hard|any)")) }) {
             args.find { it.matches(Regex("(easy|medium|hard|any)")) }
         } else {
             "easy"
@@ -179,20 +178,20 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `trivia`")
-                withDesc("Starts a trivia game with Monika.")
-                insertSeparator()
-                appendField("Usage", "```trivia [questions] [difficulty]```", false)
-                appendField("`[questions]`", "Number of questions to ask.\nDefaults to 5", false)
-                appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)
-            }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `trivia`")
+            withDesc("Starts a trivia game with Monika.")
+            insertSeparator()
+            appendField("Usage", "```trivia [questions] [difficulty]```", false)
+            appendField("`[questions]`", "Number of questions to ask.\nDefaults to 5", false)
+            appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
         }
     }
