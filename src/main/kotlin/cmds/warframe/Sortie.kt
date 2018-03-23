@@ -23,12 +23,14 @@ import cmds.IBase
 import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
+import core.BuilderHelper.insertSeparator
+import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Duration
 import java.time.Instant
 
-object Sortie : IBase {
+object Sortie : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
@@ -63,6 +65,23 @@ object Sortie : IBase {
         }
 
         return Parser.HandleState.HANDLED
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe-sortie`")
+            withDesc("Displays the current sorties.")
+            insertSeparator()
+            appendField("Usage", "```warframe sorties```", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
+            }
+        }
     }
 
     /**
