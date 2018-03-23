@@ -67,3 +67,7 @@
 
 [v1.1.0-beta.7.2]
 - Actually fix bug where bot cannot be invoked if it has a nickname
+
+[v1.1.0-beta.8]
+- Add `warframe sortie` command
+- Superusers: Add ability to send messages to any channel
