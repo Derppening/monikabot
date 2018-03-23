@@ -21,6 +21,7 @@ package core
 
 import cmds.*
 import core.BuilderHelper.buildMessage
+import core.Core.isMentionMe
 import core.Core.popLeadingMention
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -45,8 +46,7 @@ object Parser : IChannelLogger {
             return
         }
 
-        if (!event.channel.isPrivate &&
-                !event.message.content.startsWith(Client.ourUser.mention())) {
+        if (!isInvocationValid(event)) {
             if (!Core.isOwnerLocationValid(event)) {
                 return
             }
@@ -121,6 +121,15 @@ object Parser : IChannelLogger {
             }
         }
     }
+
+    /**
+     * Returns true if the invocation is valid, i.e.:
+     *  - In a private channel, or
+     *  - Message starts with a mention of the bot.
+     */
+    private fun isInvocationValid(event: MessageReceivedEvent) =
+            event.channel.isPrivate || event.message.isMentionMe()
+
 
     /**
      * Returns the command from a string.

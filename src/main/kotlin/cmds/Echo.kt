@@ -22,6 +22,7 @@ package cmds
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
+import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -68,13 +69,55 @@ object Echo : IBase, IChannelLogger {
         return Parser.HandleState.HANDLED
     }
 
+    override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
+        val args = if (event.channel.isPrivate) {
+            getArgumentList(event.message.content)
+        } else {
+            getArgumentList(event.message.formattedContent, event.channel.guild)
+        }
+        if (args.isEmpty()) {
+            help(event, true)
+            return Parser.HandleState.HANDLED
+        }
+
+        if (args[0] == "-d" || args[0] == "--destination") {
+            if (args.size == 1) {
+                buildMessage(event.channel) {
+                    withContent("Please specify a destination and a message!")
+                }
+
+                return Parser.HandleState.HANDLED
+            }
+
+            if (args[1].any { it == '/' }) {
+                messageToGuildChannel(args, event)
+            } else {
+                messageToPrivateChannel(args, event)
+            }
+
+            return Parser.HandleState.HANDLED
+        }
+
+        return Parser.HandleState.UNHANDLED
+    }
+
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
             withTitle("Help Text for `echo`")
-            withDesc("Echo: Repeats a string, and erases it from the current channel.")
+            withDesc("Echo: Repeats a string.")
             insertSeparator()
             appendField("Usage", "```echo [string]```", false)
             appendField("`[string]`", "String to repeat.", false)
+
+            if (isSu) {
+                insertSeparator()
+                appendField("Usage", "```echo -d [destination] [string]```", false)
+                appendField("`[destination]`", "Destination of the string. Recognized formats include:" +
+                        "\n\t- `/channel`: Sends to `channel` in current server." +
+                        "\n\t- `server/channel`: Sends to `channel` in `server`." +
+                        "\n\t- `username#discriminator`: Sends to user with this Discord Tag.", false)
+                appendField("`[string]`", "String to repeat.", false)
+            }
 
             onDiscordError { e ->
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
@@ -84,5 +127,83 @@ object Echo : IBase, IChannelLogger {
                 }
             }
         }
+    }
+
+    private fun messageToPrivateChannel(args: List<String>, event: MessageReceivedEvent) {
+        val username = args[1].dropLastWhile { it != '#' }.dropLastWhile { it == '#' }
+        val discriminator = args[1].dropWhile { it != '#' }.dropWhile { it == '#' }
+
+        if (username.isBlank() || discriminator.isBlank()) {
+            buildMessage(event.channel) {
+                withContent("Please specify a destination!")
+            }
+        } else if (discriminator.toIntOrNull() == null) {
+            buildMessage(event.channel) {
+                withContent("The Discord Tag is formatted incorrectly!")
+            }
+        }
+
+        try {
+            val channel = Core.getUserByTag(username, discriminator.toInt())?.orCreatePMChannel
+                    ?: error("Cannot find user!")
+
+            val message = args.drop(2).joinToString(" ")
+            buildMessage(channel) {
+                withContent(message)
+
+                onDiscordError { e ->
+                    buildMessage(event.channel) {
+                        withContent("I can't deliver the message! Reason: ${e.errorMessage}")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            buildMessage(event.channel) {
+                withContent("I can't deliver the message! Reason: ${e.message}")
+            }
+            e.printStackTrace()
+        }
+    }
+
+    private fun messageToGuildChannel(args: List<String>, event: MessageReceivedEvent) {
+        val guildStr = args[1].dropLastWhile { it != '/' }.dropLastWhile { it == '/' }.let {
+            if (it.isBlank() && !event.channel.isPrivate) {
+                event.channel.guild.name
+            } else {
+                it
+            }
+        }
+        val channelStr = args[1].dropWhile { it != '/' }.dropWhile { it == '/' || it == '#' }
+
+        if (guildStr.isBlank() || channelStr.isBlank()) {
+            buildMessage(event.channel) {
+                withContent("Please specify a destination!")
+            }
+
+            return
+        }
+
+        try {
+            val guild = Core.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
+            val channel = Core.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
+
+            val message = args.drop(2).joinToString(" ")
+            buildMessage(channel) {
+                withContent(message)
+
+                onDiscordError { e ->
+                    buildMessage(event.channel) {
+                        withContent("I can't deliver the message! Reason: ${e.errorMessage}")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            buildMessage(event.channel) {
+                withContent("I can't deliver the message! Reason: ${e.message}")
+            }
+            e.printStackTrace()
+        }
+
+        return
     }
 }

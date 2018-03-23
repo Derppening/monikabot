@@ -20,9 +20,7 @@
 package core
 
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
-import sx.blah.discord.handle.obj.IChannel
-import sx.blah.discord.handle.obj.IPrivateChannel
-import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -47,15 +45,32 @@ object Core {
     fun isEventFromSuperuser(event: MessageEvent) = suIds.any { it == event.author.longID }
 
     /**
+     * Returns true if given message mentions the bot as the first token.
+     */
+    fun IMessage.isMentionMe(): Boolean =
+            content.startsWith(Client.ourUser.mention()) || content.startsWith(Client.ourUser.mention(false))
+
+    /**
      * Removes the leading MonikaBot mention from a message.
+     *
+     * @param message Original message.
+     * @param guild Guild where the message is sent, if any.
      *
      * @return Message without a leading mention.
      */
-    fun popLeadingMention(message: String): String {
-        return if (message.startsWith(Client.ourUser.mention(false))) {
-            message.popFirstWord()
-        } else {
-            message
+    fun popLeadingMention(message: String, guild: IGuild? = null): String {
+        return when {
+            message.startsWith(Client.ourUser.mention()) ||
+                    message.startsWith(Client.ourUser.mention(false)) ||
+                    message.startsWith("@${Client.ourUser.name}") -> {
+                message.popFirstWord()
+            }
+            guild != null && message.startsWith("@${Client.ourUser.getNicknameForGuild(guild)}") -> {
+                message.popFirstWord()
+            }
+            else -> {
+                message
+            }
         }
     }
 
@@ -64,17 +79,34 @@ object Core {
      */
     fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"
 
-//    fun getUserId(username: String, discriminator: Int): IUser {
-//        return Persistence.client.getUsersByName(username).find { it.discriminator == discriminator.toString() }
-//    }
+    /**
+     * @param username User name portion of the Discord Tag.
+     * @param discriminator Discriminator portion of the Discord Tag.
+     *
+     * @return IUser matching "[username]#[discriminator]"
+     */
+    fun getUserByTag(username: String, discriminator: Int): IUser? {
+        return Client.getUsersByName(username).find { it.discriminator == discriminator.toString() }
+    }
 
-//    fun getGuildByName(name: String): IGuild {
-//        return Persistence.client.guilds.find { it.name == name }
-//    }
+    /**
+     * @param name Name of the guild.
+     *
+     * @return IGuild matching the guild name.
+     */
+    fun getGuildByName(name: String): IGuild? {
+        return Client.guilds.find { it.name == name }
+    }
 
-//    fun getChannelByName(name: String, guild: IGuild): IChannel {
-//        return guild.channels.find { it.name == name }
-//    }
+    /**
+     * @param name Name of channel.
+     * @param guild Guild.
+     *
+     * @return IChannel matching the channel name within the guild.
+     */
+    fun getChannelByName(name: String, guild: IGuild): IChannel? {
+        return guild.channels.find { it.name == name }
+    }
 
     /**
      * @return Channel name in "Server/Channel" format.

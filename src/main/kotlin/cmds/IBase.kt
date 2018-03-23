@@ -24,6 +24,7 @@ import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.IGuild
 
 interface IBase : IChannelLogger {
     /**
@@ -90,8 +91,8 @@ interface IBase : IChannelLogger {
     /**
      * @return List of arguments.
      */
-    fun getArgumentList(str: String): List<String> {
-        val cmdStr = Core.popLeadingMention(str)
+    fun getArgumentList(str: String, guild: IGuild? = null): List<String> {
+        val cmdStr = Core.popLeadingMention(str, guild)
         val tokens = cmdStr.split(" ").drop(1).joinToString(" ")
         val list = mutableListOf<String>()
 

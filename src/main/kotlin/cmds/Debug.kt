@@ -20,6 +20,8 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.buildMessage
+import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -34,6 +36,20 @@ object Debug : IBase, IChannelLogger {
         }
 
         when (args[0].toLowerCase()) {
+            "channel" -> {
+                if (args.size > 2) {
+                    buildMessage(event.channel) {
+                        withContent((Core.getChannelByName(args[2], Core.getGuildByName(args[1])!!) != null).toString())
+                    }
+                }
+            }
+            "user" -> {
+                if (args.size > 2) {
+                    buildMessage(event.channel) {
+                        withContent((Core.getUserByTag(args[1], args[2].toInt()) != null).toString())
+                    }
+                }
+            }
             else -> {
                 log(IChannelLogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
                     message { event.message }
