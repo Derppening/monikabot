@@ -53,13 +53,24 @@ object Core {
     /**
      * Removes the leading MonikaBot mention from a message.
      *
+     * @param message Original message.
+     * @param guild Guild where the message is sent, if any.
+     *
      * @return Message without a leading mention.
      */
-    fun popLeadingMention(message: String): String {
-        return if (message.startsWith(Client.ourUser.mention()) || message.startsWith(Client.ourUser.mention(false))) {
-            message.popFirstWord()
-        } else {
-            message
+    fun popLeadingMention(message: String, guild: IGuild? = null): String {
+        return when {
+            message.startsWith(Client.ourUser.mention()) ||
+                    message.startsWith(Client.ourUser.mention(false)) ||
+                    message.startsWith("@${Client.ourUser.name}") -> {
+                message.popFirstWord()
+            }
+            guild != null && message.startsWith("@${Client.ourUser.getNicknameForGuild(guild)}") -> {
+                message.popFirstWord()
+            }
+            else -> {
+                message
+            }
         }
     }
 
