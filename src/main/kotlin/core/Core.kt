@@ -52,7 +52,7 @@ object Core {
      * @return Message without a leading mention.
      */
     fun popLeadingMention(message: String): String {
-        return if (message.startsWith(Client.ourUser.mention(false))) {
+        return if (message.startsWith(Client.ourUser.mention()) || message.startsWith(Client.ourUser.mention(false))) {
             message.popFirstWord()
         } else {
             message

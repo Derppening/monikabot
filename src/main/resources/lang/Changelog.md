@@ -64,3 +64,6 @@
 [v1.1.0-beta.7.1]
 - Fix bug where bot cannot be invoked if it has a nickname
 - Massive backend refactoring
+
+[v1.1.0-beta.7.2]
+- Actually fix bug where bot cannot be invoked if it has a nickname

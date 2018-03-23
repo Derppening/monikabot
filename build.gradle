@@ -19,7 +19,7 @@ buildscript {
 }
 
 setGroup("hk.derppening.monikabot")
-setVersion("1.1.0-beta.7.1")
+setVersion("1.1.0-beta.7.2")
 
 apply plugin: 'application'
 apply plugin: 'java'
