@@ -29,7 +29,6 @@ import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
-import sx.blah.discord.util.DiscordException
 
 object Status : IBase {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -121,29 +120,28 @@ object Status : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `status`")
-                withDesc("Sets the status and playing text of the bot.")
-                insertSeparator()
-                appendField("Usage", "```status [STATUS] [ACTIVITY] [TEXT] -- [URL]```", false)
-                appendField("`[STATUS]`", "New status for the bot. Can be one of the following:" +
-                        "\n\t`--online`\n\t--idle\n\t--dnd\n\t--offline", false)
-                appendField("`[ACTIVITY]`", "New activity for the bot. Can be one of the following:" +
-                        "\n\t`--play`\n\t`--stream`\n\t`--listen`\n\t`--watch`", false)
-                appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
-                appendField("`[URL]`", "If `ACTIVITY` is set to streaming, the link of the Twitch stream.", false)
-                insertSeparator()
-                appendField("Usage", "```status [--reset]```", false)
-                appendField("`--reset`", "Resets the status to the default.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `status`")
+            withDesc("Sets the status and playing text of the bot.")
+            insertSeparator()
+            appendField("Usage", "```status [STATUS] [ACTIVITY] [TEXT] -- [URL]```", false)
+            appendField("`[STATUS]`", "New status for the bot. Can be one of the following:" +
+                    "\n\t`--online`\n\t`--idle`\n\t`--dnd`\n\t`--offline`", false)
+            appendField("`[ACTIVITY]`", "New activity for the bot. Can be one of the following:" +
+                    "\n\t`--play`\n\t`--stream`\n\t`--listen`\n\t`--watch`", false)
+            appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
+            appendField("`[URL]`", "If `ACTIVITY` is set to streaming, the link of the Twitch stream.", false)
+            insertSeparator()
+            appendField("Usage", "```status [--reset]```", false)
+            appendField("`--reset`", "Resets the status to the default.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Unable to display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Unable to display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 }

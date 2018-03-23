@@ -21,14 +21,12 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
-import core.BuilderHelper
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.time.Duration
 import java.time.Instant
 
@@ -52,7 +50,7 @@ object Alert : IBase, IChannelLogger {
                 }
             }
         } catch (e: Exception) {
-            BuilderHelper.buildMessage(event.channel) {
+            buildMessage(event.channel) {
                 withContent("Warframe is currently updating its information. Please be patient!")
             }
 
@@ -63,22 +61,21 @@ object Alert : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-alert`")
-                withDesc("Displays all currently ongoing alerts.")
-                insertSeparator()
-                appendField("Usage", "```warframe alert [--alert|--special]```", false)
-                appendField("`--alert`", "Only show normal mission alerts.", false)
-                appendField("`--special`", "Only show special alerts.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe-alert`")
+            withDesc("Displays all currently ongoing alerts.")
+            insertSeparator()
+            appendField("Usage", "```warframe alert [--alert|--special]```", false)
+            appendField("`--alert`", "Only show normal mission alerts.", false)
+            appendField("`--special`", "Only show special alerts.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 

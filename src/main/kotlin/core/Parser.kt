@@ -24,7 +24,6 @@ import core.BuilderHelper.buildMessage
 import core.Core.popLeadingMention
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.io.File
 
 object Parser : IChannelLogger {
@@ -42,10 +41,12 @@ object Parser : IChannelLogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (Trivia.checkUserTriviaStatus(event)) { return }
+        if (Trivia.checkUserTriviaStatus(event)) {
+            return
+        }
 
         if (!event.channel.isPrivate &&
-                !event.message.content.startsWith(Client.ourUser.mention(false))) {
+                !event.message.content.startsWith(Client.ourUser.mention())) {
             if (!Core.isOwnerLocationValid(event)) {
                 return
             }
@@ -104,36 +105,18 @@ object Parser : IChannelLogger {
      */
     private fun postCommandHandler(state: HandleState, cmd: String, event: MessageReceivedEvent) {
         when (state) {
-            HandleState.HANDLED -> {}
+            HandleState.HANDLED -> {
+            }
             HandleState.UNHANDLED -> {
-                log(IChannelLogger.LogLevel.ERROR, "Command \"$cmd\" not handled") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
-                }
             }
             HandleState.NOT_FOUND -> {
-                try {
-                    buildMessage(event.channel) {
-                        withContent("I don't know how to do that! >.<")
-                    }
-                } catch (e: DiscordException) {}
-                log(IChannelLogger.LogLevel.ERROR, "Command \"$cmd\" not found") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
+                buildMessage(event.channel) {
+                    withContent("I don't know how to do that! >.<")
                 }
             }
             HandleState.PERMISSION_DENIED -> {
-                try {
-                    buildMessage(event.channel) {
-                        withContent("You're not allow to do this! x(")
-                    }
-                } catch (e: DiscordException) {}
-                log(IChannelLogger.LogLevel.ERROR, "\"$cmd\" was not invoked by superuser") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
+                buildMessage(event.channel) {
+                    withContent("You're not allow to do this! x(")
                 }
             }
         }

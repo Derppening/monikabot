@@ -24,7 +24,6 @@ import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 interface IBase : IChannelLogger {
     /**
@@ -40,7 +39,9 @@ interface IBase : IChannelLogger {
 
         if (Core.isEventFromSuperuser(event)) {
             val suHandleStatus = handlerSu(event)
-            if (suHandleStatus != Parser.HandleState.UNHANDLED) { return suHandleStatus }
+            if (suHandleStatus != Parser.HandleState.UNHANDLED) {
+                return suHandleStatus
+            }
         }
 
         return handler(event)
@@ -53,18 +54,18 @@ interface IBase : IChannelLogger {
      * @param isSu: Whether user invoking this function is a superuser.
      */
     fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text")
-                withDesc("No help text is available for this command.")
+        buildEmbed(event.channel) {
+            withTitle("Help Text")
+            withDesc("No help text is available for this command.")
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
+                e.printStackTrace()
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 

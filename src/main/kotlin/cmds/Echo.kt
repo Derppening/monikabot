@@ -51,39 +51,38 @@ object Echo : IBase, IChannelLogger {
             }
         }
 
-        try {
-            buildMessage(channel) {
-                withContent(message.joinToString(" "))
+        buildMessage(channel) {
+            withContent(message.joinToString(" "))
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "\"$message\" not handled") {
+                    message { event.message }
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "\"$message\" not handled") {
-                message { event.message }
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
+
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `echo`")
-                withDesc("Echo: Repeats a string, and erases it from the current channel.")
-                insertSeparator()
-                appendField("Usage", "```echo [string]```", false)
-                appendField("`[string]`", "String to repeat.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `echo`")
+            withDesc("Echo: Repeats a string, and erases it from the current channel.")
+            insertSeparator()
+            appendField("Usage", "```echo [string]```", false)
+            appendField("`[string]`", "String to repeat.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 }

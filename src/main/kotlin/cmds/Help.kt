@@ -39,6 +39,10 @@ object Help : IBase {
                     listSuFunctions(this)
                 }
             }
+
+            onDiscordError {
+                event.author.orCreatePMChannel.sendMessage(this.data())
+            }
         }
 
         return Parser.HandleState.HANDLED

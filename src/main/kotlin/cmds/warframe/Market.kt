@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import core.BuilderHelper
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -33,13 +32,12 @@ import core.IChannelLogger
 import core.Parser
 import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.time.Instant
 
 object Market : IBase, IChannelLogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
-        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) } ) {
+        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
             help(event, false)
 
             return Parser.HandleState.HANDLED
@@ -81,7 +79,7 @@ object Market : IBase, IChannelLogger {
 
         val itemInSet = market.include.item.itemsInSet.find {
             it.urlName == item.replace(' ', '_').toLowerCase() ||
-            it.urlName == (item.replace(' ', '_').toLowerCase() + "_set")
+                    it.urlName == (item.replace(' ', '_').toLowerCase() + "_set")
         }
 
         buildEmbed(event.channel) {
@@ -135,21 +133,20 @@ object Market : IBase, IChannelLogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            BuilderHelper.buildEmbed(event.channel) {
-                withTitle("Help Text for `warframe-market`")
-                withDesc("Displays market information of any item.")
-                insertSeparator()
-                appendField("Usage", "```warframe market [item]```", false)
-                appendField("`[item]`", "Item to lookup.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `warframe-market`")
+            withDesc("Displays market information of any item.")
+            insertSeparator()
+            appendField("Usage", "```warframe market [item]```", false)
+            appendField("`[item]`", "Item to lookup.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
     }
 

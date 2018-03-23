@@ -25,7 +25,6 @@ import core.BuilderHelper.insertSeparator
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 import java.math.BigDecimal
 import java.math.MathContext
 import kotlin.math.pow
@@ -54,24 +53,24 @@ object RNG : IBase {
                         round = when {
                             it.endsWith("dp") -> Pair(Rounding.DECIMAL_PLACES, it.substring(it.indexOf('=') + 1, it.indexOf("dp")).toInt())
                             it.endsWith("sf") -> Pair(Rounding.SIGNIFICANT_FIGURES, it.substring(it.indexOf('=') + 1, it.indexOf("sf")).toInt())
-                            else -> throw Exception("Specifies rounding does not make sense!")
+                            else -> error("Specifies rounding does not make sense!")
                         }
                     }
                 }
             }
 
             if (!prob.first) {
-                throw Exception("I need the probability!")
+                error("I need the probability!")
             } else if (prob.second <= 0.0 || prob.second > 1.0) {
-                throw Exception("Probability must be between 0.0 and 1.0!")
+                error("Probability must be between 0.0 and 1.0!")
             } else if (attempts.second < 0 || success.second < 0) {
-                throw Exception("You cannot try or succeed a negative amount of times!")
+                error("You cannot try or succeed a negative amount of times!")
             } else if (attempts.second < success.second) {
-                throw Exception("You can't succeed more times than you tried!")
+                error("You can't succeed more times than you tried!")
             } else if (round.first == Rounding.DECIMAL_PLACES && round.second < 0) {
-                throw Exception("You cannot format a number to a negative number of decimal places!")
+                error("You cannot format a number to a negative number of decimal places!")
             } else if (round.first == Rounding.SIGNIFICANT_FIGURES && round.second <= 0) {
-                throw Exception("You cannot format a number to a negative number of significant figures!")
+                error("You cannot format a number to a negative number of significant figures!")
             }
         } catch (e: NumberFormatException) {
             buildMessage(event.channel) {
@@ -132,7 +131,7 @@ object RNG : IBase {
                 appendField("Chance of Success during Run $k", formatReal((1 - p).pow(k - 1) * p, round, true), true)
 
                 val percentile = run {
-                   (1..k).sumByDouble { ((1 - p).pow(it - 1) * p) }
+                    (1..k).sumByDouble { ((1 - p).pow(it - 1) * p) }
                 }
 
                 appendField("Percentile", formatReal(percentile, round, true), true)
@@ -143,26 +142,26 @@ object RNG : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        try {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for `rng`")
-                withDesc("Computes distribution statistics for drop tables.")
-                insertSeparator()
-                appendField("Usage", "```rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]```", false)
-                appendField("`[PROBABILITY]`", "Specifies item drop chance.", false)
-                appendField("`[n=ATTEMPTS]`", "Optional: Specifies number of attempts to get the item.", false)
-                appendField("`[k=SUCCESSFUL_TRIAL]`", "Optional: Specifies the number of trial which you got the item.", false)
-                appendField("`[r=ROUND]`", "Optional: Specifies rounding. You may use dp to signify decimal places and " +
-                        "sf to signify significant figures. \nDefaults to 3 decimal places.", false)
+        buildEmbed(event.channel) {
+            withTitle("Help Text for `rng`")
+            withDesc("Computes distribution statistics for drop tables.")
+            insertSeparator()
+            appendField("Usage", "```rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]```", false)
+            appendField("`[PROBABILITY]`", "Specifies item drop chance.", false)
+            appendField("`[n=ATTEMPTS]`", "Optional: Specifies number of attempts to get the item.", false)
+            appendField("`[k=SUCCESSFUL_TRIAL]`", "Optional: Specifies the number of trial which you got the item.", false)
+            appendField("`[r=ROUND]`", "Optional: Specifies rounding. You may use dp to signify decimal places and " +
+                    "sf to signify significant figures. \nDefaults to 3 decimal places.", false)
+
+            onDiscordError { e ->
+                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    author { event.author }
+                    channel { event.channel }
+                    info { e.errorMessage }
+                }
             }
-        } catch (e: DiscordException) {
-            Random.log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
-                author { event.author }
-                channel { event.channel }
-                info { e.errorMessage }
-            }
-            e.printStackTrace()
         }
+
     }
 
     /**

@@ -86,7 +86,7 @@ object PersistentMessage : IConsoleLogger, IChannel by debugChannel {
     val messageId by lazy {
         buildMessage(this@PersistentMessage) {
             withCode("", "Nothing to see here!")
-        }.longID.also {
+        }!!.longID.also {
             while (Client.getMessageByID(it) == null) { Thread.sleep(500) }
         }
     }
