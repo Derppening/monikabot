@@ -28,17 +28,35 @@ import sx.blah.discord.util.MessageBuilder
 import sx.blah.discord.util.RateLimitException
 
 object BuilderHelper {
+    /**
+     * Helper class for sending embeds.
+     */
     class EmbedHelper(val channel: IChannel) : EmbedBuilder() {
         private var genericErrorHandler: (Exception) -> Unit = {}
         private var discordErrorHandler: (DiscordException) -> Unit = {}
 
+        /**
+         * Sets the handler for Exception.
+         */
         fun onGenericError(handler: (Exception) -> Unit) { genericErrorHandler = handler }
+
+        /**
+         * Sets the handler for DiscordException.
+         */
         fun onDiscordError(handler: (DiscordException) -> Unit) { discordErrorHandler = handler }
 
+        /**
+         * Returns the underlying EmbedObject.
+         */
         fun data(): EmbedObject {
             return build()
         }
 
+        /**
+         * Sends the underlying EmbedObject, and handle any exceptions.
+         *
+         * @return Message object if successfully sent, otherwise null.
+         */
         fun send(): IMessage? {
             while (true) {
                 try {
@@ -58,21 +76,39 @@ object BuilderHelper {
         }
     }
 
+    /**
+     * Helper class for sending messages.
+     */
     class MessageHelper(channel: IChannel) : MessageBuilder(Client) {
         private var genericErrorHandler: (Exception) -> Unit = {}
         private var discordErrorHandler: (DiscordException) -> Unit = {}
 
+        /**
+         * Sets the handler for Exception.
+         */
         fun onGenericError(handler: (Exception) -> Unit) { genericErrorHandler = handler }
+
+        /**
+         * Sets the handler for DiscordException.
+         */
         fun onDiscordError(handler: (DiscordException) -> Unit) { discordErrorHandler = handler }
 
         init {
             withChannel(channel)
         }
 
+        /**
+         * Returns the underlying MessageBuilder.
+         */
         fun data(): MessageBuilder {
             return this
         }
 
+        /**
+         * Sends the underlying MessageBuilder, and handle any exceptions.
+         *
+         * @return Message object if successfully sent, otherwise null.
+         */
         override fun send(): IMessage? {
             while (true) {
                 try {
