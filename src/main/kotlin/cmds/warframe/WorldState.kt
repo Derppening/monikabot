@@ -275,6 +275,13 @@ class WorldState {
         val expiry = Date()
         val character = ""
         val node = ""
+        val manifest = listOf<Item>()
+
+        class Item {
+            val itemType = ""
+            val primePrice = 0
+            val regularPrice = 0
+        }
     }
 
     class DailyDeal {
