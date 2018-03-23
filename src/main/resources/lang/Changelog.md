@@ -60,3 +60,7 @@
 [v1.1.0-beta.7]
 - Add `reminder` command
 - Graduate `trivia` from experimental branch
+
+[v1.1.0-beta.7.1]
+- Fix bug where bot cannot be invoked if it has a nickname
+- Massive backend refactoring
