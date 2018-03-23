@@ -126,7 +126,7 @@ object Status : IBase {
             insertSeparator()
             appendField("Usage", "```status [STATUS] [ACTIVITY] [TEXT] -- [URL]```", false)
             appendField("`[STATUS]`", "New status for the bot. Can be one of the following:" +
-                    "\n\t`--online`\n\t--idle\n\t--dnd\n\t--offline", false)
+                    "\n\t`--online`\n\t`--idle`\n\t`--dnd`\n\t`--offline`", false)
             appendField("`[ACTIVITY]`", "New activity for the bot. Can be one of the following:" +
                     "\n\t`--play`\n\t`--stream`\n\t`--listen`\n\t`--watch`", false)
             appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
