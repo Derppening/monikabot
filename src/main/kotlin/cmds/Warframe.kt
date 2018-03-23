@@ -49,6 +49,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             args[0].matches(Regex("invasions?")) -> Invasion.handler(event)
             args[0] == "news" -> News.handler(event)
             args[0] == "market" -> Market.handler(event)
+            args[0].matches(Regex("sorties?")) -> Sortie.handler(event)
             else -> {
                 help(event, false)
                 Parser.HandleState.HANDLED
