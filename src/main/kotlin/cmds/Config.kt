@@ -39,6 +39,9 @@ object Config : IBase, IChannelLogger {
             "experimental" -> {
                 experimentalHandler(args, event)
             }
+            "owner_echo_for_su" -> {
+                ownerModeEchoHandler(args, event)
+            }
         }
 
         return Parser.HandleState.HANDLED
@@ -97,8 +100,47 @@ object Config : IBase, IChannelLogger {
     }
 
     /**
+     * Handler for "config owner_echo_for_su" commands.
+     *
+     * @param args List of arguments.
+     * @param event Event of the original message.
+     */
+    private fun ownerModeEchoHandler(args: List<String>, event: MessageReceivedEvent) {
+        if (args.size == 1) {
+            buildMessage(event.channel) {
+                withContent("Owner Mode Echo for Superusers: ${if (ownerModeEchoForSu) "Allow" else "Deny"}.")
+            }
+
+            return
+        } else if (args.size != 2 || args[1].matches(Regex("-{0,2}help"))) {
+            buildEmbed(event.channel) {
+                withTitle("Help Text for config-owner_echo_for_su`")
+                withDesc("Whether to allow superusers access to owner mode `echo`.")
+                appendField("\u200B", "\u200B", false)
+                appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
+                appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+            }
+            return
+        }
+
+        enableExperimentalFeatures = args[1] == "allow"
+        buildMessage(event.channel) {
+            withContent("Experimental Features are now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
+        }
+
+        thread {
+            PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", ownerModeEchoForSu.toString(), true)
+        }
+    }
+
+    /**
      * Whether to enable experimental features.
      */
     var enableExperimentalFeatures = Core.monikaVersionBranch == "development"
+        private set
+    /**
+     * Whether to allow superusers to access owner mode echo.
+     */
+    var ownerModeEchoForSu = true
         private set
 }

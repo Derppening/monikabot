@@ -22,6 +22,7 @@ package cmds
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
+import core.Core
 import core.IChannelLogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -68,13 +69,73 @@ object Echo : IBase, IChannelLogger {
         return Parser.HandleState.HANDLED
     }
 
+    override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
+        val args = getArgumentList(event.message.content)
+        if (args.isEmpty()) {
+            help(event, true)
+            return Parser.HandleState.HANDLED
+        }
+
+        if (args[0]  == "-d" || args[0] == "--destination" ) {
+            if (args.size == 1) {
+                buildMessage(event.channel) {
+                    withContent("Please specify a destination and a message!")
+                }
+
+                return Parser.HandleState.HANDLED
+            }
+
+            val guildStr = args[1].dropLastWhile { it != '/' }.dropLastWhile { it == '/' }
+            val channelStr = args[1].dropWhile { it != '/' }.dropWhile { it == '/' || it == '#' }
+
+            if (guildStr.isBlank() || channelStr.isBlank()) {
+                buildMessage(event.channel) {
+                    withContent("Please specify a destination!")
+                }
+            }
+
+            try {
+                val guild = Core.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
+                val channel = Core.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
+
+                val message = args.drop(2).joinToString(" ")
+                buildMessage(channel) {
+                    withContent(message)
+
+                    onDiscordError { e ->
+                        buildMessage(event.channel) {
+                            withContent("I can't deliver the message! Reason: ${e.errorMessage}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                buildMessage(event.channel) {
+                    withContent("I can't deliver the message! Reason: ${e.message}")
+                }
+                e.printStackTrace()
+                return Parser.HandleState.HANDLED
+            }
+
+            return Parser.HandleState.HANDLED
+        }
+
+        return Parser.HandleState.UNHANDLED
+    }
+
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
             withTitle("Help Text for `echo`")
-            withDesc("Echo: Repeats a string, and erases it from the current channel.")
+            withDesc("Echo: Repeats a string.")
             insertSeparator()
             appendField("Usage", "```echo [string]```", false)
             appendField("`[string]`", "String to repeat.", false)
+
+            if (isSu) {
+                insertSeparator()
+                appendField("Usage", "```echo -d [destination] [string]```", false)
+                appendField("`[destination]`", "Destination of the string, in the format of \"server#channel\".", false)
+                appendField("`[string]`", "String to repeat.", false)
+            }
 
             onDiscordError { e ->
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {

@@ -44,6 +44,7 @@ object Client : IChannelLogger, IConsoleLogger, IDiscordClient by client {
             changePresence(defaultState, defaultActivity, defaultText)
 
             PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())
+            PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", Config.ownerModeEchoForSu.toString())
             PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 
             logger.info("Initialization complete with $shardCount shard(s)")
