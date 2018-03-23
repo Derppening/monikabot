@@ -46,7 +46,7 @@ object Parser : IChannelLogger {
         }
 
         if (!event.channel.isPrivate &&
-                !event.message.content.startsWith(Client.ourUser.mention(false))) {
+                !event.message.content.startsWith(Client.ourUser.mention())) {
             if (!Core.isOwnerLocationValid(event)) {
                 return
             }
