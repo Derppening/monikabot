@@ -43,22 +43,11 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             return Parser.HandleState.HANDLED
         }
 
-        return when {
-            args[0].matches(Regex("alerts?")) -> Alert.handler(event)
-            args[0] == "baro" -> Baro.handler(event)
-            args[0].matches(Regex("cetus")) -> Cetus.handler(event)
-            args[0].matches(Regex("darvo")) -> Darvo.handler(event)
-            args[0].matches(Regex("fissures?")) -> Fissure.handler(event)
-            args[0].matches(Regex("invasions?")) -> Invasion.handler(event)
-            args[0] == "news" -> News.handler(event)
-            args[0] == "market" -> Market.handler(event)
-            args[0] == "sale" -> Sale.handler(event)
-            args[0].matches(Regex("sorties?")) -> Sortie.handler(event)
-            args[0].matches(Regex("syndicates?")) -> Syndicate.handler(event)
-            else -> {
-                help(event, false)
-                Parser.HandleState.HANDLED
-            }
+        return try {
+            commands.entries.first { (r, _) -> args[0].matches(r.toRegex()) }.value.handler(event)
+        } catch (e: NoSuchElementException) {
+            help(event, false)
+            return Parser.HandleState.HANDLED
         }
     }
 
@@ -79,6 +68,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
             appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
             appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)
+            appendField("Subcommand: `wiki`", "Directly links an item to its Warframe Wikia page.", false)
 
             onDiscordError { e ->
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
@@ -135,8 +125,22 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
     private const val dropTableDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-drop-data/gh-pages/data/"
     private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
 
+    private val commands = mapOf(
+            "alerts?" to Alert,
+            "baro" to Baro,
+            "cetus" to Cetus,
+            "darvo" to Darvo,
+            "fissures?" to Fissure,
+            "invasions?" to Invasion,
+            "news" to News,
+            "market" to Market,
+            "sale" to Sale,
+            "sorties?" to Sortie,
+            "syndicates?" to Syndicate,
+            "wikia?" to Wiki
+    )
+
     private var dropTableInfo = DropTable.Info()
-        private set
     internal var dropTables = DropTable()
         private set
     internal var worldState = WorldState()
