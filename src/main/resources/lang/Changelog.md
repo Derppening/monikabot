@@ -71,3 +71,13 @@
 [v1.1.0-beta.8]
 - Add `warframe sortie` command
 - Superusers: Add ability to send messages to any channel
+
+[v1.1.0-beta.9]
+- Add various list of `warframe` subcommands
+    - `baro`: Baro Ki'Teer Information
+    - `darvo`: Darvo Sale
+    - `fissures`: Ongoing fissure missions
+    - `primes`: Predicts next prime(s)
+    - `sale`: Ongoing market sale
+    - `syndicate`: Current syndicate missions
+    - `wiki`: Lookup item on Warframe Wikia
