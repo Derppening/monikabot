@@ -20,7 +20,7 @@
 package cmds.warframe
 
 import cmds.IBase
-import cmds.Warframe.worldState
+import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -66,11 +66,14 @@ object Syndicate : IBase, IChannelLogger {
         }
     }
 
+    /**
+     * Retrieves and outputs a list of missions for a given syndicate.
+     */
     private fun getMissionsForSyndicate(event: MessageReceivedEvent) {
         val args = getArgumentList(event.message.content).drop(1).joinToString(" ")
 
-        val matches = worldState.syndicateMissions.filter {
-            WorldState.getSyndicateName(it.tag).toLowerCase().matches(".*${args.toLowerCase()}.*".toRegex())
+        val matches = Warframe.worldState.syndicateMissions.filter {
+            WorldState.getSyndicateName(it.tag).toLowerCase().contains(args.toLowerCase().toRegex())
         }
         if (matches.size > 1) {
             buildMessage(event.channel) {

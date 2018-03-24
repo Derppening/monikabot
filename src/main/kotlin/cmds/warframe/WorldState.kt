@@ -418,21 +418,15 @@ class WorldState {
         }
 
         internal fun getLanguageFromAsset(encoded: String): String {
+            val mapper = jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            }.readTree(URL("$worldStateDataUrl/languages.json"))
             return try {
-                jacksonObjectMapper().apply {
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/languages.json"))
-                        .get(encoded)
-                        .get("value").asText()
+                mapper.get(encoded).get("value").asText()
             } catch (e: Exception) {
                 try {
-                    jacksonObjectMapper().apply {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readTree(URL("$worldStateDataUrl/languages.json"))
-                            .get(encoded.toLowerCase())
-                            .get("value").asText()
+                    mapper.get(encoded.toLowerCase()).get("value").asText()
                 } catch (e: Exception) {
                     ""
                 }
