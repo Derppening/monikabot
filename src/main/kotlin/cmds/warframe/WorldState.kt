@@ -500,7 +500,7 @@ class WorldState {
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 }.readTree(URL("$worldStateDataUrl/syndicatesData.json"))
                         .get(syndicate)
-                        .get("value").asText()
+                        .get("name").asText()
             } catch (e: Exception) {
                 ""
             }

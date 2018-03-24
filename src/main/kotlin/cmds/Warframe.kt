@@ -52,6 +52,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             args[0] == "news" -> News.handler(event)
             args[0] == "market" -> Market.handler(event)
             args[0].matches(Regex("sorties?")) -> Sortie.handler(event)
+            args[0].matches(Regex("syndicates?")) -> Syndicate.handler(event)
             else -> {
                 help(event, false)
                 Parser.HandleState.HANDLED
@@ -73,6 +74,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
             appendField("Subcommand: `market`", "Displays market information about an item.", false)
             appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
+            appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)
 
             onDiscordError { e ->
                 log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
