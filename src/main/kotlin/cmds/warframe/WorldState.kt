@@ -275,6 +275,13 @@ class WorldState {
         val expiry = Date()
         val character = ""
         val node = ""
+        val manifest = listOf<Item>()
+
+        class Item {
+            val itemType = ""
+            val primePrice = 0
+            val regularPrice = 0
+        }
     }
 
     class DailyDeal {
@@ -411,15 +418,18 @@ class WorldState {
         }
 
         internal fun getLanguageFromAsset(encoded: String): String {
+            val mapper = jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            }.readTree(URL("$worldStateDataUrl/languages.json"))
             return try {
-                jacksonObjectMapper().apply {
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/languages.json"))
-                        .get(encoded.toLowerCase())
-                        .get("value").asText()
+                mapper.get(encoded).get("value").asText()
             } catch (e: Exception) {
-                ""
+                try {
+                    mapper.get(encoded.toLowerCase()).get("value").asText()
+                } catch (e: Exception) {
+                    ""
+                }
             }
         }
 
@@ -493,7 +503,7 @@ class WorldState {
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 }.readTree(URL("$worldStateDataUrl/syndicatesData.json"))
                         .get(syndicate)
-                        .get("value").asText()
+                        .get("name").asText()
             } catch (e: Exception) {
                 ""
             }

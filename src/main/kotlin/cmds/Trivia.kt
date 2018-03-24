@@ -48,16 +48,13 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
             5
         }
         val difficulty = if (args.isNotEmpty() && args.any { it.matches(Regex("(easy|medium|hard|any)")) }) {
-            args.find { it.matches(Regex("(easy|medium|hard|any)")) }
+            args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
         } else {
             "easy"
         }
 
         val channel = event.author.orCreatePMChannel
-        val triviaData = jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue<TriviaData>(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
+        val triviaData = getTriviaQuestions(questions, difficulty)
 
         if (triviaData.responseCode != 0) {
             buildMessage(channel) {
@@ -214,6 +211,13 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
 
     var users = mutableListOf<Long>()
         private set
+
+    private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
+        return jacksonObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+        }.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
+    }
 
     class TriviaData {
         @JsonProperty("response_code")
