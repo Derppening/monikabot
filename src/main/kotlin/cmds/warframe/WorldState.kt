@@ -423,10 +423,19 @@ class WorldState {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 }.readTree(URL("$worldStateDataUrl/languages.json"))
-                        .get(encoded.toLowerCase())
+                        .get(encoded)
                         .get("value").asText()
             } catch (e: Exception) {
-                ""
+                try {
+                    jacksonObjectMapper().apply {
+                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    }.readTree(URL("$worldStateDataUrl/languages.json"))
+                            .get(encoded.toLowerCase())
+                            .get("value").asText()
+                } catch (e: Exception) {
+                    ""
+                }
             }
         }
 

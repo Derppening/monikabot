@@ -51,6 +51,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             args[0].matches(Regex("invasions?")) -> Invasion.handler(event)
             args[0] == "news" -> News.handler(event)
             args[0] == "market" -> Market.handler(event)
+            args[0] == "sale" -> Sale.handler(event)
             args[0].matches(Regex("sorties?")) -> Sortie.handler(event)
             args[0].matches(Regex("syndicates?")) -> Syndicate.handler(event)
             else -> {
@@ -73,6 +74,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
             appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
             appendField("Subcommand: `market`", "Displays market information about an item.", false)
+            appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
             appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
             appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)
 
