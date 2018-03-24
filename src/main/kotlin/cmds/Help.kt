@@ -28,6 +28,8 @@ import sx.blah.discord.util.EmbedBuilder
 object Help : IBase {
     override fun delegateCommand(event: MessageReceivedEvent): Parser.HandleState {
         buildEmbed(event.channel) {
+            withAuthorName("Github")
+            withAuthorUrl("https://github.com/Derppening/MonikaBot")
             withTitle("Help Text for MonikaBot")
             withDesc("MonikaBot is a command-based bot, supporting a wide range of features. Written by " +
                     "Derppening#9062.\nUse `[command] --help` to get help text for any command listed below.")
@@ -57,10 +59,11 @@ object Help : IBase {
             appendField("`echo`", "Repeats a string.", false)
             appendField("`help`", "Displays help for primary commands.", false)
             appendField("`random`", "Randomly generates numbers.", false)
+            appendField("`reminder`", "Adds a reminder for yourself.", false)
             appendField("`rng`", "Computes statistics for drop tables.", false)
+            appendField("`trivia`", "Starts a game of trivia.", false)
             appendField("`version`", "Displays the current version of MonikaBot.", false)
             appendField("`warframe`", "Warframe-related commands.", false)
-            appendField("Experimental: `trivia`", "Starts a game of trivia.", false)
         }
     }
 

@@ -81,3 +81,6 @@
     - `sale`: Ongoing market sale
     - `syndicate`: Current syndicate missions
     - `wiki`: Lookup item on Warframe Wikia
+
+[v1.1.0-beta.9.1]
+- Update help text
