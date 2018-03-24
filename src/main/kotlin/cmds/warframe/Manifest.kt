@@ -21,6 +21,15 @@ class Manifest {
             return "http://content.warframe.com/MobileExport${textureLocation.replace("\\", "/")}"
         }
 
+        internal fun findImageByRegex(nameRegex: Regex): String {
+            val matches = parseManifest().manifest.filter { it.uniqueName.contains(nameRegex) }
+            return if (matches.size != 1) {
+                ""
+            } else {
+                getImageLinkFromAssetLocation(matches.first().uniqueName)
+            }
+        }
+
         private fun parseManifest(): Manifest {
             return jacksonObjectMapper().apply {
                 configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
