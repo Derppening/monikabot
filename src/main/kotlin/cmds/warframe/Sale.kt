@@ -51,7 +51,6 @@ object Sale : IBase, ILogger {
                         item
                     }
                 }
-                val timeToExpiry = formatTimeDuration(Duration.between(Instant.now(), it.endDate.date.numberLong))
                 val appendStr = when {
                     it.featured && it.popular -> "Featured/Popular: "
                     it.featured -> "Featured: "
