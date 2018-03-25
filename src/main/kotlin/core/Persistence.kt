@@ -31,7 +31,7 @@ import kotlin.system.exitProcess
 /**
  * Singleton housing all persistent objects.
  */
-object Persistence : IConsoleLogger {
+object Persistence : ILogger {
     /**
      * Core IDiscordClient object.
      */

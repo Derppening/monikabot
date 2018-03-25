@@ -22,11 +22,11 @@ package cmds
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.Core
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Debug : IBase, IChannelLogger {
+object Debug : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -51,7 +51,7 @@ object Debug : IBase, IChannelLogger {
                 }
             }
             else -> {
-                log(IChannelLogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
+                log(ILogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
                     message { event.message }
                     author { event.author }
                     channel { event.channel }
@@ -68,7 +68,7 @@ object Debug : IBase, IChannelLogger {
             withDesc("Enables superuser debugging methods.")
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

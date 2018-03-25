@@ -23,12 +23,12 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Core
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
-object Echo : IBase, IChannelLogger {
+object Echo : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
         if (args.isEmpty()) {
@@ -43,7 +43,7 @@ object Echo : IBase, IChannelLogger {
             try {
                 event.message.delete()
             } catch (e: DiscordException) {
-                log(IChannelLogger.LogLevel.ERROR, "Cannot delete \"$message\"") {
+                log(ILogger.LogLevel.ERROR, "Cannot delete \"$message\"") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }
@@ -56,7 +56,7 @@ object Echo : IBase, IChannelLogger {
             withContent(message.joinToString(" "))
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "\"$message\" not handled") {
+                log(ILogger.LogLevel.ERROR, "\"$message\" not handled") {
                     message { event.message }
                     author { event.author }
                     channel { event.channel }
@@ -120,7 +120,7 @@ object Echo : IBase, IChannelLogger {
             }
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

@@ -84,3 +84,7 @@
 
 [v1.1.0-beta.9.1]
 - Update help text
+
+[v1.1.0-rc]
+- Add `ping` and `warframe ping` commands
+- Fixed issue where `warframe wiki` does not generate a proper link

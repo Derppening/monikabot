@@ -24,7 +24,7 @@ import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Duration
@@ -35,7 +35,7 @@ import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-object Cetus : IBase, IChannelLogger {
+object Cetus : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).toMutableList().apply {
             removeIf { it.matches(Regex("cetus")) }
@@ -56,7 +56,7 @@ object Cetus : IBase, IChannelLogger {
                 withContent("Warframe is currently updating its information. Please be patient!")
             }
 
-            log(IChannelLogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
+            log(ILogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
         }
 
         return Parser.HandleState.HANDLED
@@ -71,7 +71,7 @@ object Cetus : IBase, IChannelLogger {
             appendField("`timer`", "If appended, show the current time in Cetus/Plains.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

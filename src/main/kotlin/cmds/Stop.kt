@@ -23,12 +23,12 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
 import core.Client
 import core.Core
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import kotlin.system.exitProcess
 
-object Stop : IBase, IChannelLogger {
+object Stop : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!Core.isEventFromOwner(event)) {
             return Parser.HandleState.PERMISSION_DENIED
@@ -44,7 +44,7 @@ object Stop : IBase, IChannelLogger {
             return Parser.HandleState.HANDLED
         }
 
-        log(IChannelLogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
+        log(ILogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
             author { event.author }
             channel { event.channel }
         }
@@ -68,7 +68,7 @@ object Stop : IBase, IChannelLogger {
                 appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
 
                 onDiscordError { e ->
-                    log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                         author { event.author }
                         channel { event.channel }
                         info { e.errorMessage }

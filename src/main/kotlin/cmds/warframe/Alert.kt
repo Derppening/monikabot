@@ -24,13 +24,13 @@ import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Duration
 import java.time.Instant
 
-object Alert : IBase, IChannelLogger {
+object Alert : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).toMutableList().apply {
             removeIf { it.matches(Regex("alerts?")) }
@@ -54,7 +54,7 @@ object Alert : IBase, IChannelLogger {
                 withContent("Warframe is currently updating its information. Please be patient!")
             }
 
-            log(IChannelLogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
+            log(ILogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
         }
 
         return Parser.HandleState.HANDLED
@@ -70,7 +70,7 @@ object Alert : IBase, IChannelLogger {
             appendField("`--special`", "Only show special alerts.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

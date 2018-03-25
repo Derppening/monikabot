@@ -23,7 +23,7 @@ import cmds.IBase
 import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Duration
@@ -76,7 +76,7 @@ object News : IBase {
             appendField("Usage", "```warframe news```", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

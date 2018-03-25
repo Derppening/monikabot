@@ -21,12 +21,14 @@ package core
 
 import core.BuilderHelper.buildEmbed
 import core.Persistence.debugChannel
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import java.awt.Color
 
-interface IChannelLogger {
+interface ILogger {
     enum class LogLevel {
         DEBUG,
         INFO,
@@ -91,4 +93,7 @@ interface IChannelLogger {
     fun log(level: LogLevel, message: String, action: LogHelper.() -> Unit = {}) {
         LogHelper(level, message, this.javaClass).apply(action).build()
     }
+
+    val logger: Logger
+        get() = LoggerFactory.getLogger(javaClass.name)!!
 }

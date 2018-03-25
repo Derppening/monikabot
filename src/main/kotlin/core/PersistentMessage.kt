@@ -25,7 +25,7 @@ import sx.blah.discord.handle.obj.IChannel
 import java.time.Instant
 import kotlin.concurrent.thread
 
-object PersistentMessage : IConsoleLogger, IChannel by debugChannel {
+object PersistentMessage : IChannel by debugChannel, ILogger {
     /**
      * Modifies persistent buildMessage.
      *

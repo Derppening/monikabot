@@ -23,13 +23,13 @@ import cmds.IBase
 import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Duration
 import java.time.Instant
 
-object Sale : IBase, IChannelLogger {
+object Sale : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
@@ -51,7 +51,6 @@ object Sale : IBase, IChannelLogger {
                         item
                     }
                 }
-                val timeToExpiry = formatTimeDuration(Duration.between(Instant.now(), it.endDate.date.numberLong))
                 val appendStr = when {
                     it.featured && it.popular -> "Featured/Popular: "
                     it.featured -> "Featured: "
@@ -84,7 +83,7 @@ object Sale : IBase, IChannelLogger {
             appendField("Usage", "```warframe sale```", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

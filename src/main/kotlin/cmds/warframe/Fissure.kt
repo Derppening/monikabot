@@ -4,13 +4,13 @@ import cmds.IBase
 import cmds.Warframe
 import core.BuilderHelper
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Duration
 import java.time.Instant
 
-object Fissure : IBase, IChannelLogger {
+object Fissure : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
@@ -56,7 +56,7 @@ object Fissure : IBase, IChannelLogger {
             appendField("Usage", "```warframe fissures```", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

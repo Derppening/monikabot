@@ -26,15 +26,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
-import core.IConsoleLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
-object Warframe : IBase, IChannelLogger, IConsoleLogger {
+object Warframe : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -65,6 +64,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
             appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
             appendField("Subcommand: `market`", "Displays market information about an item.", false)
+            appendField("Subcommand: `ping`", "Displays latency information to the Warframe servers.", false)
             appendField("Subcommand: `primes", "Displays the most recently released primes, as well as predicts the next few primes.", false)
             appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
             appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
@@ -72,7 +72,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             appendField("Subcommand: `wiki`", "Directly links an item to its Warframe Wikia page.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }
@@ -135,6 +135,7 @@ object Warframe : IBase, IChannelLogger, IConsoleLogger {
             "invasions?" to Invasion,
             "news" to News,
             "market" to Market,
+            "ping" to Ping,
             "primes?" to Prime,
             "sale" to Sale,
             "sorties?" to Sortie,

@@ -23,11 +23,11 @@ import cmds.IBase
 import cmds.Warframe
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Invasion : IBase, IChannelLogger {
+object Invasion : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).toMutableList().apply {
             removeIf { it.matches(Regex("invasions?")) }
@@ -52,7 +52,7 @@ object Invasion : IBase, IChannelLogger {
             appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

@@ -23,11 +23,11 @@ import core.BuilderHelper
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Core
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Version : IBase, IChannelLogger {
+object Version : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         buildMessage(event.channel) {
             withCode("", "MonikaBot v${Core.monikaVersion}")
@@ -44,7 +44,7 @@ object Version : IBase, IChannelLogger {
             appendField("Usage", "```version```", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

@@ -21,12 +21,12 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.Core
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IGuild
 
-interface IBase : IChannelLogger {
+interface IBase : ILogger {
     /**
      * Delegates [event] to the appropriate function.
      *
@@ -60,7 +60,7 @@ interface IBase : IChannelLogger {
             withDesc("No help text is available for this command.")
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

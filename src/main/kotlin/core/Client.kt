@@ -33,7 +33,7 @@ import java.util.*
 /**
  * A singleton IDiscordClient object.
  */
-object Client : IChannelLogger, IConsoleLogger, IDiscordClient by client {
+object Client : ILogger, IDiscordClient by client {
     /**
      * Listener for ReadyEvent.
      */
@@ -76,7 +76,7 @@ object Client : IChannelLogger, IConsoleLogger, IDiscordClient by client {
      */
     fun resetStatus() {
         changePresence(defaultState, defaultActivity, defaultText)
-        log(IChannelLogger.LogLevel.INFO, "Successfully updated")
+        log(ILogger.LogLevel.INFO, "Successfully updated")
     }
 
     /**
