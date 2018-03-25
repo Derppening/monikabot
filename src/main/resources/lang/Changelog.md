@@ -88,3 +88,8 @@
 [v1.1.0-rc]
 - Add `ping` and `warframe ping` commands
 - Fixed issue where `warframe wiki` does not generate a proper link
+
+[v1.1.0-rc.1]
+- Fix issue where `warframe ping` does not use Warframe-specific ping locations
+- Use a better method to detect whether Warframe's gateways are down
+- Reduce `warframe ping` timeout to 5 seconds

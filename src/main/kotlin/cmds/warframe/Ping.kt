@@ -6,6 +6,7 @@ import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.system.measureTimeMillis
 
@@ -22,15 +23,20 @@ object Ping : IBase, ILogger {
         buildEmbed(event.channel) {
             withTitle("Warframe Latency Information")
 
-            connections.forEach { (server, url) ->
+            connections.forEach { (server, url, expectedResponse) ->
+                var responseCode = 0
                 val time = measureTimeMillis {
-                    URL(url).openConnection().also {
-                        it.connectTimeout = 10000
-                    }.connect()
+                    val connection = URL(url).openConnection().also {
+                        it.connectTimeout = 5000
+                        it.connect()
+                    }
+                    if (connection is HttpURLConnection) {
+                        responseCode = connection.responseCode
+                    }
                 }
 
-
-                appendField(server, if (time < 10000) "$time ms" else "Unreachable", false)
+                val isResponseExpected = expectedResponse.any { it == responseCode }
+                appendField(server, if (time < 5000 && isResponseExpected) "$time ms" else "Unreachable", false)
             }
         }
 
@@ -58,10 +64,16 @@ object Ping : IBase, ILogger {
         }
     }
 
-    private val connections = mapOf(
-            "Internal API" to "https://api.warframe.com/stats/view.php",
-            "Content Server" to "http://content.warframe.com/dynamic/worldState.php",
-            "Forums" to "http://forums.warframe.com/",
-            "Web Server" to "https://n8k6e2y6.ssl.hwcdn.net/repos/hnfvc0o3jnfvc873njb03enrf56.html"
+    private val connections = listOf(
+            PingDestination("Internal API", "https://api.warframe.com/stats/view.php", listOf(403)),
+            PingDestination("Content Server", "http://content.warframe.com/dynamic/worldState.php", listOf(200)),
+            PingDestination("Forums", "https://forums.warframe.com/", listOf(200)),
+            PingDestination("Web Server", "https://n8k6e2y6.ssl.hwcdn.net/repos/hnfvc0o3jnfvc873njb03enrf56.html", listOf(200))
+    )
+
+    data class PingDestination(
+            val name: String,
+            val url: String,
+            val expectedResponse: List<Int>
     )
 }
