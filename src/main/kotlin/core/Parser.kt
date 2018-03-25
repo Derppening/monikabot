@@ -152,6 +152,7 @@ object Parser : ILogger {
             "debug" to Debug,
             "echo" to Echo,
             "help" to Help,
+            "ping" to Ping,
             "random" to Random,
             "reload" to Reload,
             "reminder" to Reminder,
