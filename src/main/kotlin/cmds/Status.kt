@@ -24,7 +24,7 @@ import core.BuilderHelper.insertSeparator
 import core.Client
 import core.Core
 import core.Core.removeQuotes
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.ActivityType
@@ -106,9 +106,9 @@ object Status : IBase {
             } else {
                 Client.changePresence(status, activity, message)
             }
-            log(IChannelLogger.LogLevel.INFO, "Successfully updated")
+            log(ILogger.LogLevel.INFO, "Successfully updated")
         } catch (e: Exception) {
-            log(IChannelLogger.LogLevel.ERROR, "Cannot set status") {
+            log(ILogger.LogLevel.ERROR, "Cannot set status") {
                 author { event.author }
                 channel { event.channel }
                 info { e.message ?: "Unknown Exception" }
@@ -136,7 +136,7 @@ object Status : IBase {
             appendField("`--reset`", "Resets the status to the default.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Unable to display help text") {
+                log(ILogger.LogLevel.ERROR, "Unable to display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

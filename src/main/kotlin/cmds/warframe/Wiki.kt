@@ -23,11 +23,12 @@ import cmds.IBase
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
+import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Wiki : IBase, IChannelLogger {
+object Wiki : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
@@ -36,7 +37,12 @@ object Wiki : IBase, IChannelLogger {
             return Parser.HandleState.HANDLED
         }
 
-        val str = args.joinToString(" ").replace(' ', '_')
+        val str = args.joinToString(" ")
+                .split(" ").joinToString(" ") {
+                    it.toLowerCase().capitalize()
+                }.replace(' ', '_').let {
+                    StringEscapeUtils.escapeHtml4(it)
+                }
 
         buildMessage(event.channel) {
             withContent("http://warframe.wikia.com/wiki/$str")
@@ -54,7 +60,7 @@ object Wiki : IBase, IChannelLogger {
             appendField("`[item]`", "Item to lookup.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

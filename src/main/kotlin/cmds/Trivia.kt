@@ -28,15 +28,14 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Core
-import core.IChannelLogger
-import core.IConsoleLogger
+import core.ILogger
 import core.Parser
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
 import kotlin.concurrent.thread
 
-object Trivia : IBase, IChannelLogger, IConsoleLogger {
+object Trivia : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).dropWhile {
             it == "--experimental"
@@ -184,7 +183,7 @@ object Trivia : IBase, IChannelLogger, IConsoleLogger {
             appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

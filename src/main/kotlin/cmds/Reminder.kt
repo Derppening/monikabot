@@ -29,8 +29,7 @@ import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
 import core.Core.removeQuotes
-import core.IChannelLogger
-import core.IConsoleLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IUser
@@ -46,7 +45,7 @@ import java.util.*
 import kotlin.concurrent.timerTask
 import kotlin.math.roundToLong
 
-object Reminder : IBase, IChannelLogger, IConsoleLogger {
+object Reminder : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -85,7 +84,7 @@ object Reminder : IBase, IChannelLogger, IConsoleLogger {
             appendField("`clear`", "Clears all ongoing reminders.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

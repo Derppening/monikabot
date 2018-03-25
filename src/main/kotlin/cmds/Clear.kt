@@ -22,12 +22,12 @@ package cmds
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
+import core.ILogger
 import core.Parser
 import core.PersistentMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Clear : IBase, IChannelLogger {
+object Clear : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -38,7 +38,7 @@ object Clear : IBase, IChannelLogger {
                 withContent("I can't delete clear messages in private channels!")
             }
 
-            log(IChannelLogger.LogLevel.ERROR, "Cannot bulk delete messages") {
+            log(ILogger.LogLevel.ERROR, "Cannot bulk delete messages") {
                 author { event.author }
                 channel { event.channel }
                 info { "In a private channel" }
@@ -62,7 +62,7 @@ object Clear : IBase, IChannelLogger {
                     "are locally cached.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

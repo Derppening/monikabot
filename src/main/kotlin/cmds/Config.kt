@@ -26,7 +26,7 @@ import core.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import kotlin.concurrent.thread
 
-object Config : IBase, IChannelLogger {
+object Config : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -56,7 +56,7 @@ object Config : IBase, IChannelLogger {
             appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }

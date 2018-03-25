@@ -27,7 +27,7 @@ import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
 
-object Parser : IChannelLogger {
+object Parser : ILogger {
     enum class HandleState {
         HANDLED,
         UNHANDLED,

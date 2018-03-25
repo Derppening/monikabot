@@ -4,8 +4,7 @@ import cmds.IBase
 import core.BuilderHelper
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
-import core.IChannelLogger
-import core.IConsoleLogger
+import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
@@ -13,7 +12,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-object Prime : IBase, IChannelLogger, IConsoleLogger {
+object Prime : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
@@ -39,7 +38,7 @@ object Prime : IBase, IChannelLogger, IConsoleLogger {
             appendField("`[num_to_show]", "Number of released/predicted primes to show.", false)
 
             onDiscordError { e ->
-                log(IChannelLogger.LogLevel.ERROR, "Cannot display help text") {
+                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }
