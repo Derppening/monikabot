@@ -19,7 +19,7 @@ object Ping : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        event.channel.toggleTypingStatus()
+        event.channel.typingStatus = true
         buildEmbed(event.channel) {
             withTitle("Warframe Latency Information")
 
@@ -27,7 +27,7 @@ object Ping : IBase, ILogger {
                 var responseCode = 0
                 val time = measureTimeMillis {
                     val connection = URL(url).openConnection().also {
-                        it.connectTimeout = 5000
+                        it.connectTimeout = 10000
                         it.connect()
                     }
                     if (connection is HttpURLConnection) {
@@ -36,7 +36,7 @@ object Ping : IBase, ILogger {
                 }
 
                 val isResponseExpected = expectedResponse.any { it == responseCode }
-                appendField(server, if (time < 5000 && isResponseExpected) "$time ms" else "Unreachable", false)
+                appendField(server, if (time < 10000 && isResponseExpected) "$time ms" else "Unreachable", false)
             }
         }
 
@@ -50,7 +50,7 @@ object Ping : IBase, ILogger {
             insertSeparator()
             appendField("Usage", "```warframe ping```", false)
             appendField("Internal API", "The servers responsible for loading and updating player progress.", false)
-            appendField("Content Server", "The servers responsible for publishing public information, including World State.", false)
+            appendField("Content Server", "The servers responsible for hosting updates and world information.", false)
             appendField("Forums", "The Warframe Forums.", false)
             appendField("Web Server", "Warframe's website, including drop tables.", false)
 

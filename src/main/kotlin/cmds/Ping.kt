@@ -1,13 +1,11 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
-import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.EmbedBuilder
 import java.time.Instant
 
 object Ping : IBase, ILogger {
@@ -19,16 +17,13 @@ object Ping : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        val message = buildMessage(event.channel) {
-            withContent("Pinging servers, please wait...")
-        }
-
-        val embed = EmbedBuilder().apply {
+        event.channel.typingStatus = true
+        buildEmbed(event.channel) {
             withTitle("Bot Latency Information")
 
             appendField("Discord Server", "${Client.shards.first().responseTime}ms", false)
 
-            val digitalOceanField = digitalOceanPings.entries.joinToString("\n") { (server, ip) ->
+            digitalOceanPings.entries.joinToString("\n") { (server, ip) ->
                 val p = ProcessBuilder("ping -c 1 $ip".split(" "))
                 val process = p.start()
                 process.waitFor()
@@ -41,10 +36,11 @@ object Ping : IBase, ILogger {
                 } else {
                     "$server: Unreachable"
                 }
+            }.also {
+                appendField("DigitalOcean Servers", it, false)
             }
-            appendField("DigitalOcean Servers", digitalOceanField, false)
 
-            val googleField = googlePings.entries.joinToString("\n") { (server, ip) ->
+            googlePings.entries.joinToString("\n") { (server, ip) ->
                 val p = ProcessBuilder("ping -c 1 $ip".split(" "))
                 val process = p.start()
                 process.waitFor()
@@ -57,13 +53,12 @@ object Ping : IBase, ILogger {
                 } else {
                     "$server: Unreachable"
                 }
+            }.also {
+                appendField("Google Servers", it, false)
             }
-            appendField("Google Servers", googleField, false)
 
             withTimestamp(Instant.now())
-        }.build()
-
-        message?.edit(embed)
+        }
 
         return Parser.HandleState.HANDLED
     }
