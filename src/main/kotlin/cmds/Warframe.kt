@@ -59,12 +59,16 @@ object Warframe : IBase, ILogger {
                 cmdMatches.entries.first().value.handler(event)
             }
             else -> {
-                buildMessage(event.channel) {
-                    withContent("Your message matches multiple commands!")
-                    appendContent("\n\nYour provided command matches:\n")
-                    appendContent(commands.filter { it.key.startsWith(args[0]) }.entries.joinToString("\n") {
-                        "- warframe ${it.key}"
-                    })
+                if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                    cmdMatches.entries.first().value.handler(event)
+                } else {
+                    buildMessage(event.channel) {
+                        withContent("Your message matches multiple commands!")
+                        appendContent("\n\nYour provided command matches:\n")
+                        appendContent(commands.filter { it.key.startsWith(args[0]) }.entries.distinctBy { it.value }.joinToString("\n") {
+                            "- warframe ${it.key}"
+                        })
+                    }
                 }
 
                 Parser.HandleState.HANDLED
@@ -150,25 +154,27 @@ object Warframe : IBase, ILogger {
 
     private val commands = mapOf(
             "alert" to Alert,
-            "alerts" to Alert,
             "baro" to Baro,
             "cetus" to Cetus,
             "darvo" to Darvo,
             "fissure" to Fissure,
-            "fissures" to Fissure,
             "invasion" to Invasion,
-            "invasions" to Invasion,
             "news" to News,
             "market" to Market,
             "ping" to Ping,
             "prime" to Prime,
-            "primes" to Prime,
             "sale" to Sale,
             "sortie" to Sortie,
-            "sorties" to Sortie,
             "syndicate" to Syndicate,
-            "syndicates" to Syndicate,
             "wiki" to Wiki,
+
+            // aliases
+            "alerts" to Alert,
+            "fissures" to Fissure,
+            "invasions" to Invasion,
+            "primes" to Prime,
+            "sorties" to Sortie,
+            "syndicates" to Syndicate,
             "wikia" to Wiki
     )
 

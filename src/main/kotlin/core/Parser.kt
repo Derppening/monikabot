@@ -87,7 +87,13 @@ object Parser : ILogger {
                     }
                     cmdMatches.entries.first().value.delegateCommand(event)
                 }
-                else -> HandleState.MULTIPLE_MATCHES
+                else -> {
+                    if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                        cmdMatches.entries.first().value.delegateCommand(event)
+                    } else {
+                        HandleState.MULTIPLE_MATCHES
+                    }
+                }
             }
         }
 
@@ -106,7 +112,7 @@ object Parser : ILogger {
                 buildMessage(event.channel) {
                     withContent("Your message matches multiple commands!")
                     appendContent("\n\nYour provided command matches:\n")
-                    appendContent(commands.filter { it.key.startsWith(cmd) }.entries.joinToString("\n") { "- ${it.key}" })
+                    appendContent(commands.filter { it.key.startsWith(cmd) }.entries.distinctBy { it.value }.joinToString("\n") { "- ${it.key}" })
                 }
             }
             else -> {}
@@ -152,7 +158,6 @@ object Parser : ILogger {
     private const val nullResponsesPath = "lang/NullResponse.txt"
 
     private val commands: Map<String, IBase> = mapOf(
-            "bugreport" to Issue,
             "changelog" to Changelog,
             "clear" to Clear,
             "config" to Config,
@@ -170,7 +175,10 @@ object Parser : ILogger {
             "timer" to Reminder,
             "trivia" to Trivia,
             "version" to Version,
-            "warframe" to Warframe
+            "warframe" to Warframe,
+
+            // aliases
+            "bugreport" to Issue
     )
 
     private val experimentalCommands: Map<String, IBase> = mapOf(
