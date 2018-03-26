@@ -75,28 +75,20 @@ def getWorkingBranch() {
     return gitBranch
 }
 
-task createKtProperties() {
+task createProperties() {
     doLast {
+        Properties p = new Properties()
+        p['version'] = project.version.toString()
+        p['gitbranch'] = getWorkingBranch()
         new File("$projectDir/out/production/classes/properties/version.properties").withWriter { w ->
-            Properties p = new Properties()
-            p['version'] = project.version.toString()
-            p['gitbranch'] = getWorkingBranch()
             p.store w, null
         }
-    }
-}
-
-task createGradleProperties(dependsOn: processResources) {
-    doLast {
         new File("$buildDir/resources/main/properties/version.properties").withWriter { w ->
-            Properties p = new Properties()
-            p['version'] = project.version.toString()
-            p['gitbranch'] = getWorkingBranch()
             p.store w, null
         }
     }
 }
 
 classes {
-    dependsOn createGradleProperties
+    dependsOn createProperties
 }
