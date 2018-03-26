@@ -1,6 +1,7 @@
 package cmds.warframe
 
 import cmds.IBase
+import cmds.Warframe.toNearestChronoYear
 import core.BuilderHelper
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -104,12 +105,8 @@ object Prime : IBase, ILogger {
                         }
                     }
                 }
-                val durationToPrime = Duration.between(Instant.now(), time).toDays()
-                val durationStr = when {
-                    durationToPrime > 365 -> "${durationToPrime / 365} years"
-                    durationToPrime > 30 -> "${durationToPrime / 30} months"
-                    else -> "$durationToPrime days"
-                }
+                val durationToPrime = Duration.between(Instant.now(), time)
+                val durationStr = durationToPrime.toNearestChronoYear()
                 appendContent("\n\t- ${currentPrimes.last().name} (In ~$durationStr)")
             }
         }

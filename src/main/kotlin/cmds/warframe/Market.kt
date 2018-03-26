@@ -43,12 +43,7 @@ object Market : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        val item = args.toMutableList()
-                .apply {
-                    removeIf {
-                        it == "market"
-                    }
-                }.joinToString(" ")
+        val item = args.joinToString(" ")
 
         if (item.isBlank()) {
             buildMessage(event.channel) {

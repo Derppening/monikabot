@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -32,19 +33,17 @@ import java.time.Instant
 
 object Alert : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).toMutableList().apply {
-            removeIf { it.matches(Regex("alerts?")) }
-        }
+        val args = getArgumentList(event.message.content).drop(1)
 
         try {
             when {
                 args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
-                args.any { it.matches(Regex("-{0,2}alert")) } -> getAlerts(event)
-                args.any { it.matches(Regex("-{0,2}special")) } -> getGoals(event)
                 args.isEmpty() -> {
                     getGoals(event)
                     getAlerts(event)
                 }
+                "alert".startsWith(args[0]) -> getAlerts(event)
+                "special".startsWith(args[0]) -> getGoals(event)
                 else -> {
                     help(event, false)
                 }
@@ -53,6 +52,7 @@ object Alert : IBase, ILogger {
             buildMessage(event.channel) {
                 withContent("Warframe is currently updating its information. Please be patient!")
             }
+            e.printStackTrace()
 
             log(ILogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
         }
@@ -121,7 +121,7 @@ object Alert : IBase, ILogger {
                     }, false)
                     withImage(Manifest.getImageLinkFromAssetLocation(alert.missionReward.countedItems[0].itemType))
                 }
-                appendField("Time Remaining", formatTimeDuration(Duration.between(Instant.now(), it.expiry.date.numberLong)), true)
+                appendField("Time Remaining", Duration.between(Instant.now(), it.expiry.date.numberLong).formatDuration(), true)
 
                 withTimestamp(Instant.now())
             }
@@ -168,20 +168,10 @@ object Alert : IBase, ILogger {
                     withImage(Manifest.getImageLinkFromAssetLocation(goal.reward.items[0]))
                 }
 
-                appendField("Time Remaining", formatTimeDuration(Duration.between(Instant.now(), goal.expiry.date.numberLong)), true)
+                appendField("Time Remaining", Duration.between(Instant.now(), goal.expiry.date.numberLong).formatDuration(), true)
 
                 withTimestamp(Instant.now())
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

@@ -2,6 +2,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper
 import core.BuilderHelper.insertSeparator
 import core.ILogger
@@ -23,7 +24,7 @@ object Fissure : IBase, ILogger {
             Warframe.worldState.activeMissions
         } catch (e: NoSuchElementException) {
             BuilderHelper.buildMessage(event.channel) {
-                withContent("Unable to retrieve Baro Ki'Teer information! Please try again later.")
+                withContent("Unable to retrieve fissure missions! Please try again later.")
             }
 
             return Parser.HandleState.HANDLED
@@ -37,7 +38,7 @@ object Fissure : IBase, ILogger {
                 val nodeName = WorldState.getSolNode(it.node).value
                 val missionType = WorldState.getMissionType(it.missionType)
                 val tier = WorldState.getFissureModifier(it.modifier)
-                val durationToExpiry = formatTimeDuration(Duration.between(Instant.now(), it.expiry.date.numberLong))
+                val durationToExpiry = Duration.between(Instant.now(), it.expiry.date.numberLong).formatDuration()
 
                 appendField("$tier $missionType on $nodeName", "Time Left: $durationToExpiry", false)
             }
@@ -63,15 +64,5 @@ object Fissure : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

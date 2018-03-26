@@ -26,7 +26,6 @@ import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
 import java.time.Instant
 
 object Sale : IBase, ILogger {
@@ -90,15 +89,5 @@ object Sale : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

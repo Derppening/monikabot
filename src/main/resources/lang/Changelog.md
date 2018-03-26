@@ -93,3 +93,13 @@
 - Fix issue where `warframe ping` does not use Warframe-specific ping locations
 - Use a better method to detect whether Warframe's gateways are down
 - Reduce `warframe ping` timeout to 5 seconds
+
+[v1.1.0-rc.2]
+- Add `issue` command for submitting bug reports and feature requests
+- Add fuzzy command matching
+    - Example: You can now type "w c t" to replace "warframe cetus time"
+- When bot is shutting down, it will now be playing "Maintenance"
+- `echo`: Now allows users to send messages to other channels of servers they are in
+- `ping`: Revert to use 10s timeout
+- `trivia`: Users can now use lower-case letters to answer multiple choice 
+- `trivia`: Fix bot replying "incorrect answer" when given an certain invalid input

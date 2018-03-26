@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -52,7 +53,7 @@ object Sortie : IBase, ILogger {
             val boss = WorldState.getSortieBoss(sortie.boss)
             withTitle("Sortie Information")
 
-            appendField("Expires in", formatTimeDuration(Duration.between(Instant.now(), sortie.expiry.date.numberLong)), false)
+            appendField("Expires in", Duration.between(Instant.now(), sortie.expiry.date.numberLong).formatDuration(), false)
             appendField("Boss", "${boss.name} (${boss.faction})", false)
             sortie.variants.forEachIndexed { i, m ->
                 val missionType = WorldState.getMissionType(m.missionType)
@@ -82,15 +83,5 @@ object Sortie : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

@@ -26,11 +26,13 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
+import java.time.Duration
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
@@ -43,11 +45,35 @@ object Warframe : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        return try {
-            commands.entries.first { (r, _) -> args[0].matches(r.toRegex()) }.value.handler(event)
-        } catch (e: NoSuchElementException) {
-            help(event, false)
-            return Parser.HandleState.HANDLED
+        val cmdMatches = commands.filter { it.key.startsWith(args[0]) }
+        return when (cmdMatches.size) {
+            0 -> {
+                help(event, false)
+                Parser.HandleState.HANDLED
+            }
+            1 -> {
+                if (args[0] != cmdMatches.entries.first().key) {
+                    buildMessage(event.channel) {
+                        withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                    }
+                }
+                cmdMatches.entries.first().value.handler(event)
+            }
+            else -> {
+                if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                    cmdMatches.entries.first().value.handler(event)
+                } else {
+                    buildMessage(event.channel) {
+                        withContent("Your message matches multiple commands!")
+                        appendContent("\n\nYour provided command matches:\n")
+                        appendContent(commands.filter { it.key.startsWith(args[0]) }.entries.distinctBy { it.value }.joinToString("\n") {
+                            "- warframe ${it.key}"
+                        })
+                    }
+                }
+
+                Parser.HandleState.HANDLED
+            }
         }
     }
 
@@ -121,6 +147,36 @@ object Warframe : IBase, ILogger {
         logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
     }
 
+    /**
+     * Formats a duration.
+     */
+    internal fun Duration.formatDuration(): String =
+            (if (toDays() > 0) "${toDays()}d " else "") +
+                    (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
+                    (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
+                    "${seconds % 60}s"
+
+    /**
+     * Rounds a duration to the smallest time unit, from Seconds to Days.
+     */
+    internal fun Duration.toNearestChronoDay(): String =
+            when {
+                toDays() > 0 -> "${toDays()}d"
+                toHours() > 0 -> "${toHours()}h"
+                toMinutes() > 0 -> "${toMinutes()}m"
+                else -> "${seconds}s"
+            }
+
+    /**
+     * Rounds a duration to the smallest time unit, from Days to (approximated) Years.
+     */
+    internal fun Duration.toNearestChronoYear(): String =
+            when {
+                toDays() > 365 -> "${toDays() / 365} years"
+                toDays() > 30 -> "${toDays() / 30} months"
+                else -> "${toDays()} days"
+            }
+
     val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 60000) { updateDropTables() }
     val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
 
@@ -128,20 +184,29 @@ object Warframe : IBase, ILogger {
     private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
 
     private val commands = mapOf(
-            "alerts?" to Alert,
+            "alert" to Alert,
             "baro" to Baro,
             "cetus" to Cetus,
             "darvo" to Darvo,
-            "fissures?" to Fissure,
-            "invasions?" to Invasion,
+            "fissure" to Fissure,
+            "invasion" to Invasion,
             "news" to News,
             "market" to Market,
             "ping" to Ping,
-            "primes?" to Prime,
+            "prime" to Prime,
             "sale" to Sale,
-            "sorties?" to Sortie,
-            "syndicates?" to Syndicate,
-            "wikia?" to Wiki
+            "sortie" to Sortie,
+            "syndicate" to Syndicate,
+            "wiki" to Wiki,
+
+            // aliases
+            "alerts" to Alert,
+            "fissures" to Fissure,
+            "invasions" to Invasion,
+            "primes" to Prime,
+            "sorties" to Sortie,
+            "syndicates" to Syndicate,
+            "wikia" to Wiki
     )
 
     private var dropTableInfo = DropTable.Info()

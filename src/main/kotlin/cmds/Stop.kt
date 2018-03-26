@@ -26,6 +26,8 @@ import core.Core
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 import kotlin.system.exitProcess
 
 object Stop : IBase, ILogger {
@@ -44,9 +46,14 @@ object Stop : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        log(ILogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
-            author { event.author }
-            channel { event.channel }
+        val isForced = args.any { it.matches(Regex("-{0,2}force")) }
+        if (!isForced) {
+            Client.changePresence(StatusType.DND, ActivityType.PLAYING, "Maintenance")
+            if (Trivia.users.isNotEmpty()) {
+                log(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
+                Trivia.gracefulShutdown()
+            }
+            Thread.sleep(60000)
         }
 
         Reminder.exportTimersToFile()

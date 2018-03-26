@@ -2,6 +2,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -36,11 +37,11 @@ object Baro : IBase, ILogger {
 
             if (baro.manifest.isEmpty()) {
                 val nextTimeDuration = Duration.between(Instant.now(), baro.activation.date.numberLong)
-                appendField("Time to Next Appearance", formatTimeDuration(nextTimeDuration), true)
+                appendField("Time to Next Appearance", nextTimeDuration.formatDuration(), true)
                 appendField("Relay", WorldState.getSolNode(baro.node).value, true)
             } else {
                 val expiryTimeDuration = Duration.between(Instant.now(), baro.expiry.date.numberLong)
-                appendField("Time Left", formatTimeDuration(expiryTimeDuration), false)
+                appendField("Time Left", expiryTimeDuration.formatDuration(), false)
                 baro.manifest.forEach {
                     val item = WorldState.getLanguageFromAsset(it.itemType).let { fmt ->
                         if (fmt.isEmpty()) {
@@ -76,15 +77,5 @@ object Baro : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

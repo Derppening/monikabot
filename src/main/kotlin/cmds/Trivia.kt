@@ -27,6 +27,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
+import core.Client
 import core.Core
 import core.ILogger
 import core.Parser
@@ -105,7 +106,7 @@ object Trivia : IBase, ILogger {
                         }
 
                         if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
-                                (message.content.length == 1 && (message.content[0].toInt() - 65) < answers.size)) {
+                                (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
                             break@checkResponse
                         }
                     } else {
@@ -206,6 +207,15 @@ object Trivia : IBase, ILogger {
         }
 
         return false
+    }
+
+    fun gracefulShutdown() {
+        users.forEach {
+            val channel = Client.getUserByID(it)!!.orCreatePMChannel
+            buildMessage(channel) {
+                withContent("Friendly Reminder: I will be going down for maintenance in one minute!")
+            }
+        }
     }
 
     var users = mutableListOf<Long>()

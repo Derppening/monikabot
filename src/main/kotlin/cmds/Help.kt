@@ -58,6 +58,7 @@ object Help : IBase {
             appendField("`changelog`", "Views the changelog of MonikaBot.", false)
             appendField("`echo`", "Repeats a string.", false)
             appendField("`help`", "Displays help for primary commands.", false)
+            appendField("`issue`", "Shortcut to submitting a bug report or feature request.", false)
             appendField("`ping`", "Displays latency information of the bot.", false)
             appendField("`random`", "Randomly generates numbers.", false)
             appendField("`reminder`", "Adds a reminder for yourself.", false)

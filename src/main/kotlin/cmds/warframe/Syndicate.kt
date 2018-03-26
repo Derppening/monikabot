@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -92,7 +93,7 @@ object Syndicate : IBase, ILogger {
         val syndicate = matches.first()
         buildEmbed(event.channel) {
             val name = WorldState.getSyndicateName(syndicate.tag)
-            val timeToExpiry = formatTimeDuration(Duration.between(Instant.now(), syndicate.expiry.date.numberLong))
+            val timeToExpiry = Duration.between(Instant.now(), syndicate.expiry.date.numberLong).formatDuration()
 
             withTitle(name)
             appendField("Expires in", timeToExpiry, false)
@@ -102,15 +103,5 @@ object Syndicate : IBase, ILogger {
 
             withTimestamp(Instant.now())
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

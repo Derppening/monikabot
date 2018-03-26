@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -37,16 +38,14 @@ import java.util.*
 
 object Cetus : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).toMutableList().apply {
-            removeIf { it.matches(Regex("cetus")) }
-        }
+        val args = getArgumentList(event.message.content).drop(1)
 
         try {
             when {
                 args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
                 args.isEmpty() -> getBounties(event)
-                args[0] == "time" -> getTime(event)
-                args.any { it.matches(Regex("-{0,2}ghouls?")) } -> getGhoulBounties(event, true)
+                "time".startsWith(args[0]) -> getTime(event)
+                "ghouls".startsWith(args[0]) -> getGhoulBounties(event, true)
                 else -> {
                     help(event, false)
                 }
@@ -67,8 +66,11 @@ object Cetus : IBase, ILogger {
             withTitle("Help Text for `warframe-cetus`")
             withDesc("Displays Cetus-related information.")
             insertSeparator()
-            appendField("Usage", "```warframe cetus [time]```", false)
-            appendField("`timer`", "If appended, show the current time in Cetus/Plains.", false)
+            appendField("Usage", "```warframe cetus [ghoul]```", false)
+            appendField("`ghoul`", "If appended, shows ongoing Ghoul bounties.", false)
+            insertSeparator()
+            appendField("Usage", "```warframe cetus time```", false)
+            appendField("`time`", "Show the current time in Cetus/Plains.", false)
 
             onDiscordError { e ->
                 log(ILogger.LogLevel.ERROR, "Cannot display help text") {
@@ -87,7 +89,7 @@ object Cetus : IBase, ILogger {
         val cetusInfo = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
                 ?: throw Exception("Cannot find Cetus information")
         val timeLeft = Duration.between(Instant.now(), cetusInfo.expiry.date.numberLong)
-        val timeLeftString = formatTimeDuration(timeLeft)
+        val timeLeftString = timeLeft.formatDuration()
 
         val bounties = cetusInfo.jobs
 
@@ -124,7 +126,7 @@ object Cetus : IBase, ILogger {
         }
 
         val healthPct = formatReal(ghoulBounties.healthPct)
-        val ghoulTimeLeftString = formatTimeDuration(Duration.between(Instant.now(), ghoulBounties.expiry.date.numberLong))
+        val ghoulTimeLeftString = Duration.between(Instant.now(), ghoulBounties.expiry.date.numberLong).formatDuration()
         val ghoulDesc = ghoulBounties.desc
         val ghoulTooltip = ghoulBounties.tooltip
 
@@ -162,7 +164,7 @@ object Cetus : IBase, ILogger {
             }
         }
         val cetusCurrentStateString = cetusTimeLeft.first.toString().toLowerCase().capitalize()
-        val timeString = formatTimeDuration(cetusTimeLeft.second)
+        val timeString = cetusTimeLeft.second.formatDuration()
 
         val cetusNextDayTime = dateTimeFormatter.format(cetusCycleEnd)
         val cetusNextNightTime = if (cetusTimeLeft.first == CetusTimeState.DAY) {
@@ -171,7 +173,7 @@ object Cetus : IBase, ILogger {
             dateTimeFormatter.format(cetusCycleEnd.plus(100, ChronoUnit.MINUTES))
         }
 
-        val dayLengthString = formatTimeDuration(Duration.between(cetusCycleStart, cetusCycleEnd))
+        val dayLengthString = Duration.between(cetusCycleStart, cetusCycleEnd).formatDuration()
 
         buildEmbed(event.channel) {
             withTitle("Cetus Time")
@@ -183,16 +185,6 @@ object Cetus : IBase, ILogger {
             }
             withTimestamp(Instant.now())
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 
     /**
