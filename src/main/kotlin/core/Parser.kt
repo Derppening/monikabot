@@ -152,12 +152,14 @@ object Parser : ILogger {
     private const val nullResponsesPath = "lang/NullResponse.txt"
 
     private val commands: Map<String, IBase> = mapOf(
+            "bugreport" to Issue,
             "changelog" to Changelog,
             "clear" to Clear,
             "config" to Config,
             "debug" to Debug,
             "echo" to Echo,
             "help" to Help,
+            "issue" to Issue,
             "ping" to Ping,
             "random" to Random,
             "reload" to Reload,
