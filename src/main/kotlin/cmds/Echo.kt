@@ -26,7 +26,6 @@ import core.Core
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 object Echo : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -36,31 +35,18 @@ object Echo : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        val channel = event.channel
-        val message = getArgumentList(event.message.content)
+        val message = getArgumentList(event.message.content).joinToString(" ")
 
-        if (!event.channel.isPrivate) {
-            try {
-                event.message.delete()
-            } catch (e: DiscordException) {
-                log(ILogger.LogLevel.ERROR, "Cannot delete \"$message\"") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-                e.printStackTrace()
-            }
-        }
-
-        buildMessage(channel) {
-            withContent(message.joinToString(" "))
+        buildMessage(event.channel) {
+            withContent(message)
 
             onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "\"$message\" not handled") {
+                log(ILogger.LogLevel.ERROR, "Cannot echo message \"$message\"!") {
                     message { event.message }
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }
+                    stackTrace { e.stackTrace }
                 }
             }
         }
