@@ -32,6 +32,7 @@ import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
+import java.time.Duration
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
@@ -145,6 +146,36 @@ object Warframe : IBase, ILogger {
 
         logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
     }
+
+    /**
+     * Formats a duration.
+     */
+    internal fun Duration.formatDuration(): String =
+            (if (toDays() > 0) "${toDays()}d " else "") +
+                    (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
+                    (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
+                    "${seconds % 60}s"
+
+    /**
+     * Rounds a duration to the smallest time unit, from Seconds to Days.
+     */
+    internal fun Duration.toNearestChronoDay(): String =
+            when {
+                toDays() > 0 -> "${toDays()}d"
+                toHours() > 0 -> "${toHours()}h"
+                toMinutes() > 0 -> "${toMinutes()}m"
+                else -> "${seconds}s"
+            }
+
+    /**
+     * Rounds a duration to the smallest time unit, from Days to (approximated) Years.
+     */
+    internal fun Duration.toNearestChronoYear(): String =
+            when {
+                toDays() > 365 -> "${toDays() / 365} years"
+                toDays() > 30 -> "${toDays() / 30} months"
+                else -> "${toDays()} days"
+            }
 
     val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 60000) { updateDropTables() }
     val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }

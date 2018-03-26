@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.toNearestChronoDay
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
 import core.ILogger
@@ -51,12 +52,7 @@ object News : IBase {
             val sortedPairs = eventPairs.entries.sortedBy { it.key }.reversed()
             sortedPairs.forEach { (k, v) ->
                 val diff = Duration.between(k, Instant.now())
-                val diffString = when {
-                    diff.toDays() > 0 -> "${diff.toDays()}d"
-                    diff.toHours() > 0 -> "${diff.toHours()}h"
-                    diff.toMinutes() > 0 -> "${diff.toMinutes()}m"
-                    else -> "${diff.seconds}s"
-                }
+                val diffString = diff.toNearestChronoDay()
                 if (v.isNotBlank()) {
                     appendDesc("\n[$diffString] $v")
                 }

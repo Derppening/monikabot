@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -120,7 +121,7 @@ object Alert : IBase, ILogger {
                     }, false)
                     withImage(Manifest.getImageLinkFromAssetLocation(alert.missionReward.countedItems[0].itemType))
                 }
-                appendField("Time Remaining", formatTimeDuration(Duration.between(Instant.now(), it.expiry.date.numberLong)), true)
+                appendField("Time Remaining", Duration.between(Instant.now(), it.expiry.date.numberLong).formatDuration(), true)
 
                 withTimestamp(Instant.now())
             }
@@ -167,20 +168,10 @@ object Alert : IBase, ILogger {
                     withImage(Manifest.getImageLinkFromAssetLocation(goal.reward.items[0]))
                 }
 
-                appendField("Time Remaining", formatTimeDuration(Duration.between(Instant.now(), goal.expiry.date.numberLong)), true)
+                appendField("Time Remaining", Duration.between(Instant.now(), goal.expiry.date.numberLong).formatDuration(), true)
 
                 withTimestamp(Instant.now())
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }

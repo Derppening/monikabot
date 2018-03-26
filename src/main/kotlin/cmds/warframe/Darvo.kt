@@ -21,6 +21,7 @@ package cmds.warframe
 
 import cmds.IBase
 import cmds.Warframe
+import cmds.Warframe.formatDuration
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
@@ -52,7 +53,7 @@ object Darvo : IBase, ILogger {
             withAuthorName("Darvo Sale")
             withTitle(WorldState.getLanguageFromAsset(darvoDeal.storeItem))
 
-            appendField("Time Left", formatTimeDuration(Duration.between(Instant.now(), darvoDeal.expiry.date.numberLong)), false)
+            appendField("Time Left", Duration.between(Instant.now(), darvoDeal.expiry.date.numberLong).formatDuration(), false)
             appendField("Price", "${darvoDeal.originalPrice}p -> ${darvoDeal.salePrice}p", true)
             appendField("Discount", "${darvoDeal.discount}%", true)
             if (darvoDeal.amountSold == darvoDeal.amountTotal) {
@@ -85,15 +86,5 @@ object Darvo : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Formats a duration.
-     */
-    private fun formatTimeDuration(duration: Duration): String {
-        return (if (duration.toDays() > 0) "${duration.toDays()}d " else "") +
-                (if (duration.toHours() % 24 > 0) "${duration.toHours() % 24}h " else "") +
-                (if (duration.toMinutes() % 60 > 0) "${duration.toMinutes() % 60}m " else "") +
-                "${duration.seconds % 60}s"
     }
 }
