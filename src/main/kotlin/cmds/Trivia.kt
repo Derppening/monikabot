@@ -38,20 +38,10 @@ import kotlin.concurrent.thread
 
 object Trivia : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).dropWhile {
-            it == "--experimental"
-        }
+        val args = getArgumentList(event.message.content)
 
-        val questions = if (args.isNotEmpty() && args[0].toIntOrNull() != null) {
-            args[0].toInt()
-        } else {
-            5
-        }
-        val difficulty = if (args.isNotEmpty() && args.any { it.matches(Regex("(easy|medium|hard|any)")) }) {
-            args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
-        } else {
-            "easy"
-        }
+        val questions = args.firstOrNull()?.toIntOrNull() ?: 5
+        val difficulty = args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
 
         val channel = event.author.orCreatePMChannel
         val triviaData = getTriviaQuestions(questions, difficulty)
