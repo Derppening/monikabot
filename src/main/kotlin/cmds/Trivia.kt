@@ -106,7 +106,7 @@ object Trivia : IBase, ILogger {
                         }
 
                         if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
-                                (message.content.length == 1 && (message.content[0].toInt() - 65) in 0..answers.lastIndex)) {
+                                (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
                             break@checkResponse
                         }
                     } else {
