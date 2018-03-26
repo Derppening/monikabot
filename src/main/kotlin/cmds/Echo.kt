@@ -29,10 +29,31 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 
 object Echo : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content)
+        val args = if (event.channel.isPrivate) {
+            getArgumentList(event.message.content)
+        } else {
+            getArgumentList(event.message.formattedContent, event.channel.guild)
+        }
         if (args.isEmpty()) {
             help(event, false)
             return Parser.HandleState.HANDLED
+        }
+
+        if (args[0] == "-d" || args[0] == "--destination") {
+            if (args.size == 1) {
+                buildMessage(event.channel) {
+                    withContent("Please specify a destination and a message!")
+                }
+
+                return Parser.HandleState.HANDLED
+            }
+
+            return if (args[1].any { it == '/' }) {
+                messageToGuildChannel(args, event)
+                Parser.HandleState.HANDLED
+            } else {
+                Parser.HandleState.PERMISSION_DENIED
+            }
         }
 
         val message = getArgumentList(event.message.content).joinToString(" ")
@@ -51,7 +72,6 @@ object Echo : IBase, ILogger {
             }
         }
 
-
         return Parser.HandleState.HANDLED
     }
 
@@ -67,21 +87,20 @@ object Echo : IBase, ILogger {
         }
 
         if (args[0] == "-d" || args[0] == "--destination") {
-            if (args.size == 1) {
-                buildMessage(event.channel) {
-                    withContent("Please specify a destination and a message!")
+            return when {
+                args.size == 1 -> {
+                    buildMessage(event.channel) {
+                        withContent("Please specify a destination and a message!")
+                    }
+                    Parser.HandleState.HANDLED
                 }
-
-                return Parser.HandleState.HANDLED
+                args[1].any { it == '/' } -> // delegate to normal handler
+                    Parser.HandleState.UNHANDLED
+                else -> {
+                    messageToPrivateChannel(args, event)
+                    Parser.HandleState.HANDLED
+                }
             }
-
-            if (args[1].any { it == '/' }) {
-                messageToGuildChannel(args, event)
-            } else {
-                messageToPrivateChannel(args, event)
-            }
-
-            return Parser.HandleState.HANDLED
         }
 
         return Parser.HandleState.UNHANDLED
@@ -95,15 +114,17 @@ object Echo : IBase, ILogger {
             appendField("Usage", "```echo [string]```", false)
             appendField("`[string]`", "String to repeat.", false)
 
-            if (isSu) {
-                insertSeparator()
-                appendField("Usage", "```echo -d [destination] [string]```", false)
-                appendField("`[destination]`", "Destination of the string. Recognized formats include:" +
-                        "\n\t- `/channel`: Sends to `channel` in current server." +
+            insertSeparator()
+            appendField("Usage", "```echo -d [destination] [string]```", false)
+
+            val destinationText = "Destination of the string. Recognized formats include:" +
+                    "\n\t- `/channel`: Sends to `channel` in current server." +
+                    if (isSu) {
                         "\n\t- `server/channel`: Sends to `channel` in `server`." +
-                        "\n\t- `username#discriminator`: Sends to user with this Discord Tag.", false)
-                appendField("`[string]`", "String to repeat.", false)
-            }
+                                "\n\t- `username#discriminator`: Sends to user with this Discord Tag."
+                    } else ""
+            appendField("`[destination]`", destinationText, false)
+            appendField("`[string]`", "String to repeat.", false)
 
             onDiscordError { e ->
                 log(ILogger.LogLevel.ERROR, "Cannot display help text") {
@@ -172,6 +193,10 @@ object Echo : IBase, ILogger {
         try {
             val guild = Core.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
             val channel = Core.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
+
+            if (!Core.isEventFromSuperuser(event) && !guild.users.contains(event.author)) {
+                error("You can only send messages to guilds which you are in!")
+            }
 
             val message = args.drop(2).joinToString(" ")
             buildMessage(channel) {
