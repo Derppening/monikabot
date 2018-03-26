@@ -44,9 +44,16 @@ object Stop : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        log(ILogger.LogLevel.WARN, "Logging out with ${event.client.shardCount} shard(s) active") {
-            author { event.author }
-            channel { event.channel }
+        val isForced = args.any { it.matches(Regex("-{0,2}force")) }
+        if (!isForced && Trivia.users.isNotEmpty()) {
+            log(ILogger.LogLevel.INFO, "Waiting for all Trivia threads to gracefully shutdown...")
+            Trivia.gracefulShutdown()
+            for (i in 60 downTo 1) {
+                if (Trivia.users.isEmpty()) {
+                    break
+                }
+                Thread.sleep(1000)
+            }
         }
 
         Reminder.exportTimersToFile()
