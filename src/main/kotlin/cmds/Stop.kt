@@ -26,6 +26,8 @@ import core.Core
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 import kotlin.system.exitProcess
 
 object Stop : IBase, ILogger {
@@ -45,15 +47,13 @@ object Stop : IBase, ILogger {
         }
 
         val isForced = args.any { it.matches(Regex("-{0,2}force")) }
-        if (!isForced && Trivia.users.isNotEmpty()) {
-            log(ILogger.LogLevel.INFO, "Waiting for all Trivia threads to gracefully shutdown...")
-            Trivia.gracefulShutdown()
-            for (i in 60 downTo 1) {
-                if (Trivia.users.isEmpty()) {
-                    break
-                }
-                Thread.sleep(1000)
+        if (!isForced) {
+            Client.changePresence(StatusType.DND, ActivityType.PLAYING, "Maintenance")
+            if (Trivia.users.isNotEmpty()) {
+                log(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
+                Trivia.gracefulShutdown()
             }
+            Thread.sleep(60000)
         }
 
         Reminder.exportTimersToFile()
