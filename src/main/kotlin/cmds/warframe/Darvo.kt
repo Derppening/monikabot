@@ -53,7 +53,7 @@ object Darvo : IBase, ILogger {
             withTitle(WorldState.getLanguageFromAsset(darvoDeal.storeItem))
 
             appendField("Time Left", formatTimeDuration(Duration.between(Instant.now(), darvoDeal.expiry.date.numberLong)), false)
-            appendField("Price", "${darvoDeal.originalPrice} -> ${darvoDeal.salePrice}", true)
+            appendField("Price", "${darvoDeal.originalPrice}p -> ${darvoDeal.salePrice}p", true)
             appendField("Discount", "${darvoDeal.discount}%", true)
             if (darvoDeal.amountSold == darvoDeal.amountTotal) {
                 appendField("Amount Left", "Sold Out", false)

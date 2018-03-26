@@ -37,16 +37,14 @@ import java.util.*
 
 object Cetus : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).toMutableList().apply {
-            removeIf { it.matches(Regex("cetus")) }
-        }
+        val args = getArgumentList(event.message.content).drop(1)
 
         try {
             when {
                 args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
                 args.isEmpty() -> getBounties(event)
-                args[0] == "time" -> getTime(event)
-                args.any { it.matches(Regex("-{0,2}ghouls?")) } -> getGhoulBounties(event, true)
+                "time".startsWith(args[0]) -> getTime(event)
+                "ghouls".startsWith(args[0]) -> getGhoulBounties(event, true)
                 else -> {
                     help(event, false)
                 }
@@ -67,8 +65,11 @@ object Cetus : IBase, ILogger {
             withTitle("Help Text for `warframe-cetus`")
             withDesc("Displays Cetus-related information.")
             insertSeparator()
-            appendField("Usage", "```warframe cetus [time]```", false)
-            appendField("`timer`", "If appended, show the current time in Cetus/Plains.", false)
+            appendField("Usage", "```warframe cetus [ghoul]```", false)
+            appendField("`ghoul`", "If appended, shows ongoing Ghoul bounties.", false)
+            insertSeparator()
+            appendField("Usage", "```warframe cetus time```", false)
+            appendField("`time`", "Show the current time in Cetus/Plains.", false)
 
             onDiscordError { e ->
                 log(ILogger.LogLevel.ERROR, "Cannot display help text") {

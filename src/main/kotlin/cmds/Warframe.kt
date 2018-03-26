@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
+import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
@@ -43,11 +44,31 @@ object Warframe : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        return try {
-            commands.entries.first { (r, _) -> args[0].matches(r.toRegex()) }.value.handler(event)
-        } catch (e: NoSuchElementException) {
-            help(event, false)
-            return Parser.HandleState.HANDLED
+        val cmdMatches = commands.filter { it.key.startsWith(args[0]) }
+        return when (cmdMatches.size) {
+            0 -> {
+                help(event, false)
+                Parser.HandleState.HANDLED
+            }
+            1 -> {
+                if (args[0] != cmdMatches.entries.first().key) {
+                    buildMessage(event.channel) {
+                        withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                    }
+                }
+                cmdMatches.entries.first().value.handler(event)
+            }
+            else -> {
+                buildMessage(event.channel) {
+                    withContent("Your message matches multiple commands!")
+                    appendContent("\n\nYour provided command matches:\n")
+                    appendContent(commands.filter { it.key.startsWith(args[0]) }.entries.joinToString("\n") {
+                        "- warframe ${it.key}"
+                    })
+                }
+
+                Parser.HandleState.HANDLED
+            }
         }
     }
 
@@ -128,20 +149,27 @@ object Warframe : IBase, ILogger {
     private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
 
     private val commands = mapOf(
-            "alerts?" to Alert,
+            "alert" to Alert,
+            "alerts" to Alert,
             "baro" to Baro,
             "cetus" to Cetus,
             "darvo" to Darvo,
-            "fissures?" to Fissure,
-            "invasions?" to Invasion,
+            "fissure" to Fissure,
+            "fissures" to Fissure,
+            "invasion" to Invasion,
+            "invasions" to Invasion,
             "news" to News,
             "market" to Market,
             "ping" to Ping,
-            "primes?" to Prime,
+            "prime" to Prime,
+            "primes" to Prime,
             "sale" to Sale,
-            "sorties?" to Sortie,
-            "syndicates?" to Syndicate,
-            "wikia?" to Wiki
+            "sortie" to Sortie,
+            "sorties" to Sortie,
+            "syndicate" to Syndicate,
+            "syndicates" to Syndicate,
+            "wiki" to Wiki,
+            "wikia" to Wiki
     )
 
     private var dropTableInfo = DropTable.Info()

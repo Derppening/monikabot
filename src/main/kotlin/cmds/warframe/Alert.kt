@@ -32,19 +32,17 @@ import java.time.Instant
 
 object Alert : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).toMutableList().apply {
-            removeIf { it.matches(Regex("alerts?")) }
-        }
+        val args = getArgumentList(event.message.content).drop(1)
 
         try {
             when {
                 args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
-                args.any { it.matches(Regex("-{0,2}alert")) } -> getAlerts(event)
-                args.any { it.matches(Regex("-{0,2}special")) } -> getGoals(event)
                 args.isEmpty() -> {
                     getGoals(event)
                     getAlerts(event)
                 }
+                "alert".startsWith(args[0]) -> getAlerts(event)
+                "special".startsWith(args[0]) -> getGoals(event)
                 else -> {
                     help(event, false)
                 }
@@ -53,6 +51,7 @@ object Alert : IBase, ILogger {
             buildMessage(event.channel) {
                 withContent("Warframe is currently updating its information. Please be patient!")
             }
+            e.printStackTrace()
 
             log(ILogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
         }

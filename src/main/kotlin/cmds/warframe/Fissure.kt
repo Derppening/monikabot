@@ -23,7 +23,7 @@ object Fissure : IBase, ILogger {
             Warframe.worldState.activeMissions
         } catch (e: NoSuchElementException) {
             BuilderHelper.buildMessage(event.channel) {
-                withContent("Unable to retrieve Baro Ki'Teer information! Please try again later.")
+                withContent("Unable to retrieve fissure missions! Please try again later.")
             }
 
             return Parser.HandleState.HANDLED

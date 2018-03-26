@@ -32,6 +32,7 @@ object Parser : ILogger {
         HANDLED,
         UNHANDLED,
         PERMISSION_DENIED,
+        MULTIPLE_MATCHES,
         NOT_FOUND
     }
 
@@ -75,10 +76,41 @@ object Parser : ILogger {
                 }
             }
 
-            commands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
+            val cmdMatches = commands.filter { it.key.startsWith(cmd) }
+            when (cmdMatches.size) {
+                0 -> HandleState.NOT_FOUND
+                1 -> {
+                    if (cmd != cmdMatches.entries.first().key) {
+                        buildMessage(event.channel) {
+                            withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                        }
+                    }
+                    cmdMatches.entries.first().value.delegateCommand(event)
+                }
+                else -> HandleState.MULTIPLE_MATCHES
+            }
         }
 
-        postCommandHandler(retval, cmd, event)
+        when (retval) {
+            HandleState.NOT_FOUND -> {
+                buildMessage(event.channel) {
+                    withContent("I don't know how to do that! >.<")
+                }
+            }
+            HandleState.PERMISSION_DENIED -> {
+                buildMessage(event.channel) {
+                    withContent("You're not allow to do this! x(")
+                }
+            }
+            HandleState.MULTIPLE_MATCHES -> {
+                buildMessage(event.channel) {
+                    withContent("Your message matches multiple commands!")
+                    appendContent("\n\nYour provided command matches:\n")
+                    appendContent(commands.filter { it.key.startsWith(cmd) }.entries.joinToString("\n") { "- ${it.key}" })
+                }
+            }
+            else -> {}
+        }
     }
 
     /**
@@ -94,32 +126,6 @@ object Parser : ILogger {
      */
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
         return experimentalCommands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
-    }
-
-    /**
-     * Handler for after the command is delegated.
-     *
-     * @param state Whether the command is successfully handled.
-     * @param cmd The original invoked command.
-     * @param event The event triggered by the message.
-     */
-    private fun postCommandHandler(state: HandleState, cmd: String, event: MessageReceivedEvent) {
-        when (state) {
-            HandleState.HANDLED -> {
-            }
-            HandleState.UNHANDLED -> {
-            }
-            HandleState.NOT_FOUND -> {
-                buildMessage(event.channel) {
-                    withContent("I don't know how to do that! >.<")
-                }
-            }
-            HandleState.PERMISSION_DENIED -> {
-                buildMessage(event.channel) {
-                    withContent("You're not allow to do this! x(")
-                }
-            }
-        }
     }
 
     /**

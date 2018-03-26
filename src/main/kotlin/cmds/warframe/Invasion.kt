@@ -36,7 +36,7 @@ object Invasion : IBase, ILogger {
         when {
             args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
             args.isEmpty() -> getInvasionData(event)
-            args[0] == "timer" -> getInvasionTimer(event)
+            "timer".startsWith(args[0]) -> getInvasionTimer(event)
             else -> help(event, false)
         }
 
