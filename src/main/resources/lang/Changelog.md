@@ -103,3 +103,7 @@
 - `ping`: Revert to use 10s timeout
 - `trivia`: Users can now use lower-case letters to answer multiple choice 
 - `trivia`: Fix bot replying "incorrect answer" when given an certain invalid input
+
+[v1.1.0-rc.3]
+- `warframe market`: Add fuzzy/wildcard matching
+- Fix major regression where commands would be processed sequentially instead of in parallel

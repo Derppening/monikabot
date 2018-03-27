@@ -43,6 +43,11 @@ object Debug : IBase, ILogger {
                     }
                 }
             }
+            "longop" -> {
+                logger.debug("longop started")
+                Thread.sleep(10000)
+                logger.debug("longop ended")
+            }
             "user" -> {
                 if (args.size > 2) {
                     buildMessage(event.channel) {

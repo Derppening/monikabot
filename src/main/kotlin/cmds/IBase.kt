@@ -21,6 +21,7 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.Core
+import core.Core.isFromSuperuser
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -34,11 +35,11 @@ interface IBase : ILogger {
      */
     fun delegateCommand(event: MessageReceivedEvent): Parser.HandleState {
         if (hasHelpFlag(event.message.content)) {
-            help(event, Core.isEventFromSuperuser(event))
+            help(event, event.isFromSuperuser())
             return Parser.HandleState.HANDLED
         }
 
-        if (Core.isEventFromSuperuser(event)) {
+        if (event.isFromSuperuser()) {
             val suHandleStatus = handlerSu(event)
             if (suHandleStatus != Parser.HandleState.UNHANDLED) {
                 return suHandleStatus

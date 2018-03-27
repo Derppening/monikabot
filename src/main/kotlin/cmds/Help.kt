@@ -20,7 +20,7 @@
 package cmds
 
 import core.BuilderHelper.buildEmbed
-import core.Core
+import core.Core.isFromSuperuser
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
@@ -37,7 +37,7 @@ object Help : IBase {
                     "command itself, but note that these commands are subject to change and may not be stable.")
             apply {
                 listFunctions(this)
-                if (Core.isEventFromSuperuser(event)) {
+                if (event.isFromSuperuser()) {
                     listSuFunctions(this)
                 }
             }

@@ -23,6 +23,7 @@ import cmds.IBase
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
@@ -43,9 +44,7 @@ object Market : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        val item = args.joinToString(" ")
-
-        if (item.isBlank()) {
+        if (args.isEmpty()) {
             buildMessage(event.channel) {
                 withContent("Please specify an item to lookup!")
             }
@@ -55,46 +54,42 @@ object Market : IBase, ILogger {
 
         event.channel.toggleTypingStatus()
 
-        val (useFallback, market) = getMarketJson(item).let {
-            if (it.first == 2) {
-                buildMessage(event.channel) {
-                    withContent("Cannot find item $item!")
-                }
+        val manifestEntry = findItemInMarket(args, event)
 
+        val market = getMarketJson(manifestEntry.urlName).let {
+            if (!it.first) {
                 return Parser.HandleState.HANDLED
+            } else {
+                it.second
             }
-            Pair(it.first == 1, it.second)
         }
 
-        val link = if (useFallback) {
-            "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}_set/statistics"
-        } else {
-            "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}/statistics"
-        }
+        val link = "https://warframe.market/items/${manifestEntry.urlName}/statistics"
 
         val itemInSet = market.include.item.itemsInSet.find {
-            it.urlName == item.replace(' ', '_').toLowerCase() ||
-                    it.urlName == (item.replace(' ', '_').toLowerCase() + "_set")
+            it.urlName == manifestEntry.urlName.toLowerCase()
         }
 
         buildEmbed(event.channel) {
-            if (useFallback) {
-                withTitle("Item Info")
-            } else {
-                withTitle("Trade Statistics")
-            }
+            withTitle("Trade Statistics")
 
-            if (!useFallback) {
+            if (market.payload.statistics.stat48.isNotEmpty()) {
                 appendField("48-Hour Minimum", market.payload.statistics.stat48.last().minPrice.toString(), true)
                 appendField("48-Hour Median", market.payload.statistics.stat48.last().median.toString(), true)
                 appendField("48-Hour Average", market.payload.statistics.stat48.last().avgPrice.toString(), true)
                 appendField("48-Hour Maximum", market.payload.statistics.stat48.last().maxPrice.toString(), true)
                 insertSeparator()
+            }
+
+            if (market.payload.statistics.stat90.isNotEmpty()) {
                 appendField("90-Day Minimum", market.payload.statistics.stat90.last().minPrice.toString(), true)
                 appendField("90-Day Median", market.payload.statistics.stat90.last().median.toString(), true)
                 appendField("90-Day Average", market.payload.statistics.stat90.last().avgPrice.toString(), true)
                 appendField("90-Day Maximum", market.payload.statistics.stat90.last().maxPrice.toString(), true)
                 insertSeparator()
+            }
+
+            if (market.include.item.itemsInSet.size > 1) {
                 appendField("Items in Set", market.include.item.itemsInSet.joinToString("\n") { it.en.itemName }, false)
             }
 
@@ -132,8 +127,12 @@ object Market : IBase, ILogger {
             withTitle("Help Text for `warframe-market`")
             withDesc("Displays market information of any item.")
             insertSeparator()
-            appendField("Usage", "```warframe market [item]```", false)
-            appendField("`[item]`", "Item to lookup.", false)
+            appendField("Usage", "```warframe market [search_expr]```", false)
+            appendField("`[search_expr]`", "The search expression." +
+                    "\n\nThe expression can comprise of one or more space-delimited terms:" +
+                    "\n\t- `[term]`: Fuzzily match `[term]`" +
+                    "\n\t- `\"[term]\"`: Match whole `[term]`" +
+                    "\n\t- `*`: Match anything", false)
 
             onDiscordError { e ->
                 log(ILogger.LogLevel.ERROR, "Cannot display help text") {
@@ -146,52 +145,112 @@ object Market : IBase, ILogger {
     }
 
     /**
+     * Finds an item from the Warframe Market manifest.
+     *
+     * @param search Search string.
+     * @param event Event which invoked the "warframe market" command.
+     *
+     * @return Manifest of the item.
+     */
+    private fun findItemInMarket(search: List<String>, event: MessageReceivedEvent): Manifest {
+        val link = "https://warframe.market/"
+        val jsonToParse = Jsoup.connect(link)
+                .timeout(5000)
+                .get()
+                .select("#application-state")
+
+        val manifest = jacksonObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+        }.readTree(jsonToParse.html())
+                .get("items").get("en").let {
+                    ObjectMapper().apply {
+                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    }.readValue<List<Manifest>>(it.toString())
+                }.sortedBy { it.itemName }
+
+        val searchTags = search.map { it.toLowerCase() }
+        val searchResult = mutableMapOf<String, Int>()
+        searchTags.forEach { tag ->
+            val results = manifest.filter {
+                if (tag.contains("*") && tag.contains(" ")) {
+                    it.itemName.toLowerCase().contains(tag.replace("*", ".+").toRegex())
+                } else if (tag.contains("*")) {
+                    it.itemName.toLowerCase().split(" ").any {
+                        it.matches(tag.replace("*", ".+").toRegex())
+                    }
+                } else {
+                    it.itemName.toLowerCase().contains(tag.toRegex())
+                }
+            }
+            results.forEach {
+                searchResult[it.itemName] = searchResult[it.itemName]?.plus(1) ?: 1
+            }
+        }
+
+        val sortedResults = searchResult.entries.sortedByDescending { it.value }
+        val closestResults = sortedResults.filter { it.value == sortedResults.first().value }
+        return when (closestResults.size) {
+            0 -> {
+                buildMessage(event.channel) {
+                    withContent("Cannot find item with given search!")
+                }
+                Manifest()
+            }
+            1 -> {
+                manifest.find { it.itemName == sortedResults.first().key } ?: error("Cannot find matching item in Manifest")
+            }
+            else -> {
+                buildMessage(event.channel) {
+                    withContent("Multiple items match your given search! Including:\n\n")
+                    appendContent(closestResults.take(5).joinToString("\n") { "- ${it.key}" })
+                    if (closestResults.size > 5) {
+                        appendContent("\n\n...And ${closestResults.size - 5} more results.")
+                    }
+                }
+                Manifest()
+            }
+        }
+    }
+
+    /**
      * Gets and parses the market JSON.
      *
      * @param item Item to retrieve.
      *
      * @return Pair of return code and MarketStats object. If return code is 2, the requested item cannot be found.
      */
-    private fun getMarketJson(item: String): Pair<Int, MarketStats> {
-        var useFallback = 0
-        val link = "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}/statistics"
-        val linkFallback = "https://warframe.market/items/${item.replace(' ', '_').toLowerCase()}_set/statistics"
+    private fun getMarketJson(item: String): Pair<Boolean, MarketStats> {
+        val link = "https://warframe.market/items/$item/statistics"
         val jsonToParse = Jsoup.connect(link)
                 .timeout(5000)
                 .get()
                 .select("#application-state")
 
-        var market: MarketStats
-        try {
-            market = jacksonObjectMapper().apply {
+        val market = try {
+            jacksonObjectMapper().apply {
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(jsonToParse.html())
+            }.readValue<MarketStats>(jsonToParse.html())
         } catch (e: Exception) {
-            val jsonToParseFallback = Jsoup.connect(linkFallback)
-                    .timeout(5000)
-                    .get()
-                    .select("#application-state")
-
-            try {
-                market = jacksonObjectMapper().apply {
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readValue(jsonToParseFallback.html())
-
-                useFallback = 1
-            } catch (e: Exception) {
-                return Pair(2, MarketStats())
-            }
+            return Pair(false, MarketStats())
         }
 
-        return Pair(useFallback, market)
+        return Pair(true, market)
     }
 
     /**
      * Fixed link for warframe market images.
      */
     private const val imageLink = "https://warframe.market/static/assets/"
+
+    class Manifest {
+        @JsonProperty("url_name")
+        val urlName = ""
+        @JsonProperty("item_name")
+        val itemName = ""
+    }
 
     class MarketStats {
         val payload = Payload()

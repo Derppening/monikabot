@@ -23,6 +23,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Core
+import core.Core.isFromSuperuser
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -194,7 +195,7 @@ object Echo : IBase, ILogger {
             val guild = Core.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
             val channel = Core.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
 
-            if (!Core.isEventFromSuperuser(event) && !guild.users.contains(event.author)) {
+            if (!event.isFromSuperuser() && !guild.users.contains(event.author)) {
                 error("You can only send messages to guilds which you are in!")
             }
 

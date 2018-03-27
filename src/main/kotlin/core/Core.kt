@@ -32,17 +32,17 @@ object Core {
     /**
      * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
      */
-    fun isOwnerLocationValid(event: MessageEvent) =
-            event.channel == serverDebugChannel || event.channel == ownerPrivateChannel
+    fun MessageEvent.isOwnerLocationValid() = channel == serverDebugChannel || channel == ownerPrivateChannel
+
     /**
      * @return Whether event is from the bot owner.
      */
-    fun isEventFromOwner(event: MessageEvent) =
-            event.author.longID == ownerId
+    fun MessageEvent.isFromOwner() = author.longID == ownerId
+
     /**
      * @return Whether event is from a superuser.
      */
-    fun isEventFromSuperuser(event: MessageEvent) = suIds.any { it == event.author.longID }
+    fun MessageEvent.isFromSuperuser() = suIds.any { it == author.longID }
 
     /**
      * Returns true if given message mentions the bot as the first token.
@@ -77,7 +77,12 @@ object Core {
     /**
      * @return Discord tag.
      */
-    fun getDiscordTag(user: IUser): String = "${user.name}#${user.discriminator}"
+    fun IUser.getDiscordTag(): String = "$name#$discriminator"
+
+    /**
+     * @return Channel name in "Server/Channel" format.
+     */
+    fun IChannel.getChannelName(): String = "${if (this is IPrivateChannel) "[Private]" else guild.name}/$name"
 
     /**
      * @param username User name portion of the Discord Tag.
@@ -106,14 +111,6 @@ object Core {
      */
     fun getChannelByName(name: String, guild: IGuild): IChannel? {
         return guild.channels.find { it.name == name }
-    }
-
-    /**
-     * @return Channel name in "Server/Channel" format.
-     */
-    fun getChannelName(channel: IChannel): String {
-        val guild = if (channel is IPrivateChannel) "[Private]" else channel.guild.name
-        return "$guild/${channel.name}"
     }
 
     /**
@@ -159,8 +156,8 @@ object Core {
     /**
      * Gets the method name which invoked this method.
      */
-    fun getMethodName(): String {
-        return Thread.currentThread().stackTrace[2].methodName + "(?)"
+    fun getMethodName(vararg args: String): String {
+        return Thread.currentThread().stackTrace[2].methodName + "(${args.joinToString(", ")})"
     }
 
     /**

@@ -28,30 +28,18 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
-import core.Core
 import core.ILogger
 import core.Parser
 import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
-import kotlin.concurrent.thread
 
 object Trivia : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).dropWhile {
-            it == "--experimental"
-        }
+        val args = getArgumentList(event.message.content)
 
-        val questions = if (args.isNotEmpty() && args[0].toIntOrNull() != null) {
-            args[0].toInt()
-        } else {
-            5
-        }
-        val difficulty = if (args.isNotEmpty() && args.any { it.matches(Regex("(easy|medium|hard|any)")) }) {
-            args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
-        } else {
-            "easy"
-        }
+        val questions = args.firstOrNull()?.toIntOrNull() ?: 5
+        val difficulty = args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
 
         val channel = event.author.orCreatePMChannel
         val triviaData = getTriviaQuestions(questions, difficulty)
@@ -73,103 +61,102 @@ object Trivia : IBase, ILogger {
             appendContent("\nType \"exit\" to quit any time!")
         }
 
-        thread {
-            logger.info("Trivia Thread detached for ${Core.getDiscordTag(event.author)}")
+        users.add(event.author.longID)
 
-            users.add(event.author.longID)
+        var correctAnswers = 0
+        var totalAnswers = 0
 
-            var correctAnswers = 0
-            var totalAnswers = 0
+        game@ for (trivia in triviaData.results) {
+            val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled()
+            buildEmbed(channel) {
+                withAuthorName("Difficulty: ${trivia.difficulty.capitalize()}")
+                withTitle("Category: ${trivia.category}")
+                withDesc(StringEscapeUtils.unescapeHtml4(trivia.question))
 
-            game@ for (trivia in triviaData.results) {
-                val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled()
-                buildEmbed(channel) {
-                    withAuthorName("Difficulty: ${trivia.difficulty.capitalize()}")
-                    withTitle("Category: ${trivia.category}")
-                    withDesc(StringEscapeUtils.unescapeHtml4(trivia.question))
-
-                    answers.forEachIndexed { i, answer ->
-                        appendField((i + 65).toChar().toString(), StringEscapeUtils.unescapeHtml4(answer), true)
-                    }
+                answers.forEachIndexed { i, answer ->
+                    appendField((i + 65).toChar().toString(), StringEscapeUtils.unescapeHtml4(answer), true)
                 }
-
-                var lastMessageId = channel.messageHistory.latestMessage.longID
-                logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
-                checkResponse@ while (true) {
-                    if (channel.messageHistory.latestMessage.longID != lastMessageId) {
-                        val message = channel.messageHistory.latestMessage
-
-                        lastMessageId = message.longID
-
-                        if (message.content.toLowerCase() == "exit") {
-                            break@game
-                        }
-
-                        if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
-                                (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
-                            break@checkResponse
-                        }
-                    } else {
-                        Thread.sleep(500)
-                    }
-                }
-
-                val ans = try {
-                    channel.messageHistory.latestMessage.content ?: throw Exception("Latest message is a NullPointer")
-                } catch (e: Exception) {
-                    buildMessage(event.channel) {
-                        withContent("Monika hit a hiccup and needs to take a break :(")
-                    }
-
-                    e.printStackTrace()
-                    break@game
-                }
-
-                when (trivia.type) {
-                    "boolean" -> {
-                        when {
-                            ans.toBoolean() == trivia.correctAnswer.toBoolean() -> {
-                                buildMessage(channel) {
-                                    withContent("You are correct! =D")
-                                }
-                                ++correctAnswers
-                            }
-                            else -> {
-                                buildMessage(channel) {
-                                    withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}.")
-                                }
-                            }
-                        }
-                    }
-                    "multiple" -> {
-                        when {
-                            ans.toLowerCase() == trivia.correctAnswer.toLowerCase() ||
-                                    ans.length == 1 && (ans[0].toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
-                                buildMessage(channel) {
-                                    withContent("You are correct! =D")
-                                }
-                                ++correctAnswers
-                            }
-                            else -> {
-                                buildMessage(channel) {
-                                    withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}")
-                                }
-                            }
-                        }
-                    }
-                }
-
-                ++totalAnswers
             }
 
-            buildMessage(channel) {
-                withContent("Thanks for playing trivia with me! You got $correctAnswers out of $totalAnswers correct!")
+            while (channel.messageHistory.latestMessage == null) {
+                Thread.sleep(500)
             }
 
-            users.remove(event.author.longID)
+            var lastMessageId = channel.messageHistory.latestMessage.longID
+            logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
+            checkResponse@ while (true) {
+                if (channel.messageHistory.latestMessage.longID != lastMessageId) {
+                    val message = channel.messageHistory.latestMessage
 
-            logger.info("Trivia Thread joined for ${Core.getDiscordTag(event.author)}")
+                    lastMessageId = message.longID
+
+                    if (message.content.toLowerCase() == "exit") {
+                        break@game
+                    }
+
+                    if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
+                            (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
+                        break@checkResponse
+                    }
+                } else {
+                    Thread.sleep(500)
+                }
+            }
+
+            val ans = try {
+                channel.messageHistory.latestMessage.content ?: throw Exception("Latest message is a NullPointer")
+            } catch (e: Exception) {
+                buildMessage(event.channel) {
+                    withContent("Monika hit a hiccup and needs to take a break :(")
+                }
+
+                e.printStackTrace()
+                break@game
+            }
+
+            when (trivia.type) {
+                "boolean" -> {
+                    when {
+                        ans.toBoolean() == trivia.correctAnswer.toBoolean() ||
+                                ans.length == 1 && (ans[0].toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
+                            buildMessage(channel) {
+                                withContent("You are correct! =D")
+                            }
+                            ++correctAnswers
+                        }
+                        else -> {
+                            buildMessage(channel) {
+                                withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}.")
+                            }
+                        }
+                    }
+                }
+                "multiple" -> {
+                    when {
+                        ans.toLowerCase() == trivia.correctAnswer.toLowerCase() ||
+                                ans.length == 1 && (ans[0].toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
+                            buildMessage(channel) {
+                                withContent("You are correct! =D")
+                            }
+                            ++correctAnswers
+                        }
+                        else -> {
+                            buildMessage(channel) {
+                                withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}")
+                            }
+                        }
+                    }
+                }
+            }
+
+            ++totalAnswers
         }
+
+        buildMessage(channel) {
+            withContent("Thanks for playing trivia with me! You got $correctAnswers out of $totalAnswers correct!")
+        }
+
+        users.remove(event.author.longID)
 
         return Parser.HandleState.HANDLED
     }

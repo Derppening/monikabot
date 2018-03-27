@@ -28,6 +28,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
+import core.Core
 import core.Core.removeQuotes
 import core.ILogger
 import core.Parser
@@ -94,13 +95,13 @@ object Reminder : IBase, ILogger {
     }
 
     fun exportTimersToFile() {
-        logger.debug("exportTimersToFile() -> ${timerSaveFile.path}")
+        logger.debug("${Core.getMethodName()} -> ${timerSaveFile.path}")
 
         jacksonObjectMapper().writeValue(File(timerSaveFile), timers)
     }
 
     fun importTimersFromFile() {
-        logger.debug("importTimersFromFile() <- ${timerSaveFile.path}")
+        logger.debug("${Core.getMethodName()} <- ${timerSaveFile.path}")
 
         timers = jacksonObjectMapper().readValue(Paths.get(timerSaveFile).toFile())
         timers.filter { Duration.between(Instant.now(), it.expiryDateTime) < Duration.ZERO }.forEach {
