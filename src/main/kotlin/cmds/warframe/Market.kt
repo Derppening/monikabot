@@ -127,8 +127,12 @@ object Market : IBase, ILogger {
             withTitle("Help Text for `warframe-market`")
             withDesc("Displays market information of any item.")
             insertSeparator()
-            appendField("Usage", "```warframe market [item]```", false)
-            appendField("`[item]`", "Item to lookup.", false)
+            appendField("Usage", "```warframe market [search_expr]```", false)
+            appendField("`[search_expr]`", "The search expression." +
+                    "\n\nThe expression can comprise of one or more space-delimited terms:" +
+                    "\n\t- `[term]`: Fuzzily match `[term]`" +
+                    "\n\t- `\"[term]\"`: Match whole `[term]`" +
+                    "\n\t- `*`: Match anything", false)
 
             onDiscordError { e ->
                 log(ILogger.LogLevel.ERROR, "Cannot display help text") {
