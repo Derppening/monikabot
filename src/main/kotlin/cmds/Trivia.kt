@@ -28,6 +28,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
+import core.Core.getDiscordTag
 import core.ILogger
 import core.Parser
 import org.apache.commons.text.StringEscapeUtils
@@ -56,6 +57,7 @@ object Trivia : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
+        logger.info("Starting Trivia for ${event.author.getDiscordTag()}")
         buildMessage(channel) {
             withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
             appendContent("\nType \"exit\" to quit any time!")
@@ -157,6 +159,7 @@ object Trivia : IBase, ILogger {
         }
 
         users.remove(event.author.longID)
+        logger.info("Ending Trivia for ${event.author.getDiscordTag()}")
 
         return Parser.HandleState.HANDLED
     }

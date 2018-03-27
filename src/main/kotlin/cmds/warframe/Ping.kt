@@ -25,6 +25,7 @@ object Ping : IBase, ILogger {
 
             connections.forEach { (server, url, expectedResponse) ->
                 var responseCode = 0
+                logger.info("Pinging $server at $url...")
                 val time = measureTimeMillis {
                     val connection = URL(url).openConnection().also {
                         it.connectTimeout = 10000

@@ -47,26 +47,28 @@ object Parser : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (Trivia.checkUserTriviaStatus(event)) {
+        if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
+            logger.debug("Message ${event.message.longID} from ${event.author.getDiscordTag()} ignored")
             return
         }
 
-        if (!isInvocationValid(event)) {
-            if (!event.isOwnerLocationValid()) {
-                return
-            }
+        if (Trivia.checkUserTriviaStatus(event)) {
+            logger.debug("Message ${event.message.longID} from ${event.author.getDiscordTag()} ignored: User in Trivia session")
+            return
         }
 
         val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase()
 
         if (cmd.isBlank()) {
+            logger.debug("Message ${event.message.longID} from ${event.author.getDiscordTag()} has no command")
             buildMessage(event.channel) {
                 withContent(getRandomNullResponse())
             }
             return
         }
 
-        thread(name = "Command Delegator Thread") {  // detach thread for every invocation
+        thread(name = "Delegator Thread (${event.message.longID} from ${event.author.getDiscordTag()})") {
+            // detach thread for every invocation
             logger.info("Thread detached for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
 
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
