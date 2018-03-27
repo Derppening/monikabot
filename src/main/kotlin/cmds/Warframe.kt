@@ -92,7 +92,7 @@ object Warframe : IBase, ILogger {
             appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
             appendField("Subcommand: `market`", "Displays market information about an item.", false)
             appendField("Subcommand: `ping`", "Displays latency information to the Warframe servers.", false)
-            appendField("Subcommand: `primes", "Displays the most recently released primes, as well as predicts the next few primes.", false)
+            appendField("Subcommand: `primes`", "Displays the most recently released primes, as well as predicts the next few primes.", false)
             appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
             appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
             appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)

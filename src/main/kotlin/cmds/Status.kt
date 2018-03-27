@@ -22,7 +22,8 @@ package cmds
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
 import core.Client
-import core.Core
+import core.Core.isFromOwner
+import core.Core.isOwnerLocationValid
 import core.Core.removeQuotes
 import core.ILogger
 import core.Parser
@@ -32,9 +33,9 @@ import sx.blah.discord.handle.obj.StatusType
 
 object Status : IBase {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
-        if (!Core.isEventFromOwner(event)) {
+        if (!event.isFromOwner()) {
             return Parser.HandleState.PERMISSION_DENIED
-        } else if (!Core.isOwnerLocationValid(event)) {
+        } else if (!event.isOwnerLocationValid()) {
             return Parser.HandleState.UNHANDLED
         }
 

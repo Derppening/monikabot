@@ -20,6 +20,8 @@
 package core
 
 import core.BuilderHelper.buildEmbed
+import core.Core.getChannelName
+import core.Core.getDiscordTag
 import core.Persistence.debugChannel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -73,8 +75,8 @@ interface ILogger {
                 withDesc(message)
 
                 if (srcMessage() != null) appendField("Caused by", "`${srcMessage()?.content}`", false)
-                if (srcAuthor() != null) appendField("From", Core.getDiscordTag(srcAuthor()!!), false)
-                if (srcChannel() != null) appendField("In", Core.getChannelName(srcChannel()!!), false)
+                if (srcAuthor() != null) appendField("From", srcAuthor()!!.getDiscordTag(), false)
+                if (srcChannel() != null) appendField("In", srcChannel()!!.getChannelName(), false)
                 if (info().isNotBlank()) appendField("Additional Info", info(), false)
                 if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
 

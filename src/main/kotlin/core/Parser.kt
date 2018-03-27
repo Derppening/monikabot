@@ -21,11 +21,15 @@ package core
 
 import cmds.*
 import core.BuilderHelper.buildMessage
+import core.Core.getDiscordTag
+import core.Core.isFromSuperuser
 import core.Core.isMentionMe
+import core.Core.isOwnerLocationValid
 import core.Core.popLeadingMention
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
+import kotlin.concurrent.thread
 
 object Parser : ILogger {
     enum class HandleState {
@@ -48,7 +52,7 @@ object Parser : ILogger {
         }
 
         if (!isInvocationValid(event)) {
-            if (!Core.isOwnerLocationValid(event)) {
+            if (!event.isOwnerLocationValid()) {
                 return
             }
         }
@@ -62,60 +66,66 @@ object Parser : ILogger {
             return
         }
 
-        val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
-        val retval = if (runExperimental && Config.enableExperimentalFeatures) {
-            parseExperimental(event, cmd)
-        } else {
-            if (runExperimental) {
-                buildMessage(event.channel) {
-                    if (Core.isEventFromSuperuser(event)) {
-                        withContent("It seems like you're trying to invoke an experimental command without it being on...")
-                    } else {
-                        withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
-                    }
-                }
-            }
+        thread(name = "Command Delegator Thread") {  // detach thread for every invocation
+            logger.info("Thread detached for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
 
-            val cmdMatches = commands.filter { it.key.startsWith(cmd) }
-            when (cmdMatches.size) {
-                0 -> HandleState.NOT_FOUND
-                1 -> {
-                    if (cmd != cmdMatches.entries.first().key) {
-                        buildMessage(event.channel) {
-                            withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+            val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
+            val retval = if (runExperimental && Config.enableExperimentalFeatures) {
+                parseExperimental(event, cmd)
+            } else {
+                if (runExperimental) {
+                    buildMessage(event.channel) {
+                        if (event.isFromSuperuser()) {
+                            withContent("It seems like you're trying to invoke an experimental command without it being on...")
+                        } else {
+                            withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
                         }
                     }
-                    cmdMatches.entries.first().value.delegateCommand(event)
                 }
-                else -> {
-                    if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+
+                val cmdMatches = commands.filter { it.key.startsWith(cmd) }
+                when (cmdMatches.size) {
+                    0 -> HandleState.NOT_FOUND
+                    1 -> {
+                        if (cmd != cmdMatches.entries.first().key) {
+                            buildMessage(event.channel) {
+                                withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                            }
+                        }
                         cmdMatches.entries.first().value.delegateCommand(event)
-                    } else {
-                        HandleState.MULTIPLE_MATCHES
+                    }
+                    else -> {
+                        if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                            cmdMatches.entries.first().value.delegateCommand(event)
+                        } else {
+                            HandleState.MULTIPLE_MATCHES
+                        }
                     }
                 }
             }
-        }
 
-        when (retval) {
-            HandleState.NOT_FOUND -> {
-                buildMessage(event.channel) {
-                    withContent("I don't know how to do that! >.<")
+            when (retval) {
+                HandleState.NOT_FOUND -> {
+                    buildMessage(event.channel) {
+                        withContent("I don't know how to do that! >.<")
+                    }
+                }
+                HandleState.PERMISSION_DENIED -> {
+                    buildMessage(event.channel) {
+                        withContent("You're not allow to do this! x(")
+                    }
+                }
+                HandleState.MULTIPLE_MATCHES -> {
+                    buildMessage(event.channel) {
+                        withContent("Your message matches multiple commands!")
+                        appendContent("\n\nYour provided command matches:\n")
+                        appendContent(commands.filter { it.key.startsWith(cmd) }.entries.distinctBy { it.value }.joinToString("\n") { "- ${it.key}" })
+                    }
+                }
+                else -> {
                 }
             }
-            HandleState.PERMISSION_DENIED -> {
-                buildMessage(event.channel) {
-                    withContent("You're not allow to do this! x(")
-                }
-            }
-            HandleState.MULTIPLE_MATCHES -> {
-                buildMessage(event.channel) {
-                    withContent("Your message matches multiple commands!")
-                    appendContent("\n\nYour provided command matches:\n")
-                    appendContent(commands.filter { it.key.startsWith(cmd) }.entries.distinctBy { it.value }.joinToString("\n") { "- ${it.key}" })
-                }
-            }
-            else -> {}
+            logger.info("Joining thread for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
         }
     }
 
@@ -123,7 +133,7 @@ object Parser : ILogger {
      * Reloads responses when bot is invoked but no command is given.
      */
     fun loadNullResponses(): List<String> {
-        nullResponses = File(Thread.currentThread().contextClassLoader.getResource(nullResponsesPath).toURI()).readLines()
+        nullResponses = File(Thread.currentThread().contextClassLoader.getResource(NULL_RESPONSE_PATH).toURI()).readLines()
         return nullResponses
     }
 
@@ -155,7 +165,7 @@ object Parser : ILogger {
 
     private var nullResponses = loadNullResponses()
 
-    private const val nullResponsesPath = "lang/NullResponse.txt"
+    private const val NULL_RESPONSE_PATH = "lang/NullResponse.txt"
 
     private val commands: Map<String, IBase> = mapOf(
             "changelog" to Changelog,
