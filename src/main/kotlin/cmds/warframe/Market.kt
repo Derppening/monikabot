@@ -84,17 +84,23 @@ object Market : IBase, ILogger {
                 withTitle("Trade Statistics")
             }
 
-            if (!useFallback) {
+            if (market.payload.statistics.stat48.isNotEmpty()) {
                 appendField("48-Hour Minimum", market.payload.statistics.stat48.last().minPrice.toString(), true)
                 appendField("48-Hour Median", market.payload.statistics.stat48.last().median.toString(), true)
                 appendField("48-Hour Average", market.payload.statistics.stat48.last().avgPrice.toString(), true)
                 appendField("48-Hour Maximum", market.payload.statistics.stat48.last().maxPrice.toString(), true)
                 insertSeparator()
+            }
+
+            if (market.payload.statistics.stat90.isNotEmpty()) {
                 appendField("90-Day Minimum", market.payload.statistics.stat90.last().minPrice.toString(), true)
                 appendField("90-Day Median", market.payload.statistics.stat90.last().median.toString(), true)
                 appendField("90-Day Average", market.payload.statistics.stat90.last().avgPrice.toString(), true)
                 appendField("90-Day Maximum", market.payload.statistics.stat90.last().maxPrice.toString(), true)
                 insertSeparator()
+            }
+
+            if (market.include.item.itemsInSet.size > 1) {
                 appendField("Items in Set", market.include.item.itemsInSet.joinToString("\n") { it.en.itemName }, false)
             }
 
