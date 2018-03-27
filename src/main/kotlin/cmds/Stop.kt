@@ -73,7 +73,8 @@ object Stop : IBase, ILogger {
                 withTitle("Help Text for `stop`")
                 withDesc("Stops the execution of the bot.")
                 insertSeparator()
-                appendField("Usage", "```stop [stable|development]```", false)
+                appendField("Usage", "```stop [--force] [stable|development]```", false)
+                appendField("`--force", "If appended, forcefully shuts down the server without any buffer time.", false)
                 appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
 
                 onDiscordError { e ->

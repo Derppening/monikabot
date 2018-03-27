@@ -156,8 +156,8 @@ object Core {
     /**
      * Gets the method name which invoked this method.
      */
-    fun getMethodName(): String {
-        return Thread.currentThread().stackTrace[2].methodName + "(?)"
+    fun getMethodName(vararg args: String): String {
+        return Thread.currentThread().stackTrace[2].methodName + "(${args.joinToString(", ")})"
     }
 
     /**
