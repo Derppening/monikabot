@@ -166,20 +166,37 @@ object Cetus : IBase, ILogger {
         val cetusCurrentStateString = cetusTimeLeft.first.toString().toLowerCase().capitalize()
         val timeString = cetusTimeLeft.second.formatDuration()
 
-        val cetusNextDayTime = dateTimeFormatter.format(cetusCycleEnd)
-        val cetusNextNightTime = if (cetusTimeLeft.first == CetusTimeState.DAY) {
-            dateTimeFormatter.format(cetusCycleEnd.minus(50, ChronoUnit.MINUTES))
-        } else {
-            dateTimeFormatter.format(cetusCycleEnd.plus(100, ChronoUnit.MINUTES))
+        val cetusNextDayTime = mutableListOf<String>().also {
+            for (i in 0..2) {
+                it.add(dateTimeFormatter.format(cetusCycleEnd.plus(i * 150L, ChronoUnit.MINUTES)))
+            }
+        }
+        val cetusNextNightTime = mutableListOf<String>().also {
+            val nextNight = if (cetusTimeLeft.first == CetusTimeState.DAY) {
+                cetusCycleEnd.minus(50, ChronoUnit.MINUTES)
+            } else {
+                cetusCycleEnd.plus(100, ChronoUnit.MINUTES)
+            }
+            for (i in 0..2) {
+                it.add(dateTimeFormatter.format(nextNight.plus(i * 150L, ChronoUnit.MINUTES)))
+            }
         }
 
         val dayLengthString = Duration.between(cetusCycleStart, cetusCycleEnd).formatDuration()
+//        val earthTimeEquivalent = let {
+//            val dayProgression = Duration.between(cetusCycleStart, Instant.now()).seconds.toDouble()
+//            val dayDuration = Duration.between(cetusCycleStart, cetusCycleEnd).seconds.toDouble()
+//            val timeTranslation = (1.toDouble() / 6) * dayDuration
+//            val sec = ((dayProgression + timeTranslation) * 86400 / dayDuration).toInt()
+//            "${formatTimeElement((sec / 3600) % 24)}:${formatTimeElement(sec / 60 % 60)}:${formatTimeElement(sec % 60)}"
+//        }
 
         buildEmbed(event.channel) {
             withTitle("Cetus Time")
             appendField("Current Time", "$cetusCurrentStateString - $timeString remaining", false)
-            appendField("Next Day Time", "$cetusNextDayTime UTC", true)
-            appendField("Next Night Time", "$cetusNextNightTime UTC", true)
+//            appendField("Equivalent 24-Hour Time", earthTimeEquivalent, false)
+            appendField("Next Day Time", cetusNextDayTime.joinToString("\n") { "- $it UTC" }, true)
+            appendField("Next Night Time", cetusNextNightTime.joinToString("\n") { "- $it UTC" }, true)
             if (dayLengthString.isNotBlank()) {
                 appendField("Day Cycle Length", dayLengthString, false)
             }
@@ -192,6 +209,10 @@ object Cetus : IBase, ILogger {
      */
     private fun formatReal(double: Double): String {
         return "%.2f%%".format(double)
+    }
+
+    private fun formatTimeElement(int: Int): String {
+        return int.toString().padStart(2, '0')
     }
 
     private val dateTimeFormatter = DateTimeFormatter
