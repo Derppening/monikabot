@@ -61,6 +61,11 @@ object Warframe : IBase, ILogger {
             }
             else -> {
                 if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                    if (args[0] != cmdMatches.entries.first().key) {
+                        buildMessage(event.channel) {
+                            withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                        }
+                    }
                     cmdMatches.entries.first().value.handler(event)
                 } else {
                     buildMessage(event.channel) {

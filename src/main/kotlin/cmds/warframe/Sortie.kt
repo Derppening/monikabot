@@ -46,6 +46,7 @@ object Sortie : IBase, ILogger {
             buildMessage(event.channel) {
                 withContent("Unable to retrieve sortie information! Please try again later.")
             }
+            e.printStackTrace()
 
             return Parser.HandleState.HANDLED
         }

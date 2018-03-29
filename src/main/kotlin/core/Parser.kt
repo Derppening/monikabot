@@ -21,6 +21,7 @@ package core
 
 import cmds.*
 import core.BuilderHelper.buildMessage
+import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.Core.isFromSuperuser
 import core.Core.isMentionMe
@@ -47,20 +48,25 @@ object Parser : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
+        logger.debug("Message \"${event.message.content}\" " +
+                "from ${event.author.getDiscordTag()} " +
+                "in ${event.channel.getChannelName()} " +
+                "has ID ${event.message.longID}")
+
         if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
-            logger.debug("Message ${event.message.longID} from ${event.author.getDiscordTag()} ignored")
+            logger.debug("Message ${event.message.longID} ignored")
             return
         }
 
         if (Trivia.checkUserTriviaStatus(event)) {
-            logger.debug("Message ${event.message.longID} from ${event.author.getDiscordTag()} ignored: User in Trivia session")
+            logger.debug("Message ${event.message.longID} ignored: User in Trivia session")
             return
         }
 
         val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase()
 
         if (cmd.isBlank()) {
-            logger.debug("Message ${event.message.longID} from ${event.author.getDiscordTag()} has no command")
+            logger.debug("Message ${event.message.longID} has no command")
             buildMessage(event.channel) {
                 withContent(getRandomNullResponse())
             }
@@ -69,7 +75,7 @@ object Parser : ILogger {
 
         thread(name = "Delegator Thread (${event.message.longID} from ${event.author.getDiscordTag()})") {
             // detach thread for every invocation
-            logger.info("Thread detached for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
+            logger.info("Thread detached")
 
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
             val retval = if (runExperimental && Config.enableExperimentalFeatures) {
@@ -98,6 +104,9 @@ object Parser : ILogger {
                     }
                     else -> {
                         if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                            buildMessage(event.channel) {
+                                withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                            }
                             cmdMatches.entries.first().value.delegateCommand(event)
                         } else {
                             HandleState.MULTIPLE_MATCHES
@@ -127,7 +136,7 @@ object Parser : ILogger {
                 else -> {
                 }
             }
-            logger.info("Joining thread for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
+            logger.info("Joining thread")
         }
     }
 
