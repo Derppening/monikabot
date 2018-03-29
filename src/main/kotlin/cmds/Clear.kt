@@ -24,7 +24,6 @@ import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
-import core.PersistentMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Clear : IBase, ILogger {
@@ -45,7 +44,7 @@ object Clear : IBase, ILogger {
             }
         } else {
             val messages = if (allFlag) event.channel.fullMessageHistory else event.channel.messageHistory
-            event.channel.bulkDelete(messages.filterNot { it.longID == PersistentMessage.messageId })
+            event.channel.bulkDelete(messages)
         }
 
         return Parser.HandleState.HANDLED

@@ -52,7 +52,7 @@ object Persistence : ILogger {
         try {
             serverDebugChannel.apply {
                 if (this?.fullMessageHistory?.isNotEmpty() == true) {
-                    this.bulkDelete()
+                    bulkDelete()
                 }
             } ?: ownerPrivateChannel
         } catch (e: Exception) {
