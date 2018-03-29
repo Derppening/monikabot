@@ -96,7 +96,7 @@ object Trivia : IBase, ILogger {
                         break@game
                     }
 
-                    if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
+                    if (answers.any { it.equals(message.content, true) } ||
                             (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
                         break@checkResponse
                     }
