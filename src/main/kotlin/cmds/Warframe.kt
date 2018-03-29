@@ -57,7 +57,7 @@ object Warframe : IBase, ILogger {
                         withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
                     }
                 }
-                cmdMatches.entries.first().value.handler(event)
+                cmdMatches.entries.first().value.delegateCommand(event, args)
             }
             else -> {
                 if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
@@ -66,7 +66,7 @@ object Warframe : IBase, ILogger {
                             withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
                         }
                     }
-                    cmdMatches.entries.first().value.handler(event)
+                    cmdMatches.entries.first().value.delegateCommand(event, args)
                 } else {
                     buildMessage(event.channel) {
                         withContent("Your message matches multiple commands!")

@@ -36,7 +36,6 @@ object Syndicate : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1)
 
         when {
-            args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
             args.isNotEmpty() -> {
                 getMissionsForSyndicate(event)
             }

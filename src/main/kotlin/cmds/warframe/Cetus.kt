@@ -42,13 +42,11 @@ object Cetus : IBase, ILogger {
 
         try {
             when {
-                args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
                 args.isEmpty() -> getBounties(event)
                 "time".startsWith(args[0]) -> getTime(event)
                 "ghouls".startsWith(args[0]) -> getGhoulBounties(event, true)
-                else -> {
-                    help(event, false)
-                }
+                else -> help(event, false)
+
             }
         } catch (e: Exception) {
             buildMessage(event.channel) {

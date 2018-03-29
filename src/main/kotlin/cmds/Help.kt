@@ -26,7 +26,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 
 object Help : IBase {
-    override fun delegateCommand(event: MessageReceivedEvent): Parser.HandleState {
+    override fun delegateCommand(event: MessageReceivedEvent, args: List<String>): Parser.HandleState {
         buildEmbed(event.channel) {
             withAuthorName("Github")
             withAuthorUrl("https://github.com/Derppening/MonikaBot")

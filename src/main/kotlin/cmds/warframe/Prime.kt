@@ -17,10 +17,7 @@ object Prime : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        if (args.any { it.matches(Regex("-{0,2}help")) }) {
-            help(event, false)
-            return Parser.HandleState.HANDLED
-        } else if (args.size > 1) {
+        if (args.size > 1) {
             help(event, false)
             return Parser.HandleState.HANDLED
         }
