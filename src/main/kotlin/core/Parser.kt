@@ -21,6 +21,7 @@ package core
 
 import cmds.*
 import core.BuilderHelper.buildMessage
+import core.Core.getChannelName
 import core.Core.getDiscordTag
 import core.Core.isFromSuperuser
 import core.Core.isMentionMe
@@ -47,27 +48,49 @@ object Parser : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        if (Trivia.checkUserTriviaStatus(event)) {
+        logger.debug("Message \"${event.message.content}\" " +
+                "from ${event.author.getDiscordTag()} " +
+                "in ${event.channel.getChannelName()} " +
+                "has ID ${event.messageID}")
+
+        if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
+            logger.debug("Message ${event.messageID} ignored")
             return
         }
 
-        if (!isInvocationValid(event)) {
-            if (!event.isOwnerLocationValid()) {
-                return
+        if (Trivia.checkUserTriviaStatus(event)) {
+            logger.debug("Message ${event.messageID} ignored: User in Trivia session")
+            return
+        }
+
+        val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
+            when {
+                it.last() == '!' && Core.monikaVersionBranch != "development" -> {
+                    logger.debug("Message ${event.messageID} ignored: Development version requested")
+                    return
+                }
+                it.last() == '!' -> {
+                    it.dropLast(1)
+                }
+                Core.monikaVersionBranch == "development" -> {
+                    logger.debug("Message ${event.messageID} ignored: Stable version requested")
+                    return
+                }
+                else -> it
             }
         }
 
-        val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase()
-
         if (cmd.isBlank()) {
+            logger.debug("Message ${event.messageID} has no command")
             buildMessage(event.channel) {
                 withContent(getRandomNullResponse())
             }
             return
         }
 
-        thread(name = "Command Delegator Thread") {  // detach thread for every invocation
-            logger.info("Thread detached for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
+        thread(name = "Delegator Thread (${event.messageID} from ${event.author.getDiscordTag()})") {
+            // detach thread for every invocation
+            logger.info("Thread detached")
 
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
             val retval = if (runExperimental && Config.enableExperimentalFeatures) {
@@ -96,6 +119,9 @@ object Parser : ILogger {
                     }
                     else -> {
                         if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                            buildMessage(event.channel) {
+                                withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                            }
                             cmdMatches.entries.first().value.delegateCommand(event)
                         } else {
                             HandleState.MULTIPLE_MATCHES
@@ -125,7 +151,7 @@ object Parser : ILogger {
                 else -> {
                 }
             }
-            logger.info("Joining thread for message ID ${event.message.longID} from ${event.author.getDiscordTag()}.")
+            logger.info("Joining thread")
         }
     }
 

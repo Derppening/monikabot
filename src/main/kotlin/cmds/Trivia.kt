@@ -28,6 +28,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
+import core.Core.getDiscordTag
 import core.ILogger
 import core.Parser
 import org.apache.commons.text.StringEscapeUtils
@@ -56,6 +57,7 @@ object Trivia : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
+        logger.info("Starting Trivia for ${event.author.getDiscordTag()}")
         buildMessage(channel) {
             withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
             appendContent("\nType \"exit\" to quit any time!")
@@ -94,7 +96,7 @@ object Trivia : IBase, ILogger {
                         break@game
                     }
 
-                    if (answers.any { it.toLowerCase() == message.content.toLowerCase() } ||
+                    if (answers.any { it.equals(message.content, true) } ||
                             (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
                         break@checkResponse
                     }
@@ -134,7 +136,7 @@ object Trivia : IBase, ILogger {
                 "multiple" -> {
                     when {
                         ans.toLowerCase() == trivia.correctAnswer.toLowerCase() ||
-                                ans.length == 1 && (ans[0].toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
+                                ans.length == 1 && (ans[0].toUpperCase().toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
                             buildMessage(channel) {
                                 withContent("You are correct! =D")
                             }
@@ -142,7 +144,7 @@ object Trivia : IBase, ILogger {
                         }
                         else -> {
                             buildMessage(channel) {
-                                withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}")
+                                withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}.")
                             }
                         }
                     }
@@ -157,6 +159,7 @@ object Trivia : IBase, ILogger {
         }
 
         users.remove(event.author.longID)
+        logger.info("Ending Trivia for ${event.author.getDiscordTag()}")
 
         return Parser.HandleState.HANDLED
     }

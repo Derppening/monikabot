@@ -36,7 +36,6 @@ object Syndicate : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1)
 
         when {
-            args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
             args.isNotEmpty() -> {
                 getMissionsForSyndicate(event)
             }
@@ -74,7 +73,7 @@ object Syndicate : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1).joinToString(" ")
 
         val matches = Warframe.worldState.syndicateMissions.filter {
-            WorldState.getSyndicateName(it.tag).toLowerCase().contains(args.toLowerCase().toRegex())
+            WorldState.getSyndicateName(it.tag).contains(args, true)
         }
         if (matches.size > 1) {
             buildMessage(event.channel) {

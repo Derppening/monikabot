@@ -34,11 +34,6 @@ import java.time.Instant
 object Sortie : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
-        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
-            help(event, false)
-
-            return Parser.HandleState.HANDLED
-        }
 
         val sortie = try {
             Warframe.worldState.sorties.first()
@@ -46,6 +41,7 @@ object Sortie : IBase, ILogger {
             buildMessage(event.channel) {
                 withContent("Unable to retrieve sortie information! Please try again later.")
             }
+            e.printStackTrace()
 
             return Parser.HandleState.HANDLED
         }

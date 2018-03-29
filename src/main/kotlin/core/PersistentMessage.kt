@@ -19,11 +19,9 @@
 
 package core
 
-import core.BuilderHelper.buildMessage
 import core.Persistence.debugChannel
 import sx.blah.discord.handle.obj.IChannel
 import java.time.Instant
-import kotlin.concurrent.thread
 
 object PersistentMessage : IChannel by debugChannel, ILogger {
     /**
@@ -56,7 +54,7 @@ object PersistentMessage : IChannel by debugChannel, ILogger {
      * Updates the persistent message in the debug channel.
      */
     private fun update() {
-        logger.debug("update()")
+        logger.warn("update() is deprecated")
 
         PersistentMessage.modify("Misc", "Last Updated", Instant.now().toString())
 
@@ -71,23 +69,6 @@ object PersistentMessage : IChannel by debugChannel, ILogger {
                     }
         } else {
             "Nothing to see here!"
-        }
-
-        thread {
-            Client.getMessageByID(messageId).apply {
-                edit("```md\n$s```")
-            }
-        }
-    }
-
-    /**
-     * The ID for the persistent message.
-     */
-    val messageId by lazy {
-        buildMessage(this@PersistentMessage) {
-            withCode("", "Nothing to see here!")
-        }!!.longID.also {
-            while (Client.getMessageByID(it) == null) { Thread.sleep(500) }
         }
     }
 

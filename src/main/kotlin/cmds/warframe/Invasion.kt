@@ -32,7 +32,6 @@ object Invasion : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1)
 
         when {
-            args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
             args.isEmpty() -> getInvasionData(event)
             "timer".startsWith(args[0]) -> getInvasionTimer(event)
             else -> help(event, false)
@@ -69,6 +68,7 @@ object Invasion : IBase, ILogger {
             buildEmbed(event.channel) {
                 val defenderFaction = WorldState.getFactionString(it.attackerMissionInfo.faction)
                 val attackerFaction = WorldState.getFactionString(it.defenderMissionInfo.faction)
+                @Suppress("DIVISION_BY_ZERO")
                 val percentageDouble = (it.count * 100.0 / it.goal)
                 val percentage = formatReal(percentageDouble)
                 val percentageText = "${percentage.dropWhile { it == '-' }} ${if (percentageDouble < 0) attackerFaction else defenderFaction}"

@@ -107,3 +107,8 @@
 [v1.1.0-rc.3]
 - `warframe market`: Add fuzzy/wildcard matching
 - Fix major regression where commands would be processed sequentially instead of in parallel
+
+[v1.1.0-rc.4]
+- Updated logic to be able to run both stable and development versions 
+- `warframe cetus`: Display the next 3 day/night start times
+- `trivia`: Fix bug where lower-case single-character answers are always wrong

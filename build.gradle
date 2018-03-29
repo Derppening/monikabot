@@ -19,7 +19,7 @@ buildscript {
 }
 
 setGroup("hk.derppening.monikabot")
-setVersion("1.1.0-rc.3")
+setVersion("1.1.0-rc.4")
 
 apply plugin: 'application'
 apply plugin: 'java'
@@ -66,12 +66,14 @@ def getWorkingBranch() {
     def gitBranch = "unknown"
     try {
         def workingDir = new File("${project.projectDir}")
-        def result = 'git rev-parse --abbrev-ref HEAD'.execute(null, workingDir)
+        def result = 'git rev-parse --abbrev-ref HEAD'.execute((List)null, workingDir)
         result.waitFor()
         if (result.exitValue() == 0) {
             gitBranch = result.text.trim()
         }
-    } catch (e) {}
+    } catch (e) {
+        e.printStackTrace()
+    }
     return gitBranch
 }
 

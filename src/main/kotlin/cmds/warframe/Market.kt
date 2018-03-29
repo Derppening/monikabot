@@ -38,11 +38,6 @@ import java.time.Instant
 object Market : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
-        if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {
-            help(event, false)
-
-            return Parser.HandleState.HANDLED
-        }
 
         if (args.isEmpty()) {
             buildMessage(event.channel) {
@@ -174,14 +169,13 @@ object Market : IBase, ILogger {
         val searchResult = mutableMapOf<String, Int>()
         searchTags.forEach { tag ->
             val results = manifest.filter {
-                if (tag.contains("*") && tag.contains(" ")) {
-                    it.itemName.toLowerCase().contains(tag.replace("*", ".+").toRegex())
-                } else if (tag.contains("*")) {
+                val regex = tag.replace("*", ".+")
+                if (tag.contains("*") && !tag.contains(" ")) {
                     it.itemName.toLowerCase().split(" ").any {
-                        it.matches(tag.replace("*", ".+").toRegex())
+                        it.matches(regex.toRegex())
                     }
                 } else {
-                    it.itemName.toLowerCase().contains(tag.toRegex())
+                    it.itemName.toLowerCase().contains(regex.toRegex())
                 }
             }
             results.forEach {
@@ -191,6 +185,9 @@ object Market : IBase, ILogger {
 
         val sortedResults = searchResult.entries.sortedByDescending { it.value }
         val closestResults = sortedResults.filter { it.value == sortedResults.first().value }
+
+        logger.debug("Found ${closestResults.size}/${sortedResults.size} closest results.")
+
         return when (closestResults.size) {
             0 -> {
                 buildMessage(event.channel) {

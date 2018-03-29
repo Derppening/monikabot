@@ -27,7 +27,7 @@ import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageBuilder
 import sx.blah.discord.util.RateLimitException
 
-object BuilderHelper {
+object BuilderHelper : ILogger {
     /**
      * Helper class for sending embeds.
      */
@@ -62,6 +62,10 @@ object BuilderHelper {
                 try {
                     return build().let { channel.sendMessage(it) }
                 } catch (rle: RateLimitException) {
+                    logger.warn("Rate Limited while trying to send Embed!")
+                    logger.warn("\tmethod = ${rle.method}")
+                    logger.warn("\tisGlobal = ${rle.isGlobal}")
+                    logger.warn("\ttimeout = ${rle.retryDelay}")
                     Thread.sleep(rle.retryDelay)
                 } catch (e: DiscordException) {
                     discordErrorHandler(e)
@@ -114,6 +118,10 @@ object BuilderHelper {
                 try {
                     return withChannel(channel).let { super.send() }
                 } catch (rle: RateLimitException) {
+                    logger.warn("Rate Limited while trying to send Embed!")
+                    logger.warn("\tmethod = ${rle.method}")
+                    logger.warn("\tisGlobal = ${rle.isGlobal}")
+                    logger.warn("\ttimeout = ${rle.retryDelay}")
                     Thread.sleep(rle.retryDelay)
                 } catch (e: DiscordException) {
                     discordErrorHandler(e)

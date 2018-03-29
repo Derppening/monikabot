@@ -31,10 +31,15 @@ interface IBase : ILogger {
     /**
      * Delegates [event] to the appropriate function.
      *
+     * @param args If specified, use this to determine whether help flag is present.
+     *
      * @return Whether the action is handled.
      */
-    fun delegateCommand(event: MessageReceivedEvent): Parser.HandleState {
-        if (hasHelpFlag(event.message.content)) {
+    fun delegateCommand(event: MessageReceivedEvent, args: List<String> = listOf()): Parser.HandleState {
+        if (hasHelpFlag(args.joinToString(" "))) {
+            help(event, event.isFromSuperuser())
+            return Parser.HandleState.HANDLED
+        } else if (hasHelpFlag(event.message.content)) {
             help(event, event.isFromSuperuser())
             return Parser.HandleState.HANDLED
         }

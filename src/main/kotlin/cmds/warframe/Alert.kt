@@ -37,7 +37,6 @@ object Alert : IBase, ILogger {
 
         try {
             when {
-                args.any { it.matches(Regex("-{0,2}help")) } -> help(event, false)
                 args.isEmpty() -> {
                     getGoals(event)
                     getAlerts(event)
