@@ -136,7 +136,7 @@ object Trivia : IBase, ILogger {
                 "multiple" -> {
                     when {
                         ans.toLowerCase() == trivia.correctAnswer.toLowerCase() ||
-                                ans.length == 1 && (ans[0].toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
+                                ans.length == 1 && (ans[0].toUpperCase().toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
                             buildMessage(channel) {
                                 withContent("You are correct! =D")
                             }
@@ -144,7 +144,7 @@ object Trivia : IBase, ILogger {
                         }
                         else -> {
                             buildMessage(channel) {
-                                withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}")
+                                withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}.")
                             }
                         }
                     }
