@@ -69,6 +69,7 @@ object Invasion : IBase, ILogger {
             buildEmbed(event.channel) {
                 val defenderFaction = WorldState.getFactionString(it.attackerMissionInfo.faction)
                 val attackerFaction = WorldState.getFactionString(it.defenderMissionInfo.faction)
+                @Suppress("DIVISION_BY_ZERO")
                 val percentageDouble = (it.count * 100.0 / it.goal)
                 val percentage = formatReal(percentageDouble)
                 val percentageText = "${percentage.dropWhile { it == '-' }} ${if (percentageDouble < 0) attackerFaction else defenderFaction}"
