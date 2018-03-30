@@ -6,6 +6,8 @@ import core.Core.popLeadingMention
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import java.io.File
+import java.nio.file.Paths
 
 object Emoticon : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -33,8 +35,19 @@ object Emoticon : IBase, ILogger {
         }
     }
 
-    private val pairs = mapOf(
-            "lenny" to "( ͡° ͜ʖ ͡°)",
-            "shrug" to "¯\\_(ツ)_/¯"
-    )
+    private fun readFromFile(): Map<String, String> {
+        val file = File(Paths.get("persistent/emoticons.txt").toUri())
+        val contents = file.readLines()
+        val m = mutableMapOf<String, String>()
+
+        contents.forEach {
+            val key = it.split("=").first()
+            val value = it.split("=").drop(1).joinToString("=")
+            m[key] = value
+        }
+
+        return m
+    }
+
+    private val pairs = readFromFile()
 }
