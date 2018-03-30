@@ -20,6 +20,7 @@
 package core
 
 import cmds.*
+import cmds.experimental.Emoticon
 import core.BuilderHelper.buildMessage
 import core.Core.getChannelName
 import core.Core.getDiscordTag
@@ -108,7 +109,10 @@ object Parser : ILogger {
 
                 val cmdMatches = commands.filter { it.key.startsWith(cmd) }
                 when (cmdMatches.size) {
-                    0 -> HandleState.NOT_FOUND
+                    0 -> {
+                        logger.info("Command not found in primary set. Trying to match emoticons...")
+                        Emoticon.handler(event)
+                    }
                     1 -> {
                         if (cmd != cmdMatches.entries.first().key) {
                             buildMessage(event.channel) {

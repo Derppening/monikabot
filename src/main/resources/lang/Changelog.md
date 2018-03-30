@@ -112,3 +112,7 @@
 - Updated logic to be able to run both stable and development versions 
 - `warframe cetus`: Display the next 3 day/night start times
 - `trivia`: Fix bug where lower-case single-character answers are always wrong
+
+[v1.1.0-rc.5]
+- Add experimental Emoticon commands
+- `trivia`: Further fix various bugs

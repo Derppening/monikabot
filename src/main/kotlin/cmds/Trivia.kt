@@ -69,7 +69,14 @@ object Trivia : IBase, ILogger {
         var totalAnswers = 0
 
         game@ for (trivia in triviaData.results) {
-            val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled()
+            val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled().map { it.trim() }
+
+            var answerDebugStr = ""
+            answers.forEachIndexed { i, s ->
+                answerDebugStr += "\n[$i] $s ${if (answers.indexOfFirst { it == trivia.correctAnswer.trim() } == i) "<" else ""}"
+            }
+            logger.debug("Shuffled Answers:$answerDebugStr")
+
             buildEmbed(channel) {
                 withAuthorName("Difficulty: ${trivia.difficulty.capitalize()}")
                 withTitle("Category: ${trivia.category}")
@@ -92,12 +99,17 @@ object Trivia : IBase, ILogger {
 
                     lastMessageId = message.longID
 
-                    if (message.content.toLowerCase() == "exit") {
+                    if (message.content.equals("exit", true)) {
                         break@game
                     }
 
                     if (answers.any { it.equals(message.content, true) } ||
                             (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
+                        if (answers.any { it.equals(message.content, true) }) {
+                            logger.debug("Input \"${message.content}\" matches Answer Index ${answers.indexOfFirst { it.equals(message.content, true) }}")
+                        } else {
+                            logger.debug("Input \"${message.content}\" converted to match Answer Index ${message.content[0].toUpperCase().toInt() - 65}")
+                        }
                         break@checkResponse
                     }
                 } else {
@@ -120,7 +132,7 @@ object Trivia : IBase, ILogger {
                 "boolean" -> {
                     when {
                         ans.toBoolean() == trivia.correctAnswer.toBoolean() ||
-                                ans.length == 1 && (ans[0].toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
+                                ans.length == 1 && (ans[0].toUpperCase().toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
                             buildMessage(channel) {
                                 withContent("You are correct! =D")
                             }
@@ -135,7 +147,7 @@ object Trivia : IBase, ILogger {
                 }
                 "multiple" -> {
                     when {
-                        ans.toLowerCase() == trivia.correctAnswer.toLowerCase() ||
+                        ans.equals(trivia.correctAnswer.trim(), true) ||
                                 ans.length == 1 && (ans[0].toUpperCase().toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
                             buildMessage(channel) {
                                 withContent("You are correct! =D")

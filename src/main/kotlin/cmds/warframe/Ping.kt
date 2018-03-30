@@ -30,6 +30,7 @@ object Ping : IBase, ILogger {
                         responseCode = connection.responseCode
                     }
                 }
+                logger.info("Connecting to $url took $time ms, with response code $responseCode")
 
                 val isResponseExpected = expectedResponse.any { it == responseCode }
                 appendField(server, if (time < 10000 && isResponseExpected) "$time ms" else "Unreachable", false)
