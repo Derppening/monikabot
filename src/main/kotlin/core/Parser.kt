@@ -110,6 +110,7 @@ object Parser : ILogger {
                 val cmdMatches = commands.filter { it.key.startsWith(cmd) }
                 when (cmdMatches.size) {
                     0 -> {
+                        logger.info("Command not found in primary set. Trying to match emoticons...")
                         Emoticon.handler(event)
                     }
                     1 -> {

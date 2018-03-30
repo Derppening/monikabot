@@ -35,19 +35,13 @@ object Emoticon : IBase, ILogger {
         }
     }
 
-    private fun readFromFile(): Map<String, String> {
-        val file = File(Paths.get("persistent/emoticons.txt").toUri())
-        val contents = file.readLines()
-        val m = mutableMapOf<String, String>()
-
-        contents.forEach {
-            val key = it.split("=").first()
-            val value = it.split("=").drop(1).joinToString("=")
-            m[key] = value
-        }
-
-        return m
-    }
+    private fun readFromFile(): Map<String, String> =
+            File(Paths.get("persistent/emoticons.txt").toUri())
+                    .readLines()
+                    .associateBy(
+                            { it.split("=").first() },
+                            { it.split("=").drop(1).joinToString("=") }
+                    )
 
     private val pairs = readFromFile()
 }
