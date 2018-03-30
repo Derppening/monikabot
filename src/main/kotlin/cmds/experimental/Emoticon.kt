@@ -2,13 +2,15 @@ package cmds.experimental
 
 import cmds.IBase
 import core.BuilderHelper.buildMessage
+import core.Core.popLeadingMention
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Emoticon : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val testRegex = event.message.content.toLowerCase().replace("*", ".+").dropLastWhile { it == '!' }
+        val testRegex = popLeadingMention(event.message.content, event.guild)
+                .toLowerCase().replace("*", ".+").dropLastWhile { it == '!' }
         val matching = pairs.filter { it.key.matches(testRegex.toRegex()) }
 
         return when (matching.size) {
