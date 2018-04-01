@@ -58,7 +58,7 @@ object Stop : IBase, ILogger {
             Thread.sleep(60000)
         }
 
-        Client.getMessageByID(Warframe.pingServerMessage)?.delete()
+//        Client.getMessageByID(Warframe.pingServerMessage)?.delete()
         Reminder.exportTimersToFile()
         Client.clearTimers()
 
