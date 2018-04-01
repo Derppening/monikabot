@@ -182,8 +182,8 @@ object Warframe : IBase, ILogger {
                 else -> "${toDays()} days"
             }
 
-    val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 60000) { updateDropTables() }
-    val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
+    val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 300000) { updateDropTables() }
+    val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 60000) { updateWorldState() }
 
     private const val dropTableDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-drop-data/gh-pages/data/"
     private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
