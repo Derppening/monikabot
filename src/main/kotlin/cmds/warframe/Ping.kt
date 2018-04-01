@@ -1,11 +1,13 @@
 package cmds.warframe
 
 import cmds.IBase
+import core.BuilderHelper
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.EmbedBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.system.measureTimeMillis
@@ -18,6 +20,35 @@ object Ping : IBase, ILogger {
         buildEmbed(event.channel) {
             withTitle("Warframe Latency Information")
 
+            pingServer(this)
+        }
+
+        return Parser.HandleState.HANDLED
+    }
+
+    fun pingServer(helper: EmbedBuilder): EmbedBuilder {
+        return helper.apply {
+            connections.forEach { (server, url, expectedResponse) ->
+                var responseCode = 0
+                val time = measureTimeMillis {
+                    val connection = URL(url).openConnection().also {
+                        it.connectTimeout = 10000
+                        it.connect()
+                    }
+                    if (connection is HttpURLConnection) {
+                        responseCode = connection.responseCode
+                    }
+                }
+                logger.info("Connection to $url took $time ms, with response code $responseCode")
+
+                val isResponseExpected = expectedResponse.any { it == responseCode }
+                appendField(server, if (time < 10000 && isResponseExpected) "$time ms" else "Unreachable", false)
+            }
+        }
+    }
+
+    private fun pingServer(helper: BuilderHelper.EmbedHelper): BuilderHelper.EmbedHelper {
+        return helper.apply {
             connections.forEach { (server, url, expectedResponse) ->
                 var responseCode = 0
                 logger.info("Pinging $server at $url...")
@@ -30,14 +61,12 @@ object Ping : IBase, ILogger {
                         responseCode = connection.responseCode
                     }
                 }
-                logger.info("Connecting to $url took $time ms, with response code $responseCode")
 
                 val isResponseExpected = expectedResponse.any { it == responseCode }
+                logger.info("Connection to $url took $time ms, with response code $responseCode")
                 appendField(server, if (time < 10000 && isResponseExpected) "$time ms" else "Unreachable", false)
             }
         }
-
-        return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
