@@ -17,7 +17,6 @@
  * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cmds.Warframe
 import core.Client
 import core.Parser
 
@@ -29,12 +28,6 @@ fun setupDispatchers() {
     Client.dispatcher.registerListener(Parser)
 }
 
-fun registerTimers() {
-    Client.registerTimer(Warframe.updateDropTablesTask)
-    Client.registerTimer(Warframe.updateWorldStateTask)
-}
-
 fun main(args: Array<String>) {
     setupDispatchers()
-    registerTimers()
 }
