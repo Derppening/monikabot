@@ -28,15 +28,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
-import core.BuilderHelper.toEmbedObject
-import core.Client
-import core.Core
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.URL
 import java.time.Duration
-import java.time.Instant
 import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
@@ -156,16 +152,16 @@ object Warframe : IBase, ILogger {
         logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
     }
 
-    private fun pingServer() {
-        if (Core.monikaVersionBranch == "stable" && pingServerMessage != 0L) {
-            val embed = Client.getMessageByID(pingServerMessage).embeds.first().toEmbedObject {
-                clearFields()
-                cmds.warframe.Ping.pingServer(this)
-                withTimestamp(Instant.now())
-            }
-            Client.getMessageByID(pingServerMessage)?.edit(embed)
-        }
-    }
+//    private fun pingServer() {
+//        if (Core.monikaVersionBranch == "stable" && pingServerMessage != 0L) {
+//            val embed = Client.getMessageByID(pingServerMessage).embeds.first().toEmbedObject {
+//                clearFields()
+//                cmds.warframe.Ping.pingServer(this)
+//                withTimestamp(Instant.now())
+//            }
+//            Client.getMessageByID(pingServerMessage)?.edit(embed)
+//        }
+//    }
 
     /**
      * Formats a duration.
@@ -199,7 +195,7 @@ object Warframe : IBase, ILogger {
 
     val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 60000) { updateDropTables() }
     val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
-    val pingServerTask = timer("Warframe Ping Task", true, 0, 30000) { pingServer() }
+//    val pingServerTask = timer("Warframe Ping Task", true, 0, 300000) { pingServer() }
 
     private const val dropTableDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-drop-data/gh-pages/data/"
     private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
@@ -235,27 +231,27 @@ object Warframe : IBase, ILogger {
         private set
     internal var worldState = WorldState()
         private set
-    val pingServerMessage = run {
-        if (Core.monikaVersionBranch == "stable") {
-            while (!Client.isReady) {
-                Thread.sleep(500)
-            }
-
-            try {
-                val channel = Core.getChannelByName("warframe_ping", Core.getGuildByName("Deisimi Rollers")!!)
-                buildEmbed(channel!!) {
-                    withTitle("Warframe Latency Information")
-                }?.also {
-                    while (Client.getMessageByID(it.longID) == null) {
-                        Thread.sleep(500)
-                    }
-                    logger.info("Warframe Ping Persistence has ID ${it.longID} in ${it.channel.longID}")
-                }?.longID ?: 0L
-            } catch (e: NullPointerException) {
-                0L
-            }
-        } else {
-            0L
-        }
-    }
+//    val pingServerMessage = run {
+//        if (Core.monikaVersionBranch == "stable") {
+//            while (!Client.isReady) {
+//                Thread.sleep(500)
+//            }
+//
+//            try {
+//                val channel = Core.getChannelByName("warframe_ping", Core.getGuildByName("Deisimi Rollers")!!)
+//                buildEmbed(channel!!) {
+//                    withTitle("Warframe Latency Information")
+//                }?.also {
+//                    while (Client.getMessageByID(it.longID) == null) {
+//                        Thread.sleep(500)
+//                    }
+//                    logger.info("Warframe Ping Persistence has ID ${it.longID} in ${it.channel.longID}")
+//                }?.longID ?: 0L
+//            } catch (e: NullPointerException) {
+//                0L
+//            }
+//        } else {
+//            0L
+//        }
+//    }
 }
