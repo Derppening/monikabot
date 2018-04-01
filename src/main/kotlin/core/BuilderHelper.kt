@@ -21,6 +21,7 @@ package core
 
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.IChannel
+import sx.blah.discord.handle.obj.IEmbed
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.EmbedBuilder
@@ -142,6 +143,35 @@ object BuilderHelper : ILogger {
 
     fun buildMessage(channel: IChannel, action: MessageHelper.() -> Unit): IMessage? {
         return MessageHelper(channel).apply(action).send()
+    }
+
+    /**
+     * Converts into an EmbedObjecet, copying all fields from the original.
+     *
+     * @param action Fields
+     */
+    fun IEmbed.toEmbedObject(action: EmbedBuilder.() -> Unit): EmbedObject {
+        return EmbedBuilder().apply {
+            author?.name?.also { withAuthorName(it) }
+            author?.iconUrl?.also { withAuthorIcon(it) }
+            author?.url?.also { withAuthorUrl(it) }
+            title?.also { withTitle(it) }
+            description?.also { withDesc(it) }
+
+            embedFields?.forEach {
+                appendField(it)
+            }
+
+            url?.also { withUrl(it) }
+            footer?.text?.also { withFooterText(it) }
+            footer?.iconUrl?.also { withFooterIcon(it) }
+            timestamp?.also { withTimestamp(it) }
+
+            image?.url?.also { withImage(it) }
+            thumbnail?.url?.also { withThumbnail(it) }
+
+            color.also { withColor(it) }
+        }.apply { action() }.build()
     }
 
     /**
