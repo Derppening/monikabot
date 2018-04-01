@@ -116,3 +116,6 @@
 [v1.1.0-rc.5]
 - Add experimental Emoticon commands
 - `trivia`: Further fix various bugs
+
+[v1.1.0-rc.6]
+- Add persistent ping information to Warframe servers
