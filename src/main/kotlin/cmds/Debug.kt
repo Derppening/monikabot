@@ -21,10 +21,11 @@ package cmds
 
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
-import core.Core
+import core.BuilderHelper.toEmbedObject
 import core.ILogger
 import core.Parser
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.util.DiscordException
 
 object Debug : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -36,10 +37,56 @@ object Debug : IBase, ILogger {
         }
 
         when (args[0].toLowerCase()) {
-            "channel" -> {
-                if (args.size > 2) {
+            "append" -> {
+                val args = args.drop(1)
+                val id = args[0].toLongOrNull() ?: 0
+
+                val message = event.client.getMessageByID(id)
+                if (message == null) {
                     buildMessage(event.channel) {
-                        withContent((Core.getChannelByName(args[2], Core.getGuildByName(args[1])!!) != null).toString())
+                        withContent("Cannot find message with ID $id")
+                    }
+                    return Parser.HandleState.HANDLED
+                }
+
+                if (message.embeds.isNotEmpty()) {
+                    val key = args.find { it.startsWith("key=", true) }?.removePrefix("key=") ?: ""
+                    val value = args.find { it.startsWith("val=", true) }?.removePrefix("val=") ?: ""
+
+                    val from = message.embeds.first()
+                    val to = from.toEmbedObject {
+                        appendField(key, value, false)
+                    }
+                    try {
+                        message.edit(to)
+                    } catch (e: DiscordException) {
+                        log(ILogger.LogLevel.ERROR, "Unable to edit message") {
+                            stackTrace { e.stackTrace }
+                        }
+                    }
+                } else {
+                    val text = args.drop(1).joinToString(" ")
+                    try {
+                        message.edit(message.content + text)
+                    } catch (e: DiscordException) {
+                        log(ILogger.LogLevel.ERROR, "Unable to edit message") {
+                            stackTrace { e.stackTrace }
+                        }
+                    }
+                }
+            }
+            "edit" -> {
+                val args = args.drop(1)
+                val id = args[0].toLongOrNull() ?: 0
+                val editText = args.drop(1).joinToString(" ")
+
+                try {
+                    event.client.getMessageByID(id)?.edit(editText) ?: buildMessage(event.channel) {
+                        withContent("Cannot find message with ID $id")
+                    }
+                } catch (e: DiscordException) {
+                    log(ILogger.LogLevel.ERROR, "Unable to edit message") {
+                        stackTrace { e.stackTrace }
                     }
                 }
             }
@@ -47,13 +94,6 @@ object Debug : IBase, ILogger {
                 logger.debug("longop started")
                 Thread.sleep(10000)
                 logger.debug("longop ended")
-            }
-            "user" -> {
-                if (args.size > 2) {
-                    buildMessage(event.channel) {
-                        withContent((Core.getUserByTag(args[1], args[2].toInt()) != null).toString())
-                    }
-                }
             }
             else -> {
                 log(ILogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
