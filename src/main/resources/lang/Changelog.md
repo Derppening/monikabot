@@ -118,4 +118,4 @@
 - `trivia`: Further fix various bugs
 
 [v1.1.0-rc.6]
-- Add persistent ping information to Warframe servers
+- ~~Add persistent ping information to Warframe servers~~ Temporarily Reverted due to issues
