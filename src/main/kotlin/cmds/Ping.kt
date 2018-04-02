@@ -40,7 +40,7 @@ object Ping : IBase, ILogger {
                 appendField("DigitalOcean Servers", it, false)
             }
 
-            googlePings.entries.joinToString("\n") { (server, ip) ->
+            dnsPings.entries.joinToString("\n") { (server, ip) ->
                 val p = ProcessBuilder("ping -c 1 $ip".split(" "))
                 val process = p.start()
                 process.waitFor()
@@ -54,7 +54,7 @@ object Ping : IBase, ILogger {
                     "$server: Unreachable"
                 }
             }.also {
-                appendField("Google Servers", it, false)
+                appendField("DNS Servers", it, false)
             }
 
             withTimestamp(Instant.now())
@@ -88,9 +88,12 @@ object Ping : IBase, ILogger {
             "California" to "192.184.13.42"
     )
 
-    private val googlePings = mapOf(
-            "Primary DNS" to "8.8.8.8",
-            "Secondary DNS" to "8.8.4.4",
-            "Local Server" to "www.google.com"
+    private val dnsPings = mapOf(
+            "Google" to "8.8.8.8",
+            "CloudFlare" to "1.1.1.1",
+            "Quad9" to "9.9.9.9",
+            "OpenDNS" to "208.67.222.222",
+            "Yandex DNS" to "77.88.8.7",
+            "Comodo DNS" to "8.26.56.26"
     )
 }
