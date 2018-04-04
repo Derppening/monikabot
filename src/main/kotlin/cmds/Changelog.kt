@@ -42,7 +42,6 @@ object Changelog : IBase, ILogger {
             outputLatestChanges(event, changes, showRelease)
         }
 
-
         return Parser.HandleState.HANDLED
     }
 
@@ -73,16 +72,14 @@ object Changelog : IBase, ILogger {
             changes.filterNot { (k, _) -> k.contains('-') }
         } else {
             changes
-        }
+        }.takeLast(5)
 
         buildEmbed(event.channel) {
             withTitle("Last 5 Changelogs")
             if (displayChanges.isEmpty()) {
                 withDesc("There are no official releases (yet)!")
             } else {
-                displayChanges.filterIndexed { index, _ ->
-                    index >= changes.size - 5
-                }.forEach { (ver, changetext) ->
+                displayChanges.forEach { (ver, changetext) ->
                     appendField(ver, changetext.joinToString("\n"), false)
                 }
             }
