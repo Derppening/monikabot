@@ -119,3 +119,23 @@
 
 [v1.1.0-rc.6]
 - ~~Add persistent ping information to Warframe servers~~ Temporarily Reverted due to issues
+
+[v1.1.0]
+- Add various commands
+    - `issue`: Submit an issue for Monika
+    - `ping` and `warframe ping`: Latency information
+    - `reminder`: Remind yourself something in Discord
+    - `trivia`: Play a trivia game with Monika
+    - `warframe alert`: Ongoing alerts
+    - `warframe baro`: Baro Ki'Teer Information
+    - `warframe cetus`: Cetus information and day/night cycle
+    - `warframe darvo`: Darvo Sale
+    - `warframe fissures`: Ongoing fissure missions
+    - `warframe invasions`: Ongoing invasions
+    - `warframe market`: Warframe Market information
+    - `warframe primes`: Predicts next prime(s)
+    - `warframe sale`: Ongoing market sale
+    - `warframe sortie`: Current sorties
+    - `warframe syndicate`: Current syndicate missions
+    - `warframe wiki`: Lookup item on Warframe Wikia
+- Add fuzzy matching
