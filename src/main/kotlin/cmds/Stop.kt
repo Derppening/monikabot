@@ -49,7 +49,7 @@ object Stop : IBase, ILogger {
         }
 
         val isForced = args.any { it.matches(Regex("-{0,2}force")) }
-        if (!isForced) {
+        if (!isForced && Core.monikaVersionBranch == "stable") {
             Client.changePresence(StatusType.DND, ActivityType.PLAYING, "Maintenance")
             if (Trivia.users.isNotEmpty()) {
                 log(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
