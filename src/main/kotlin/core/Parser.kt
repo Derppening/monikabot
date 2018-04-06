@@ -20,6 +20,7 @@
 package core
 
 import cmds.*
+import cmds.experimental.Dog
 import cmds.experimental.Emoticon
 import core.BuilderHelper.buildMessage
 import core.Core.getChannelName
@@ -202,6 +203,7 @@ object Parser : ILogger {
             "clear" to Clear,
             "config" to Config,
             "debug" to Debug,
+            "dog" to Dog,
             "echo" to Echo,
             "help" to Help,
             "issue" to Issue,
