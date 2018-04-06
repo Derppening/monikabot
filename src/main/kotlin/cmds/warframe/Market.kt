@@ -165,6 +165,11 @@ object Market : IBase, ILogger {
                     }.readValue<List<Manifest>>(it.toString())
                 }.sortedBy { it.itemName }
 
+        manifest.firstOrNull { it.itemName.equals(search.joinToString(" "), true) }?.let {
+            logger.debug("Found perfect match for \"${search.joinToString(" ")}\"")
+            return it
+        }
+
         val searchTags = search.map { it.toLowerCase() }
         val searchResult = mutableMapOf<String, Int>()
         searchTags.forEach { tag ->
