@@ -60,16 +60,28 @@ object Prime : IBase, ILogger {
         }
 
         val all = readFromFile()
-        val primes = all.filter { it.primeDate != null }.sortedBy { it.primeDate?.epochSecond ?: 0 }.takeLast(listSize)
+        val primes = all.filter { it.primeDate != null }.sortedBy { it.primeDate?.epochSecond ?: 0 }
         val nonprimes = all.filter { it.primeDate == null }.sortedBy { it.date?.epochSecond ?: 0 }.take(listSize)
 
         buildMessage(event.channel) {
-            appendContent("Released Primes:")
-            primes.forEachIndexed { i, s ->
-                appendContent("\n\t- ${s.name}")
-                if (i != primes.size - 1 && s.name != "Excalibur") {
-                    val duration = Duration.between(s.primeDate, primes[i + 1].primeDate).toDays()
-                    appendContent(" (Lasted for $duration days)")
+            if (args.isNotEmpty()) {
+                appendContent("Released Primes:")
+                primes.takeLast(listSize).forEachIndexed { i, s ->
+                    appendContent("\n\t- ${s.name}")
+                    if (i != primes.size - 1 && s.name != "Excalibur") {
+                        val duration = Duration.between(s.primeDate, primes[i + 1].primeDate).toDays()
+                        appendContent(" (Lasted for $duration days)")
+                    }
+                }
+            } else {
+                appendContent("Current Primes:")
+                val currentPrimes = primes.filter { it.primeExpiry == null }
+                currentPrimes.forEachIndexed { i, s ->
+                    appendContent("\n\t- ${s.name}")
+                    if (i != currentPrimes.size - 1 && s.name != "Excalibur") {
+                        val duration = Duration.between(s.primeDate, currentPrimes[i + 1].primeDate).toDays()
+                        appendContent(" (Lasted for $duration days)")
+                    }
                 }
             }
         }
@@ -115,16 +127,21 @@ object Prime : IBase, ILogger {
 
         for (line in lines) {
             val props = line.split(',')
-            check(props.size == 4)
-            data.add(Prime(props[0], props[1][0], props[2].toLongOrNull() ?: 0L, props[3].toLongOrNull() ?: 0))
+            check(props.size == 5)
+            data.add(Prime(props[0],
+                    props[1][0],
+                    props[2].toLongOrNull() ?: 0L,
+                    props[3].toLongOrNull() ?: 0,
+                    props[4].toLongOrNull() ?: 0))
         }
 
         return data.toList()
     }
 
-    class Prime(val name: String, val gender: Char, longDate: Long, longPrimeDate: Long) {
+    class Prime(val name: String, val gender: Char, longDate: Long, longPrimeDate: Long, longPrimeExpiryDate: Long) {
         private val _date: Instant = Instant.ofEpochSecond(longDate)
         private val _primeDate: Instant = Instant.ofEpochSecond(longPrimeDate)
+        private val _primeExpiryDate: Instant = Instant.ofEpochSecond(longPrimeExpiryDate)
 
         val date: Instant?
             get() = if (_date == Instant.EPOCH) {
@@ -138,6 +155,13 @@ object Prime : IBase, ILogger {
                 null
             } else {
                 _primeDate
+            }
+
+        val primeExpiry: Instant?
+            get() = if (_primeExpiryDate == Instant.EPOCH) {
+                null
+            } else {
+                _primeExpiryDate
             }
     }
 
