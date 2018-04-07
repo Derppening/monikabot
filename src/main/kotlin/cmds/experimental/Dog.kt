@@ -98,6 +98,7 @@ object Dog : IBase, ILogger {
     }
 
     private fun showBreed(args: List<String>, event: MessageReceivedEvent) {
+        event.channel.toggleTypingStatus()
         val breeds = findBreedFuzzy(args[0])
         when (breeds.size) {
             0 -> {
@@ -107,7 +108,6 @@ object Dog : IBase, ILogger {
             }
             1 -> {
                 if (args.size == 1) {
-                    event.channel.toggleTypingStatus()
                     buildEmbed(event.channel) {
                         withImage(getBreedPic(args[0], ""))
                     }
@@ -136,7 +136,6 @@ object Dog : IBase, ILogger {
                 }
             }
             1 -> {
-                event.channel.toggleTypingStatus()
                 buildEmbed(event.channel) {
                     withImage(getBreedPic(args[0], subbreedList.first()))
                 }
