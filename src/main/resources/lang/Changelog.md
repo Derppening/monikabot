@@ -139,3 +139,7 @@
     - `warframe syndicate`: Current syndicate missions
     - `warframe wiki`: Lookup item on Warframe Wikia
 - Add fuzzy matching
+
+[v1.1.1]
+- `warframe-market`: Fix bug where perfect matches will not return the given item
+- `warframe-prime`: Change default behavior such that all currently available non-vaulted primes will be shown
