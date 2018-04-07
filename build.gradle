@@ -102,3 +102,7 @@ task createGradleProperties(dependsOn: processResources) {
 classes {
     dependsOn createGradleProperties
 }
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}
