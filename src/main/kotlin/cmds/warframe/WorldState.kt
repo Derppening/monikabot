@@ -98,6 +98,7 @@ class WorldState {
         val clampNodeScores = false
         val node = ""
         val missionKeyName = ""
+        val faction = ""
         val desc = ""
         val tooltip = ""
         val icon = ""
@@ -105,6 +106,8 @@ class WorldState {
         val jobAffiliationTag = ""
         val reward = Reward()
         val jobs = listOf<Job>()
+        val transmission = ""
+        val instructionalItem = ""
 
         class Reward {
             val items = listOf<String>()
@@ -248,7 +251,9 @@ class WorldState {
         val faction = ""
         val enemySpec = ""
         val extraEnemySpec = ""
+        val activation = Date()
         val expiry = Date()
+        val customNpcEncounters = listOf<String>()
     }
 
     class BadlandNode {
