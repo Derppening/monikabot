@@ -45,6 +45,7 @@ object Cetus : IBase, ILogger {
                 args.isEmpty() -> getBounties(event)
                 "time".startsWith(args[0]) -> getTime(event)
                 "ghouls".startsWith(args[0]) -> getGhoulBounties(event, true)
+                "plaguestar".startsWith(args[0]) -> getPlagueStarInfo(event, true)
                 else -> help(event, false)
 
             }
@@ -64,8 +65,9 @@ object Cetus : IBase, ILogger {
             withTitle("Help Text for `warframe-cetus`")
             withDesc("Displays Cetus-related information.")
             insertSeparator()
-            appendField("Usage", "```warframe cetus [ghoul]```", false)
+            appendField("Usage", "```warframe cetus [ghoul|plaguestar]```", false)
             appendField("`ghoul`", "If appended, shows ongoing Ghoul bounties.", false)
+            appendField("`plaguestar`", "If appended, shows ongoing Operation: Plague Star information.", false)
             insertSeparator()
             appendField("Usage", "```warframe cetus time```", false)
             appendField("`time`", "Show the current time in Cetus/Plains.", false)
@@ -90,6 +92,8 @@ object Cetus : IBase, ILogger {
         val timeLeftString = timeLeft.formatDuration()
 
         val bounties = cetusInfo.jobs
+
+        getPlagueStarInfo(event)
 
         bounties.forEachIndexed { i, v ->
             buildEmbed(event.channel) {
@@ -140,6 +144,38 @@ object Cetus : IBase, ILogger {
 
                 appendField("Current Progress", healthPct, true)
                 appendField("Expires in", ghoulTimeLeftString, true)
+                withTimestamp(Instant.now())
+            }
+        }
+    }
+
+    private fun getPlagueStarInfo(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
+        val plaugestar = try {
+            Warframe.worldState.goals.first { it.tag == "InfestedPlains" }
+        } catch (nsee: NoSuchElementException) {
+            if (isDirectlyInvoked) {
+                buildMessage(event.channel) {
+                    withContent("Operation: Plague Star is not active!")
+                }
+            }
+            return
+        }
+
+        val timeLeft = Duration.between(Instant.now(), plaugestar.expiry.date.numberLong).formatDuration()
+        val desc = plaugestar.desc
+        val tooltip = plaugestar.tooltip
+
+        plaugestar.jobs.forEach {
+            buildEmbed(event.channel) {
+                withAuthorName(WorldState.getLanguageFromAsset(desc))
+                withTitle(WorldState.getLanguageFromAsset(it.jobType))
+                withDesc(WorldState.getLanguageFromAsset(tooltip))
+
+                appendField("Mastery Requirement", it.masteryReq.toString(), false)
+                appendField("Enemy Level", "${it.minEnemyLevel}-${it.maxEnemyLevel}", true)
+                appendField("Operational Standing", "${it.xpAmounts.sum()}+", true)
+
+                appendField("Expires in", timeLeft, true)
                 withTimestamp(Instant.now())
             }
         }

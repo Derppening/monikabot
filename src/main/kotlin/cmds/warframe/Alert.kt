@@ -131,7 +131,7 @@ object Alert : IBase, ILogger {
      * Retrieves and outputs a list of special alerts ("goals").
      */
     private fun getGoals(event: MessageReceivedEvent) {
-        val goals = Warframe.worldState.goals.filterNot { it.tag == "GhoulEmergence" }
+        val goals = Warframe.worldState.goals.filterNot { it.tag == "GhoulEmergence" || it.tag == "InfestedPlains" }
 
         if (goals.isEmpty()) {
             buildMessage(event.channel) {
