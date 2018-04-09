@@ -51,7 +51,7 @@ object Persistence : ILogger {
     val debugChannel: IChannel by lazy {
         try {
             serverDebugChannel.apply {
-                if (this?.fullMessageHistory?.isNotEmpty() == true) {
+                if (Core.monikaVersionBranch == "stable" && this?.fullMessageHistory?.isNotEmpty() == true) {
                     bulkDelete()
                 }
             } ?: ownerPrivateChannel
