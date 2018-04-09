@@ -29,6 +29,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
+import core.FuzzyMatcher
 import core.ILogger
 import core.Parser
 import org.jsoup.Jsoup
@@ -165,52 +166,18 @@ object Market : IBase, ILogger {
                     }.readValue<List<Manifest>>(it.toString())
                 }.sortedBy { it.itemName }
 
-        manifest.firstOrNull { it.itemName.equals(search.joinToString(" "), true) }?.let {
-            logger.debug("Found perfect match for \"${search.joinToString(" ")}\"")
-            return it
-        }
-
-        val searchTags = search.map { it.toLowerCase() }
-        val searchResult = mutableMapOf<String, Int>()
-        searchTags.forEach { tag ->
-            val results = manifest.filter {
-                val regex = tag.replace("*", ".+")
-                if (tag.contains("*") && !tag.contains(" ")) {
-                    it.itemName.toLowerCase().split(" ").any {
-                        it.matches(regex.toRegex())
-                    }
-                } else {
-                    it.itemName.toLowerCase().contains(regex.toRegex())
-                }
+        return FuzzyMatcher(search, manifest.map { it.itemName }) {
+            emptyMatchMessage {
+                "Cannot find item with given search!" to event.channel
             }
-            results.forEach {
-                searchResult[it.itemName] = searchResult[it.itemName]?.plus(1) ?: 1
+            multipleMatchMessage {
+                "Multiple items match your given search! Including:\n\n{5(\n)}\n\nOf {size} results." to event.channel
             }
-        }
-
-        val sortedResults = searchResult.entries.sortedByDescending { it.value }
-        val closestResults = sortedResults.filter { it.value == sortedResults.first().value }
-
-        logger.debug("Found ${closestResults.size}/${sortedResults.size} closest results.")
-
-        return when (closestResults.size) {
-            0 -> {
-                buildMessage(event.channel) {
-                    withContent("Cannot find item with given search!")
-                }
-                Manifest()
-            }
-            1 -> {
-                manifest.find { it.itemName == sortedResults.first().key } ?: error("Cannot find matching item in Manifest")
-            }
-            else -> {
-                buildMessage(event.channel) {
-                    withContent("Multiple items match your given search! Including:\n\n")
-                    appendContent(closestResults.take(5).joinToString("\n") { "- ${it.key}" })
-                    if (closestResults.size > 5) {
-                        appendContent("\n\n...And ${closestResults.size - 5} more results.")
-                    }
-                }
+            regex(RegexOption.IGNORE_CASE)
+        }.matchOne().let { match ->
+            if (match.isNotBlank()) {
+                manifest.find { it.itemName == match } ?: error("Cannot find matching item in Manifest")
+            } else {
                 Manifest()
             }
         }
