@@ -23,7 +23,6 @@ package cmds.warframe
 import cmds.IBase
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
@@ -157,15 +156,9 @@ object Market : IBase, ILogger {
                 .get()
                 .select("#application-state")
 
-        val manifest = jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readTree(jsonToParse.html())
+        val manifest = jsonMapper.readTree(jsonToParse.html())
                 .get("items").get("en").let {
-                    ObjectMapper().apply {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readValue<List<MarketManifest>>(it.toString())
+                    jsonMapper.readValue<List<MarketManifest>>(it.toString())
                 }.sortedBy { it.itemName }
 
         return FuzzyMatcher(search, manifest.map { it.itemName }) {
@@ -190,7 +183,7 @@ object Market : IBase, ILogger {
      *
      * @param item Item to retrieve.
      *
-     * @return Pair of return code and MarketStats object. If return code is 2, the requested item cannot be found.
+     * @return Pair of return code and MarketStats object. If returns false, the requested item cannot be found.
      */
     private fun getMarketJson(item: String): Pair<Boolean, MarketStats> {
         val link = "https://warframe.market/items/$item/statistics"
@@ -200,10 +193,7 @@ object Market : IBase, ILogger {
                 .select("#application-state")
 
         val market = try {
-            jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue<MarketStats>(jsonToParse.html())
+            jsonMapper.readValue<MarketStats>(jsonToParse.html())
         } catch (e: Exception) {
             return Pair(false, MarketStats())
         }
@@ -215,4 +205,9 @@ object Market : IBase, ILogger {
      * Fixed link for warframe market images.
      */
     private const val imageLink = "https://warframe.market/static/assets/"
+
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
 }

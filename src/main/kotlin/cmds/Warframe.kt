@@ -132,10 +132,7 @@ object Warframe : IBase, ILogger {
         dropTableInfo = info
 
         val timer = measureTimeMillis {
-            dropTables = jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(URL("$dropTableDataUrl/all.json"))
+            dropTables = jsonMapper.readValue(URL("$dropTableDataUrl/all.json"))
         }
 
         logger.debug("updateDropTables(): Parsing took ${timer}ms")
@@ -146,10 +143,7 @@ object Warframe : IBase, ILogger {
      */
     private fun updateWorldState() {
         val timer = measureTimeMillis {
-            worldState = jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(URL(worldStateUrl))
+            worldState = jsonMapper.readValue(URL(worldStateUrl))
         }
 
         logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
@@ -222,4 +216,9 @@ object Warframe : IBase, ILogger {
         private set
     internal var worldState = WorldState()
         private set
+
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
 }

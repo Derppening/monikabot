@@ -23,7 +23,6 @@ package cmds.experimental
 import cmds.IBase
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import core.BuilderHelper.buildEmbed
@@ -199,17 +198,11 @@ object Dog : IBase, ILogger {
     }
 
     private fun getRandomPic(): String {
-        return jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readTree(URL("https://dog.ceo/api/breeds/image/random")).get("message").asText()
+        return jsonMapper.readTree(URL("https://dog.ceo/api/breeds/image/random")).get("message").asText()
     }
 
     private fun getBreedPic(breed: String, subbreed: String): String {
-        return jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.let {
+        return jsonMapper.let {
             if (subbreed.isBlank()) {
                 it.readTree(URL("https://dog.ceo/api/breed/$breed/images/random"))
             } else {
@@ -219,30 +212,23 @@ object Dog : IBase, ILogger {
     }
 
     private fun getList(): List<String> {
-        return jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readTree(URL("https://dog.ceo/api/breeds/list"))
+        return jsonMapper.readTree(URL("https://dog.ceo/api/breeds/list"))
                 .get("message")
                 .let {
-                    ObjectMapper().apply {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readValue(it.toString())
+                    jsonMapper.readValue(it.toString())
                 }
     }
 
     private fun getBreedList(subbreed: String): List<String> {
-        return jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readTree(URL("https://dog.ceo/api/breed/$subbreed/list"))
+        return jsonMapper.readTree(URL("https://dog.ceo/api/breed/$subbreed/list"))
                 .get("message")
                 .let {
-                    ObjectMapper().apply {
-                        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readValue(it.toString())
+                    jsonMapper.readValue(it.toString())
                 }
+    }
+    
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

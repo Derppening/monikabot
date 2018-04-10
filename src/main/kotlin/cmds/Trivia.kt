@@ -225,10 +225,7 @@ object Trivia : IBase, ILogger {
         private set
 
     private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
-        return jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
+        return jsonMapper.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
     }
 
     class TriviaData {
@@ -246,5 +243,10 @@ object Trivia : IBase, ILogger {
             @JsonProperty("incorrect_answers")
             val incorrectAnswers = listOf<String>()
         }
+    }
+
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

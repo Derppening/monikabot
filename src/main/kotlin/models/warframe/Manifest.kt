@@ -51,9 +51,11 @@ class Manifest {
         }
 
         private fun parseManifest(): Manifest {
-            return jacksonObjectMapper().apply {
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(URL("http://content.warframe.com/MobileExport/MarketManifest/ExportManifest.json"))
+            return jsonMapper.readValue(URL("http://content.warframe.com/MobileExport/Manifest/ExportManifest.json"))
+        }
+
+        private val jsonMapper = jacksonObjectMapper().apply {
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }
     }
 }
