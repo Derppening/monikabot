@@ -59,8 +59,8 @@ object Emoticon : IBase, ILogger {
             File(Paths.get("persistent/emoticons.txt").toUri())
                     .readLines()
                     .associateBy(
-                            { it.split("=").first() },
-                            { it.split("=").drop(1).joinToString("=") }
+                            { it.takeWhile { it != '=' } },
+                            { it.dropWhile { it != '=' }.drop(1) }
                     )
 
     private val pairs = readFromFile()

@@ -38,7 +38,7 @@ object Ping : IBase, ILogger {
         buildEmbed(event.channel) {
             withTitle("Warframe Latency Information")
 
-            connections.forEach { (server, url, expectedResponse) ->
+            PingDestination.values().forEach { (server, url, expectedResponse) ->
                 var responseCode = 0
                 logger.info("Pinging $server at $url...")
                 val time = measureTimeMillis {
@@ -81,16 +81,18 @@ object Ping : IBase, ILogger {
         }
     }
 
-    private val connections = listOf(
-            PingDestination("Internal API", "https://api.warframe.com/stats/view.php", listOf(403)),
-            PingDestination("Content Server", "http://content.warframe.com/dynamic/worldState.php", listOf(200)),
-            PingDestination("Forums", "https://forums.warframe.com/", listOf(200)),
-            PingDestination("Web Server", "https://n8k6e2y6.ssl.hwcdn.net/repos/hnfvc0o3jnfvc873njb03enrf56.html", listOf(200))
-    )
+    enum class PingDestination(val url: String, val expectedResponse: List<Int>) {
+        INTERNAL_API("https://api.warframe.com/stats/view.php", listOf(403)),
+        CONTENT_SERVER("http://content.warframe.com/dynamic/worldState.php", listOf(200)),
+        FORUMS("https://forums.warframe.com/", listOf(200)),
+        WEB_SERVER("https://n8k6e2y6.ssl.hwcdn.net/repos/hnfvc0o3jnfvc873njb03enrf56.html", listOf(200));
 
-    data class PingDestination(
-            val name: String,
-            val url: String,
-            val expectedResponse: List<Int>
-    )
+        override fun toString(): String {
+            return name.replace("_", " ").toLowerCase().capitalize()
+        }
+
+        operator fun component1(): String = toString()
+        operator fun component2(): String = url
+        operator fun component3(): List<Int> = expectedResponse
+    }
 }

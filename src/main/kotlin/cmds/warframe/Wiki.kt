@@ -33,12 +33,13 @@ object Wiki : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        val str = args.joinToString(" ")
-                .split(" ").joinToString(" ") {
-                    it.toLowerCase().capitalize()
-                }.replace(' ', '_').let {
-                    StringEscapeUtils.escapeHtml4(it)
-                }
+        val str = args.flatMap {
+            it.split(" ")
+        }.joinToString(" ") {
+            it.toLowerCase().capitalize()
+        }.replace(' ', '_').let {
+            StringEscapeUtils.escapeHtml4(it)
+        }
 
         buildMessage(event.channel) {
             withContent("http://warframe.wikia.com/wiki/$str")
