@@ -25,6 +25,7 @@ import core.BuilderHelper.buildEmbed
 import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
+import models.warframe.worldstate.WorldState
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Invasion : IBase, ILogger {

@@ -1,31 +1,36 @@
-/**
- * This file is part of MonikaBot.
+/*
+ *  This file is part of MonikaBot.
  *
- * Copyright (C) 2018 Derppening <david.18.19.21@gmail.com>
+ *  Copyright (C) 2018 Derppening <david.18.19.21@gmail.com>
  *
- * MonikaBot is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *  MonikaBot is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * MonikaBot is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  MonikaBot is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License
+ *  along with MonikaBot.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package cmds.warframe
+package models.warframe.worldstate
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.JsonToken
-import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import models.warframe.util.DoubleStringPairDeserializer
+import models.warframe.util.MissionRewardDeserializer
+import models.warframe.util.RankedDeserializer
+import models.warframe.util.TimeSecondsDeserializer
 import java.net.URL
 import java.time.Instant
 import java.util.*
@@ -213,7 +218,7 @@ class WorldState {
         val goal = 0
         val locTag = ""
         val completed = false
-        @JsonDeserialize(using = RewardDeserializer::class)
+        @JsonDeserialize(using = MissionRewardDeserializer::class)
         val attackerReward = listOf<MissionReward>()
         val attackerMissionInfo = MissionInfo()
         val defenderReward = MissionReward()
@@ -226,21 +231,6 @@ class WorldState {
             val missionReward = listOf<Any>()
         }
 
-        class RewardDeserializer : JsonDeserializer<List<MissionReward>>() {
-            override fun deserialize(parser: JsonParser, context: DeserializationContext?): List<MissionReward> {
-                return if (parser.currentToken == JsonToken.START_OBJECT) {
-                    val mapper = ObjectMapper().apply {
-                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readValue<MissionReward>(parser.readValueAsTree<JsonNode>().toString())
-
-                    listOf(mapper)
-                } else {
-                    ObjectMapper().apply {
-                        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readValue(parser.readValueAsTree<JsonNode>().toString())
-                }
-            }
-        }
     }
 
     class NodeOverride {
@@ -325,22 +315,6 @@ class WorldState {
         }
     }
 
-    class ID {
-        @JsonProperty("\$oid")
-        val oid: String = ""
-    }
-
-    class Date {
-        @JsonProperty("\$date")
-        val date = DateInner()
-
-        class DateInner {
-            @JsonProperty("\$numberLong")
-            @JsonDeserialize(using = TimeMillisDeserializer::class)
-            val numberLong = Instant.EPOCH
-        }
-    }
-
     class Job {
         val jobType = ""
         val rewards = ""
@@ -365,25 +339,13 @@ class WorldState {
         val state = ""
     }
 
-    class TimeSecondsDeserializer : JsonDeserializer<Instant>() {
-        override fun deserialize(parser: JsonParser, context: DeserializationContext?): Instant {
-            return Instant.ofEpochSecond(parser.valueAsLong)
-        }
-    }
-
-    class TimeMillisDeserializer : JsonDeserializer<Instant>() {
-        override fun deserialize(parser: JsonParser, context: DeserializationContext?): Instant {
-            return Instant.ofEpochMilli(parser.valueAsLong)
-        }
-    }
-
     companion object {
         internal fun getArcaneInfo(arcane: String): Arcane {
             return try {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/arcanes.json"))
+                }.readTree(URL("${worldStateDataUrl}/arcanes.json"))
                         .find { arcane.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             ObjectMapper().apply {
@@ -401,7 +363,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/factionsData.json"))
+                }.readTree(URL("${worldStateDataUrl}/factionsData.json"))
                         .get(faction)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -414,7 +376,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/fissureModifiers.json"))
+                }.readTree(URL("${worldStateDataUrl}/fissureModifiers.json"))
                         .get(tier)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -426,7 +388,7 @@ class WorldState {
             val mapper = jacksonObjectMapper().apply {
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readTree(URL("$worldStateDataUrl/languages.json"))
+            }.readTree(URL("${worldStateDataUrl}/languages.json"))
             return try {
                 mapper.get(encoded).get("value").asText()
             } catch (e: Exception) {
@@ -443,7 +405,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/missionTypes.json"))
+                }.readTree(URL("${worldStateDataUrl}/missionTypes.json"))
                         .get(missionType)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -456,7 +418,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/solNodes.json"))
+                }.readTree(URL("${worldStateDataUrl}/solNodes.json"))
                         .get(solNode)
                         .let {
                             ObjectMapper().apply {
@@ -474,7 +436,7 @@ class WorldState {
                 val tree = jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/sortieData.json"))
+                }.readTree(URL("${worldStateDataUrl}/sortieData.json"))
 
                 SortieModifier(tree.get("modifierTypes").get(modifier).asText(), tree.get("modifierDescriptions").get(modifier).asText())
             } catch (e: Exception) {
@@ -487,7 +449,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/sortieData.json"))
+                }.readTree(URL("${worldStateDataUrl}/sortieData.json"))
                         .get("bosses")
                         .get(boss)
                         .let {
@@ -506,7 +468,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/syndicatesData.json"))
+                }.readTree(URL("${worldStateDataUrl}/syndicatesData.json"))
                         .get(syndicate)
                         .get("name").asText()
             } catch (e: Exception) {
@@ -519,7 +481,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/upgradeTypes.json"))
+                }.readTree(URL("${worldStateDataUrl}/upgradeTypes.json"))
                         .get(upgrade)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -532,7 +494,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/warframes.json"))
+                }.readTree(URL("${worldStateDataUrl}/warframes.json"))
                         .find { warframe.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             ObjectMapper().apply {
@@ -550,7 +512,7 @@ class WorldState {
                 jacksonObjectMapper().apply {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readTree(URL("$worldStateDataUrl/weapons.json"))
+                }.readTree(URL("${worldStateDataUrl}/weapons.json"))
                         .find { weapon.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             ObjectMapper().apply {
@@ -633,17 +595,6 @@ class WorldState {
             @JsonProperty("prime_aura")
             val primeAura = ""
 
-            class RankedDeserializer : JsonDeserializer<Pair<Double, Double>>() {
-                override fun deserialize(parser: JsonParser, context: DeserializationContext?): Pair<Double, Double> {
-                    return if (parser.valueAsString.any { it == '/' }) {
-                        val pairStr = parser.valueAsString.split('/').map { it.filter { it.isDigit() || it == '.' } }
-                        Pair(pairStr[0].toDouble(), pairStr[1].toDoubleOrNull()
-                                ?: pairStr[0].toDouble())
-                    } else {
-                        Pair(0.0, 0.0)
-                    }
-                }
-            }
         }
 
         class Weapon {
@@ -688,19 +639,10 @@ class WorldState {
             val channeling = 0.0
             val stancePolarity = ""
 
-            class DoubleStringPairDeserializer : JsonDeserializer<Pair<Double, String>>() {
-                override fun deserialize(parser: JsonParser, context: DeserializationContext?): Pair<Double, String> {
-                    return if (parser.valueAsString.any { !it.isDigit() || it != '.' }) {
-                        val numeric = parser.valueAsString.filter { it.isDigit() || it == '.' }
-                        val string = parser.valueAsString.filterNot { it.isDigit() || it == '.' }.trim()
-                        Pair(numeric.toDoubleOrNull() ?: 0.0, string)
-                    } else {
-                        Pair(parser.valueAsDouble, "")
-                    }
-                }
-            }
         }
 
         private const val worldStateDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-worldstate-data/master/data"
+
     }
+
 }

@@ -20,7 +20,6 @@
 package cmds.warframe
 
 import cmds.IBase
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,6 +31,8 @@ import core.BuilderHelper.insertSeparator
 import core.FuzzyMatcher
 import core.ILogger
 import core.Parser
+import models.warframe.market.MarketManifest
+import models.warframe.market.MarketStats
 import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Instant
@@ -148,7 +149,7 @@ object Market : IBase, ILogger {
      *
      * @return Manifest of the item.
      */
-    private fun findItemInMarket(search: List<String>, event: MessageReceivedEvent): Manifest {
+    private fun findItemInMarket(search: List<String>, event: MessageReceivedEvent): MarketManifest {
         val link = "https://warframe.market/"
         val jsonToParse = Jsoup.connect(link)
                 .timeout(5000)
@@ -163,7 +164,7 @@ object Market : IBase, ILogger {
                     ObjectMapper().apply {
                         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    }.readValue<List<Manifest>>(it.toString())
+                    }.readValue<List<MarketManifest>>(it.toString())
                 }.sortedBy { it.itemName }
 
         return FuzzyMatcher(search, manifest.map { it.itemName }) {
@@ -176,9 +177,9 @@ object Market : IBase, ILogger {
             regex(RegexOption.IGNORE_CASE)
         }.matchOne().let { match ->
             if (match.isNotBlank()) {
-                manifest.find { it.itemName == match } ?: error("Cannot find matching item in Manifest")
+                manifest.find { it.itemName == match } ?: error("Cannot find matching item in MarketManifest")
             } else {
-                Manifest()
+                MarketManifest()
             }
         }
     }
@@ -213,88 +214,4 @@ object Market : IBase, ILogger {
      * Fixed link for warframe market images.
      */
     private const val imageLink = "https://warframe.market/static/assets/"
-
-    class Manifest {
-        @JsonProperty("url_name")
-        val urlName = ""
-        @JsonProperty("item_name")
-        val itemName = ""
-    }
-
-    class MarketStats {
-        val payload = Payload()
-        val include = Include()
-
-        class Payload {
-            val statistics = Statistics()
-
-            class Statistics {
-                @JsonProperty("90days")
-                val stat90 = listOf<Stat>()
-                @JsonProperty("48hours")
-                val stat48 = listOf<Stat>()
-            }
-
-            class Stat {
-                @JsonProperty("min_price")
-                val minPrice = 0
-                val median = 0.0
-                @JsonProperty("closed_price")
-                val closedPrice = 0.0
-                @JsonProperty("moving_avg")
-                val movingAvg = 0.0
-                @JsonProperty("donch_top")
-                val donchTop = 0
-                @JsonProperty("max_price")
-                val maxPrice = 0
-                val datetime = ""
-                @JsonProperty("donch_bot")
-                val donchBot = 0
-                val volume = 0
-                @JsonProperty("open_price")
-                val openPrice = 0.0
-                @JsonProperty("avg_price")
-                val avgPrice = 0.0
-            }
-        }
-
-        class Include {
-            val item = Item()
-
-            class Item {
-                @JsonProperty("items_in_set")
-                val itemsInSet = listOf<ItemInSet>()
-
-                class ItemInSet {
-                    @JsonProperty("sub_icon")
-                    val subIcon = ""
-                    val thumb = ""
-                    val icon = ""
-                    @JsonProperty("mastery_level")
-                    val masteryLevel = 0
-                    val en = Entry()
-                    val ducats = 0
-                    @JsonProperty("trading_tax")
-                    val tradingTax = 0
-                    @JsonProperty("url_name")
-                    val urlName = ""
-
-                    class Entry {
-                        val codex = ""
-                        val drop = listOf<Drop>()
-                        @JsonProperty("item_name")
-                        val itemName = ""
-                        val description = ""
-                        @JsonProperty("wiki_link")
-                        val wikiLink = ""
-
-                        class Drop {
-                            val link = ""
-                            val name = ""
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

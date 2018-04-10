@@ -7,6 +7,7 @@ import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.ILogger
 import core.Parser
+import models.warframe.prime.PrimeInfo
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
 import java.time.Duration
@@ -121,14 +122,14 @@ object Prime : IBase, ILogger {
         }
     }
 
-    private fun readFromFile(): List<Prime> {
+    private fun readFromFile(): List<PrimeInfo> {
         val lines = File(Thread.currentThread().contextClassLoader.getResource(primeFilePath).toURI()).readLines().drop(1)
-        val data = mutableListOf<Prime>()
+        val data = mutableListOf<PrimeInfo>()
 
         for (line in lines) {
             val props = line.split(',')
             check(props.size == 5)
-            data.add(Prime(props[0],
+            data.add(PrimeInfo(props[0],
                     props[1][0],
                     props[2].toLongOrNull() ?: 0L,
                     props[3].toLongOrNull() ?: 0,
@@ -136,33 +137,6 @@ object Prime : IBase, ILogger {
         }
 
         return data.toList()
-    }
-
-    class Prime(val name: String, val gender: Char, longDate: Long, longPrimeDate: Long, longPrimeExpiryDate: Long) {
-        private val _date: Instant = Instant.ofEpochSecond(longDate)
-        private val _primeDate: Instant = Instant.ofEpochSecond(longPrimeDate)
-        private val _primeExpiryDate: Instant = Instant.ofEpochSecond(longPrimeExpiryDate)
-
-        val date: Instant?
-            get() = if (_date == Instant.EPOCH) {
-                null
-            } else {
-                _date
-            }
-
-        val primeDate: Instant?
-            get() = if (_primeDate == Instant.EPOCH) {
-                null
-            } else {
-                _primeDate
-            }
-
-        val primeExpiry: Instant?
-            get() = if (_primeExpiryDate == Instant.EPOCH) {
-                null
-            } else {
-                _primeExpiryDate
-            }
     }
 
     private const val primeFilePath = "data/primes.csv"
