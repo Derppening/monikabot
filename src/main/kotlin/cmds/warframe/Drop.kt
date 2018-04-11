@@ -120,7 +120,7 @@ object Drop : IBase, ILogger {
 
             val displayLocs = drop.locs.sortedByDescending { it.chance }
                     .joinToString("\n") {
-                        val chance = DecimalFormat("0.###%").format(it.chance / 10000)
+                        val chance = DecimalFormat("0.###%").format(it.chance)
                         "${it.loc}: $chance"
                     }.let {
                         it.take(2048).dropLastWhile { it != '\n' && it != '%' }.dropLastWhile { it == '\n' }.also {
@@ -484,7 +484,7 @@ object Drop : IBase, ILogger {
             allDrops.clear()
 
             val parseReward: (BaseDrop, String) -> Unit = { drop, loc ->
-                val info = DropInfo.DropLocation(loc, drop.chance)
+                val info = DropInfo.DropLocation(loc, drop.chance / 100)
                 when (drop) {
                     is BaseDrop.ModDrop -> {
                         allDrops.firstOrNull { it.name == drop.modName }?.locs?.add(info)
@@ -499,8 +499,8 @@ object Drop : IBase, ILogger {
 
             val parseEnemy: (String, BaseEnemy) -> Unit = { name, enemy ->
                 val info = when (enemy) {
-                    is BaseEnemy.EnemyMod -> DropInfo.DropLocation(enemy.enemyName, enemy.enemyModDropChance * enemy.chance)
-                    is BaseEnemy.EnemyBlueprint -> DropInfo.DropLocation(enemy.enemyName, enemy.enemyBlueprintDropChance * enemy.chance)
+                    is BaseEnemy.EnemyMod -> DropInfo.DropLocation(enemy.enemyName, enemy.enemyModDropChance * enemy.chance / 10000)
+                    is BaseEnemy.EnemyBlueprint -> DropInfo.DropLocation(enemy.enemyName, enemy.enemyBlueprintDropChance * enemy.chance / 10000)
                 }
                 allDrops.firstOrNull { it.name == name }?.locs?.add(info)
                         ?: allDrops.add(DropInfo(name, mutableListOf(info)))
