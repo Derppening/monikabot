@@ -54,9 +54,9 @@ object Reminder : IBase, ILogger {
         when {
             args.isEmpty() -> help(event, false)
             args.any { it.matches(Regex("-{0,2}add")) } -> scheduleDelay(event)
-            args.any { it.matches(Regex("-{0,2}clear")) } -> clearTimers(event)
             args.any { it.matches(Regex("-{0,2}list")) } -> listTimer(event)
             args.any { it.matches(Regex("-{0,2}remove")) } -> removeTimer(event)
+            args.any { it.matches(Regex("-{0,2}clear")) } -> clearTimers(event)
             args.any { it.matches(Regex("for")) } -> scheduleDelay(event)
             else -> help(event, false)
         }
