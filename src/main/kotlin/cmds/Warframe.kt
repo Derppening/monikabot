@@ -136,6 +136,8 @@ object Warframe : IBase, ILogger {
         }
 
         logger.debug("updateDropTables(): Parsing took ${timer}ms")
+
+        cmds.warframe.Drop.doCacheUpdate()
     }
 
     /**
@@ -190,6 +192,7 @@ object Warframe : IBase, ILogger {
             "baro" to Baro,
             "cetus" to Cetus,
             "darvo" to Darvo,
+            "drop" to Drop,
             "fissure" to Fissure,
             "invasion" to Invasion,
             "news" to News,
@@ -203,6 +206,7 @@ object Warframe : IBase, ILogger {
 
             // aliases
             "alerts" to Alert,
+            "drops" to Drop,
             "fissures" to Fissure,
             "invasions" to Invasion,
             "primes" to Prime,
