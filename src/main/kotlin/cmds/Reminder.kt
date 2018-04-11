@@ -20,8 +20,6 @@
 
 package cmds
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -30,9 +28,9 @@ import core.BuilderHelper.buildMessage
 import core.BuilderHelper.insertSeparator
 import core.Client
 import core.Core
-import core.Core.removeQuotes
 import core.ILogger
 import core.Parser
+import models.util.ReminderDeserializer
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IUser
 import java.io.File
@@ -261,7 +259,7 @@ object Reminder : IBase, ILogger {
             .withLocale(Locale.ENGLISH)
             .withZone(ZoneId.of("UTC"))
 
-    @JsonDeserialize(using = Timer.Deserializer::class)
+    @JsonDeserialize(using = ReminderDeserializer::class)
     class Timer(internal val timerName: String,
                 internal val expiryDateTime: Instant,
                 internal val userID: Long = 0L) {
@@ -299,18 +297,8 @@ object Reminder : IBase, ILogger {
             task.cancel()
         }
 
-        class Deserializer : JsonDeserializer<Timer>() {
-            override fun deserialize(parser: JsonParser?, context: DeserializationContext?): Timer {
-                val mapper = ObjectMapper().apply {
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readValue<JsonNode>(parser?.readValueAsTree<JsonNode>().toString())
-                return Timer(mapper["timerName\$monikabot_main"].toString().removeQuotes(),
-                        Instant.ofEpochSecond(mapper["expiryDateTime\$monikabot_main"]["epochSecond"].longValue()),
-                        mapper["userID\$monikabot_main"].longValue())
-            }
-        }
     }
 
     private val timerSaveFile = Paths.get("persistent/timers.json").toUri()
+
 }
