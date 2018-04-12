@@ -35,8 +35,11 @@ object Random : IBase {
         if (args.size == 1 && args[0].matches(Regex("dic?e"))) {
             rollDie(event)
             return Parser.HandleState.HANDLED
-        } else if (args.size == 1 && args[0] == "coin") {
+        } else if (args.size == 1 && args[0].equals("coin", true)) {
             flipCoin(event)
+            return Parser.HandleState.HANDLED
+        } else if (args[0].equals("list", true)) {
+            randomList(args.drop(1), event)
             return Parser.HandleState.HANDLED
         }
 
@@ -89,6 +92,9 @@ object Random : IBase {
             appendField("`real`", "If specified, generate a real number instead of an integer.", false)
             appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
             insertSeparator()
+            appendField("Usage", "```random list [entries]", false)
+            appendField("`[entries]`", "A list of entries to pick one from, delimited by space.", false)
+            insertSeparator()
             appendField("Usage", "```random [coin|dice]```", false)
             appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
 
@@ -97,6 +103,18 @@ object Random : IBase {
                     author { event.author }
                     channel { event.channel }
                     info { e.errorMessage }
+                }
+            }
+        }
+    }
+
+    private fun randomList(args: List<String>, event: MessageReceivedEvent) {
+        args.shuffled().firstOrNull().also {
+            buildMessage(event.channel) {
+                if (it != null) {
+                    withContent("You got $it!")
+                } else {
+                    withContent("Give me items to randomize!")
                 }
             }
         }
