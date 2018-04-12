@@ -149,3 +149,7 @@
 - Added `warframe drop` command for item/mission drop tables
 - `warframe cetus`: Add Operation Plague Star information
 - `reminder`: Fixed bug where "clear" would precede before list/remove
+
+[v1.2.0-beta.1]
+- `random`: Added ability to randomize entries in a list
+- `warframe market`: Fix bug where information will not be displayed if codex entry is too long
