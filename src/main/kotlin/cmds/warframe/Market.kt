@@ -91,7 +91,11 @@ object Market : IBase, ILogger {
             }
 
             if (itemInSet != null) {
-                appendDescription(itemInSet.en.codex)
+                itemInSet.en.codex.also {
+                    if (it.length <= 2048) {
+                        appendDescription(it)
+                    }
+                }
                 insertSeparator()
                 appendField("Item Mastery Rank", itemInSet.masteryLevel.toString(), false)
                 if (itemInSet.ducats == 0) {
