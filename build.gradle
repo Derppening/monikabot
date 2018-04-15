@@ -38,14 +38,14 @@ buildscript {
     }
 }
 
-setGroup("hk.derppening.monikabot")
+setGroup("com.derppening")
 setVersion("1.2.0-beta.1")
 
 apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
-mainClassName = "MainKt"
+mainClassName = "com.derppening.monikabot.MainKt"
 applicationDefaultJvmArgs = ["-Xmx1G", "-XX:+UseG1GC"]
 
 sourceCompatibility = 1.8
