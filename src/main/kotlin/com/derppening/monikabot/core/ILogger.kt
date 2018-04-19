@@ -97,6 +97,10 @@ interface ILogger {
         LogHelper(level, message, this.javaClass).apply(action).build()
     }
 
+    fun fix(fixtext: String, method: String, vararg args: String) {
+        logger.warn("FIXME in $method: $fixtext")
+    }
+
     val logger: Logger
         get() = LoggerFactory.getLogger(javaClass.name)!!
 }

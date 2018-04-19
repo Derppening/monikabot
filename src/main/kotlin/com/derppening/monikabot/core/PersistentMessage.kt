@@ -55,7 +55,7 @@ object PersistentMessage : IChannel by debugChannel, ILogger {
      * Updates the persistent message in the debug channel.
      */
     private fun update() {
-        logger.warn("update() is deprecated")
+        fix("Add persistent message command", Core.getMethodName())
 
         modify("Misc", "Last Updated", Instant.now().toString())
 
