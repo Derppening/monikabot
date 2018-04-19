@@ -23,13 +23,13 @@ package com.derppening.monikabot.core
 import com.derppening.monikabot.cmds.*
 import com.derppening.monikabot.cmds.experimental.Dog
 import com.derppening.monikabot.cmds.experimental.Emoticon
-import com.derppening.monikabot.core.BuilderHelper.buildMessage
 import com.derppening.monikabot.core.Core.getChannelName
 import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.Core.isMentionMe
 import com.derppening.monikabot.core.Core.isOwnerLocationValid
 import com.derppening.monikabot.core.Core.popLeadingMention
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File

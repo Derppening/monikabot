@@ -18,8 +18,10 @@
  *
  */
 
-package com.derppening.monikabot.core
+package com.derppening.monikabot.util
 
+import com.derppening.monikabot.core.Client
+import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IEmbed

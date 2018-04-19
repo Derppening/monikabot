@@ -20,13 +20,13 @@
 
 package com.derppening.monikabot.cmds
 
-import com.derppening.monikabot.core.BuilderHelper.buildEmbed
-import com.derppening.monikabot.core.BuilderHelper.buildMessage
-import com.derppening.monikabot.core.BuilderHelper.insertSeparator
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature

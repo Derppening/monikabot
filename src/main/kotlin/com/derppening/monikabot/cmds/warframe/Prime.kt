@@ -22,12 +22,12 @@ package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.cmds.Warframe.toNearestChronoYear
-import com.derppening.monikabot.core.BuilderHelper
-import com.derppening.monikabot.core.BuilderHelper.buildMessage
-import com.derppening.monikabot.core.BuilderHelper.insertSeparator
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.models.warframe.prime.PrimeInfo
+import com.derppening.monikabot.util.BuilderHelper
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
 import java.time.Duration

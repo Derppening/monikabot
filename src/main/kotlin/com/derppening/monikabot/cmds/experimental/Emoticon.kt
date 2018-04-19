@@ -21,10 +21,10 @@
 package com.derppening.monikabot.cmds.experimental
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.core.BuilderHelper.buildMessage
 import com.derppening.monikabot.core.Core.popLeadingMention
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
 import java.nio.file.Paths

@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.util
 
-import com.derppening.monikabot.core.BuilderHelper.buildMessage
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import sx.blah.discord.handle.obj.IChannel
 
 /**

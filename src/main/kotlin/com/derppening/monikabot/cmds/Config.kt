@@ -20,10 +20,14 @@
 
 package com.derppening.monikabot.cmds
 
-import com.derppening.monikabot.core.*
-import com.derppening.monikabot.core.BuilderHelper.buildEmbed
-import com.derppening.monikabot.core.BuilderHelper.buildMessage
-import com.derppening.monikabot.core.BuilderHelper.insertSeparator
+import com.derppening.monikabot.core.Core
+import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.core.PersistentMessage
+import com.derppening.monikabot.util.BuilderHelper
+import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import kotlin.concurrent.thread
 

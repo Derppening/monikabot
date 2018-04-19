@@ -20,9 +20,9 @@
 
 package com.derppening.monikabot.cmds
 
-import com.derppening.monikabot.core.BuilderHelper.buildEmbed
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 

@@ -21,10 +21,10 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.core.BuilderHelper.buildEmbed
-import com.derppening.monikabot.core.BuilderHelper.insertSeparator
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.net.HttpURLConnection
 import java.net.URL
