@@ -90,39 +90,7 @@ object Alert : IBase, ILogger {
         }
 
         alerts.forEach {
-            buildEmbed(event.channel) {
-                val alert = it.missionInfo
-                val archwing = when {
-                    alert.isSharkwingMission -> "[Sharkwing]"
-                    alert.archwingRequired -> "[Archwing]"
-                    else -> ""
-                }
-                val nightmare = if (alert.nightmare) "[Nightmare]" else ""
-                val titleText = "$archwing$nightmare ${WorldState.getMissionType(alert.missionType)} in ${WorldState.getSolNode(alert.location).value}"
-
-                if (alert.descText.isNotBlank()) {
-                    withAuthorName(WorldState.getLanguageFromAsset(alert.descText))
-                }
-                withTitle(titleText)
-                appendField("Faction", WorldState.getFactionString(alert.faction), true)
-                appendField("Enemy Level", "${alert.minEnemyLevel}-${alert.maxEnemyLevel}", true)
-                appendField("Mission Credits", alert.missionReward.credits.toString(), true)
-                if (alert.missionReward.items.isNotEmpty()) {
-                    appendField("Item Rewards", alert.missionReward.items.joinToString("\n") {
-                        WorldState.getLanguageFromAsset(it)
-                    }, false)
-                    withImage(Manifest.getImageLinkFromAssetLocation(alert.missionReward.items[0]))
-                }
-                if (alert.missionReward.countedItems.isNotEmpty()) {
-                    appendField("Item Rewards", alert.missionReward.countedItems.joinToString("\n") {
-                        "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
-                    }, false)
-                    withImage(Manifest.getImageLinkFromAssetLocation(alert.missionReward.countedItems[0].itemType))
-                }
-                appendField("Time Remaining", Duration.between(Instant.now(), it.expiry.date.numberLong).formatDuration(), true)
-
-                withTimestamp(Instant.now())
-            }
+            event.channel.sendMessage(it.toEmbed())
         }
     }
 
@@ -138,38 +106,8 @@ object Alert : IBase, ILogger {
             }
         }
 
-        goals.forEach { goal ->
-            buildEmbed(event.channel) {
-                WorldState.getLanguageFromAsset(goal.missionKeyName).let {
-                    when {
-                        it.isNotBlank() -> it
-                        goal.missionKeyName.isNotBlank() -> goal.missionKeyName
-                        else -> ""
-                    }
-                }.also { if (it.isNotBlank()) withDesc(it) }
-                WorldState.getLanguageFromAsset(goal.desc).let {
-                    when {
-                        it.isNotBlank() -> it
-                        goal.desc.isNotBlank() -> goal.desc
-                        else -> ""
-                    }
-                }.also { if (it.isNotBlank()) withTitle("Special: $it") }
-
-                if (goal.reward.items.isNotEmpty()) {
-                    appendField("Item Rewards", goal.reward.items.joinToString("\n") {
-                        if (WorldState.getLanguageFromAsset(it).isNotBlank()) {
-                            WorldState.getLanguageFromAsset(it)
-                        } else {
-                            it
-                        }
-                    }, false)
-                    withImage(Manifest.getImageLinkFromAssetLocation(goal.reward.items[0]))
-                }
-
-                appendField("Time Remaining", Duration.between(Instant.now(), goal.expiry.date.numberLong).formatDuration(), true)
-
-                withTimestamp(Instant.now())
-            }
+        goals.forEach {
+            event.channel.sendMessage(it.toEmbed())
         }
     }
 }
