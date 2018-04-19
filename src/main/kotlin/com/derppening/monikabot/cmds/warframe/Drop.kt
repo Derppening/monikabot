@@ -25,12 +25,12 @@ import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.BuilderHelper.buildEmbed
 import com.derppening.monikabot.core.BuilderHelper.buildMessage
 import com.derppening.monikabot.core.BuilderHelper.insertSeparator
-import com.derppening.monikabot.core.FuzzyMatcher
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.models.warframe.drop.DropInfo
 import com.derppening.monikabot.models.warframe.droptable.BaseDrop
 import com.derppening.monikabot.models.warframe.droptable.BaseEnemy
+import com.derppening.monikabot.util.FuzzyMatcher
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.text.DecimalFormat
 import kotlin.system.measureTimeMillis

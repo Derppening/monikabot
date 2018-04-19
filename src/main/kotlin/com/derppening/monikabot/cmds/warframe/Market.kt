@@ -24,11 +24,11 @@ import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.core.BuilderHelper.buildEmbed
 import com.derppening.monikabot.core.BuilderHelper.buildMessage
 import com.derppening.monikabot.core.BuilderHelper.insertSeparator
-import com.derppening.monikabot.core.FuzzyMatcher
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.models.warframe.market.MarketManifest
 import com.derppening.monikabot.models.warframe.market.MarketStats
+import com.derppening.monikabot.util.FuzzyMatcher
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

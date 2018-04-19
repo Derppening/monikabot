@@ -18,9 +18,10 @@
  *
  */
 
-package com.derppening.monikabot.core
+package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.BuilderHelper.buildMessage
+import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.handle.obj.IChannel
 
 /**
