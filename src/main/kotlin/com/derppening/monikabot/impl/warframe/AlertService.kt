@@ -20,14 +20,30 @@
 
 package com.derppening.monikabot.impl.warframe
 
+import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.models.warframe.Manifest
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.util.ChronoHelper.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration
 import java.time.Instant
 
-internal object AlertImpl {
+internal object AlertService {
+    fun getAlertEmbeds(): List<EmbedObject> {
+        return Warframe.worldState.alerts.map {
+            it.toEmbed()
+        }
+    }
+
+    fun getGoalEmbeds(): List<EmbedObject> {
+        return Warframe.worldState.goals.filterNot { goal ->
+            filteredTags.any { it == goal.tag }
+        }.map {
+            it.toEmbed()
+        }
+    }
+
     fun WorldState.Alert.toEmbed(): EmbedObject {
         return EmbedBuilder().apply {
             val detail = missionInfo
@@ -99,11 +115,10 @@ internal object AlertImpl {
     }
 
     /**
-     * Formats a duration.
+     * List of tags to filter out when displaying alerts.
      */
-    private fun Duration.formatDuration(): String =
-            (if (toDays() > 0) "${toDays()}d " else "") +
-                    (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
-                    (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
-                    "${seconds % 60}s"
+    private val filteredTags = listOf(
+            "GhoulEmergence",
+            "InfestedPlains"
+    )
 }

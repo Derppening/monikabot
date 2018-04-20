@@ -21,10 +21,10 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.warframe.AlertImpl.toEmbed
+import com.derppening.monikabot.impl.warframe.AlertService.getAlertEmbeds
+import com.derppening.monikabot.impl.warframe.AlertService.getGoalEmbeds
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
@@ -41,7 +41,7 @@ object Alert : IBase, ILogger {
                     getAlerts(event)
                 }
                 "alert".startsWith(args[0]) -> getAlerts(event)
-                "special".startsWith(args[0]) -> getGoals(event)
+                "special".startsWith(args[0]) -> getGoals(event, true)
                 else -> {
                     help(event, false)
                 }
@@ -81,33 +81,29 @@ object Alert : IBase, ILogger {
      * Retrieves and outputs a list of alerts.
      */
     private fun getAlerts(event: MessageReceivedEvent) {
-        val alerts = Warframe.worldState.alerts
-
-        if (alerts.isEmpty()) {
-            buildMessage(event.channel) {
-                withContent("There are currently no alerts!")
+        getAlertEmbeds().also {
+            if (it.isEmpty()) {
+                buildMessage(event.channel) {
+                    withContent("There are currently no alerts!")
+                }
             }
-        }
-
-        alerts.forEach {
-            event.channel.sendMessage(it.toEmbed())
+        }.forEach {
+            event.channel.sendMessage(it)
         }
     }
 
     /**
      * Retrieves and outputs a list of special alerts ("goals").
      */
-    private fun getGoals(event: MessageReceivedEvent) {
-        val goals = Warframe.worldState.goals.filterNot { it.tag == "GhoulEmergence" || it.tag == "InfestedPlains" }
-
-        if (goals.isEmpty()) {
-            buildMessage(event.channel) {
-                withContent("There are currently no special alerts!")
+    private fun getGoals(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
+        getGoalEmbeds().also {
+            if (isDirectlyInvoked && it.isEmpty()) {
+                buildMessage(event.channel) {
+                    withContent("There are currently no special alerts!")
+                }
             }
-        }
-
-        goals.forEach {
-            event.channel.sendMessage(it.toEmbed())
+        }.forEach {
+            event.channel.sendMessage(it)
         }
     }
 }
