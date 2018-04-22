@@ -31,7 +31,6 @@ import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
-import kotlin.system.exitProcess
 
 object Stop : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -59,13 +58,9 @@ object Stop : IBase, ILogger {
             Thread.sleep(60000)
         }
 
-        Reminder.exportTimersToFile()
-        Client.clearTimers()
+        Client.logoutHandler()
 
-        event.client.shards.forEach {
-            it.logout()
-        }
-        exitProcess(0)
+        return Parser.HandleState.UNHANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {

@@ -26,10 +26,13 @@ import com.derppening.monikabot.core.Persistence.client
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
+import sx.blah.discord.handle.impl.events.shard.ReconnectFailureEvent
+import sx.blah.discord.handle.impl.events.shard.ReconnectSuccessEvent
 import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.DiscordException
 import java.util.*
+import kotlin.system.exitProcess
 
 /**
  * A singleton IDiscordClient object.
@@ -54,6 +57,36 @@ object Client : ILogger, IDiscordClient by client {
         } catch (e: DiscordException) {
             e.printStackTrace()
         }
+    }
+
+    @EventSubscriber
+    fun onRconnectFailureListener(event: ReconnectFailureEvent) {
+        if (event.isShardAbandoned) {
+            logger.info("onReconnectFailureListener() - Attempting client reconnect")
+
+            while (!event.client.isReady) {
+                Thread.sleep(30000)
+                try {
+                    event.client.login()
+                } catch (e: Exception) {}
+            }
+        }
+    }
+
+    @EventSubscriber
+    fun onReconnectSuccessListener(event: ReconnectSuccessEvent) {
+        event.client.changeUsername(defaultUserName)
+        changePresence(defaultState, defaultActivity, defaultText)
+
+        logger.info("onReconnectSuccessListener() - Initialization complete with $shardCount shard(s)")
+    }
+
+    fun logoutHandler() {
+        Reminder.exportTimersToFile()
+        Client.clearTimers()
+
+        logout()
+        exitProcess(0)
     }
 
     /**
