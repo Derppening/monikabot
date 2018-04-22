@@ -37,9 +37,12 @@ object Persistence : ILogger {
      * Core IDiscordClient object.
      */
     val client: IDiscordClient by lazy {
-        val builder = ClientBuilder().withToken(privateKey)
         try {
-            builder.login()
+            ClientBuilder().apply {
+                withToken(privateKey)
+                withRecommendedShardCount()
+                withMinimumDispatchThreads(2)
+            }.login()
         } catch (e: DiscordException) {
             e.printStackTrace()
             throw Exception("Unable to instantiate client")
