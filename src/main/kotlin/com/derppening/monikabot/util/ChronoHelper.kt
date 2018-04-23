@@ -44,6 +44,27 @@ object ChronoHelper {
     }
 
     /**
+     * Rounds a duration to the smallest time unit, from Seconds to Days.
+     */
+    fun Duration.toNearestChronoDay(): String =
+            when {
+                toDays() > 0 -> "${toDays()}d"
+                toHours() > 0 -> "${toHours()}h"
+                toMinutes() > 0 -> "${toMinutes()}m"
+                else -> "${seconds}s"
+            }
+
+    /**
+     * Rounds a duration to the smallest time unit, from Days to (approximated) Years.
+     */
+    fun Duration.toNearestChronoYear(): String =
+            when {
+                toDays() > 365 -> "${toDays() / 365} years"
+                toDays() > 30 -> "${toDays() / 30} months"
+                else -> "${toDays()} days"
+            }
+
+    /**
      * Formats a date.
      */
     val dateTimeFormatter = DateTimeFormatter
