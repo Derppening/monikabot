@@ -23,39 +23,17 @@ package com.derppening.monikabot.cmds.warframe
 import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.warframe.ServerPingService.getPingEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.system.measureTimeMillis
 
-object Ping : IBase, ILogger {
+object ServerPing : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        event.channel.typingStatus = true
-        buildEmbed(event.channel) {
-            withTitle("Warframe Latency Information")
-
-            PingDestination.values().forEach { (server, url, expectedResponse) ->
-                var responseCode = 0
-                logger.info("Pinging $server at $url...")
-                val time = measureTimeMillis {
-                    val connection = URL(url).openConnection().also {
-                        it.connectTimeout = 10000
-                        it.connect()
-                    }
-                    if (connection is HttpURLConnection) {
-                        responseCode = connection.responseCode
-                    }
-                }
-                logger.info("Connecting to $url took $time ms, with response code $responseCode")
-
-                val isResponseExpected = expectedResponse.any { it == responseCode }
-                appendField(server, if (time < 10000 && isResponseExpected) "$time ms" else "Unreachable", false)
-            }
-        }
+        event.channel.toggleTypingStatus()
+        event.channel.sendMessage(getPingEmbed())
 
         return Parser.HandleState.HANDLED
     }
@@ -79,20 +57,5 @@ object Ping : IBase, ILogger {
                 }
             }
         }
-    }
-
-    enum class PingDestination(val url: String, val expectedResponse: List<Int>) {
-        INTERNAL_API("https://api.warframe.com/stats/view.php", listOf(403)),
-        CONTENT_SERVER("http://content.warframe.com/dynamic/worldState.php", listOf(200)),
-        FORUMS("https://forums.warframe.com/", listOf(200)),
-        WEB_SERVER("https://n8k6e2y6.ssl.hwcdn.net/repos/hnfvc0o3jnfvc873njb03enrf56.html", listOf(200));
-
-        override fun toString(): String {
-            return name.replace("_", " ").toLowerCase().capitalize()
-        }
-
-        operator fun component1(): String = toString()
-        operator fun component2(): String = url
-        operator fun component3(): List<Int> = expectedResponse
     }
 }

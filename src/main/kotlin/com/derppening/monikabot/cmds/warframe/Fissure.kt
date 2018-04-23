@@ -21,46 +21,19 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
-import com.derppening.monikabot.cmds.Warframe.formatDuration
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.impl.warframe.FissureService.getFissureEmbed
 import com.derppening.monikabot.util.BuilderHelper
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
-import java.time.Instant
 
 object Fissure : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        val fissures = try {
-            Warframe.worldState.activeMissions
-        } catch (e: NoSuchElementException) {
-            BuilderHelper.buildMessage(event.channel) {
-                withContent("Unable to retrieve fissure missions! Please try again later.")
-            }
-
-            return Parser.HandleState.HANDLED
-        }
-
         event.channel.toggleTypingStatus()
-        BuilderHelper.buildEmbed(event.channel) {
-            withTitle("Ongoing Fissures")
-
-            fissures.sortedBy { it.modifier }.forEach {
-                val nodeName = WorldState.getSolNode(it.node).value
-                val missionType = WorldState.getMissionType(it.missionType)
-                val tier = WorldState.getFissureModifier(it.modifier)
-                val durationToExpiry = Duration.between(Instant.now(), it.expiry.date.numberLong).formatDuration()
-
-                appendField("$tier $missionType on $nodeName", "Time Left: $durationToExpiry", false)
-            }
-
-            withTimestamp(Instant.now())
-        }
+        event.channel.sendMessage(getFissureEmbed())
 
         return Parser.HandleState.HANDLED
     }

@@ -20,19 +20,19 @@
 
 package com.derppening.monikabot.cmds.warframe
 
+//import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimeEmbed
+//import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimeEmbed
+//import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimeEmbed
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe.toNearestChronoYear
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.prime.PrimeInfo
+import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimeMessage
+import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimeMessage
+import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimeMessage
 import com.derppening.monikabot.util.BuilderHelper
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.io.File
-import java.time.Duration
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 object Prime : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -80,84 +80,12 @@ object Prime : IBase, ILogger {
             5
         }
 
-        val all = readFromFile()
-        val primes = all.filter { it.primeDate != null }.sortedBy { it.primeDate?.epochSecond ?: 0 }
-        val nonprimes = all.filter { it.primeDate == null }.sortedBy { it.date?.epochSecond ?: 0 }.take(listSize)
+        if (args.isNotEmpty()) {
+            getReleasedPrimeMessage(listSize)
+        } else {
+            getCurrentPrimeMessage()
+        }.withChannel(event.channel).send()
 
-        buildMessage(event.channel) {
-            if (args.isNotEmpty()) {
-                appendContent("Released Primes:")
-                primes.takeLast(listSize).forEachIndexed { i, s ->
-                    appendContent("\n\t- ${s.name}")
-                    if (i != primes.size - 1 && s.name != "Excalibur") {
-                        val duration = Duration.between(s.primeDate, primes[i + 1].primeDate).toDays()
-                        appendContent(" (Lasted for $duration days)")
-                    }
-                }
-            } else {
-                appendContent("Current Primes:")
-                val currentPrimes = primes.filter { it.primeExpiry == null }
-                currentPrimes.forEachIndexed { i, s ->
-                    appendContent("\n\t- ${s.name}")
-                    if (i != currentPrimes.size - 1 && s.name != "Excalibur") {
-                        val duration = Duration.between(s.primeDate, currentPrimes[i + 1].primeDate).toDays()
-                        appendContent(" (Lasted for $duration days)")
-                    }
-                }
-            }
-        }
-        buildMessage(event.channel) {
-            var time = primes.last().primeDate ?: error("Primes should have a prime date.")
-            val male = nonprimes.filter { it.gender.toUpperCase() == 'M' }.sortedBy { it.date?.epochSecond ?: 0 }.toMutableList()
-            val female = nonprimes.filter { it.gender.toUpperCase() == 'F' }.sortedBy { it.date?.epochSecond ?: 0 }.toMutableList()
-
-            appendContent("**[PREDICTED]** Upcoming Primes:")
-            val currentPrimes = primes.subList(primes.size - 2, primes.size).toMutableList()
-            while (male.isNotEmpty() || female.isNotEmpty()) {
-                time = time.plus(90, ChronoUnit.DAYS)
-                when (currentPrimes[currentPrimes.size - 2].gender.toUpperCase()) {
-                    'M' -> {
-                        if (female.isNotEmpty()) {
-                            currentPrimes.add(female[0])
-                            female.removeAt(0)
-                        } else {
-                            currentPrimes.add(male[0])
-                            male.removeAt(0)
-                        }
-                    }
-                    'F' -> {
-                        if (male.isNotEmpty()) {
-                            currentPrimes.add(male[0])
-                            male.removeAt(0)
-                        } else {
-                            currentPrimes.add(female[0])
-                            female.removeAt(0)
-                        }
-                    }
-                }
-                val durationToPrime = Duration.between(Instant.now(), time)
-                val durationStr = durationToPrime.toNearestChronoYear()
-                appendContent("\n\t- ${currentPrimes.last().name} (In ~$durationStr)")
-            }
-        }
+        getPredictedPrimeMessage(listSize).withChannel(event.channel).build()
     }
-
-    private fun readFromFile(): List<PrimeInfo> {
-        val lines = File(Thread.currentThread().contextClassLoader.getResource(primeFilePath).toURI()).readLines().drop(1)
-        val data = mutableListOf<PrimeInfo>()
-
-        for (line in lines) {
-            val props = line.split(',')
-            check(props.size == 5)
-            data.add(PrimeInfo(props[0],
-                    props[1][0],
-                    props[2].toLongOrNull() ?: 0L,
-                    props[3].toLongOrNull() ?: 0,
-                    props[4].toLongOrNull() ?: 0))
-        }
-
-        return data.toList()
-    }
-
-    private const val primeFilePath = "data/primes.csv"
 }

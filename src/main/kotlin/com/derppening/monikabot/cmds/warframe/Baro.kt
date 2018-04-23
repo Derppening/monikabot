@@ -21,25 +21,21 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
-import com.derppening.monikabot.cmds.Warframe.formatDuration
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.impl.warframe.BaroService
+import com.derppening.monikabot.impl.warframe.BaroService.getBaro
+import com.derppening.monikabot.impl.warframe.BaroService.toEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
-import java.time.Instant
 
 object Baro : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        val baro = try {
-            Warframe.worldState.voidTraders.first()
-        } catch (e: NoSuchElementException) {
+        if (!BaroService.isBaroInWorldState()) {
             buildMessage(event.channel) {
                 withContent("Unable to retrieve Baro Ki'Teer information! Please try again later.")
             }
@@ -48,32 +44,7 @@ object Baro : IBase, ILogger {
         }
 
         event.channel.toggleTypingStatus()
-        buildEmbed(event.channel) {
-            withTitle("Baro Ki'Teer Information")
-
-            if (baro.manifest.isEmpty()) {
-                val nextTimeDuration = Duration.between(Instant.now(), baro.activation.date.numberLong)
-                appendField("Time to Next Appearance", nextTimeDuration.formatDuration(), true)
-                appendField("Relay", WorldState.getSolNode(baro.node).value, true)
-            } else {
-                val expiryTimeDuration = Duration.between(Instant.now(), baro.expiry.date.numberLong)
-                appendField("Time Left", expiryTimeDuration.formatDuration(), false)
-                baro.manifest.forEach {
-                    val item = WorldState.getLanguageFromAsset(it.itemType).let { fmt ->
-                        if (fmt.isEmpty()) {
-                            it.itemType
-                        } else {
-                            fmt
-                        }
-                    }
-                    val ducats = it.primePrice
-                    val credits = it.regularPrice
-                    appendField(item, "$ducats Ducats - $credits Credits", true)
-                }
-            }
-
-            withTimestamp(Instant.now())
-        }
+        event.channel.sendMessage(getBaro().toEmbed())
 
         return Parser.HandleState.HANDLED
     }

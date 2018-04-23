@@ -21,52 +21,19 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.impl.warframe.SaleService.getSaleEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Instant
 
 object Sale : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
         event.channel.toggleTypingStatus()
-        val saleItems = Warframe.worldState.flashSales
-        buildEmbed(event.channel) {
-            withTitle("Sales")
-
-            saleItems.filterNot { it.typeName.contains("PrimeAccess") }.sortedBy { it.bannerIndex }.forEach {
-                val itemName = WorldState.getLanguageFromAsset(it.typeName).let { item ->
-                    if (item.isBlank()) {
-                        it.typeName
-                    } else {
-                        item
-                    }
-                }
-                val appendStr = when {
-                    it.featured && it.popular -> "Featured/Popular: "
-                    it.featured -> "Featured: "
-                    it.popular -> "Popular: "
-                    else -> ""
-                }
-                val valueStr = when {
-                    it.regularOverride != 0 && it.premiumOverride != 0 -> "${it.premiumOverride} Platinum + ${it.regularOverride} Credits"
-                    it.premiumOverride != 0 -> "${it.premiumOverride} Platinum"
-                    it.regularOverride != 0 -> "${it.regularOverride} Credits"
-                    else -> ""
-                }
-
-                if (valueStr.isNotBlank()) {
-                    appendField("$appendStr$itemName", valueStr, false)
-                }
-            }
-
-            withTimestamp(Instant.now())
-        }
+        event.channel.sendMessage(getSaleEmbed())
 
         return Parser.HandleState.HANDLED
     }
