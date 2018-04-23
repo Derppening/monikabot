@@ -21,50 +21,29 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
-import com.derppening.monikabot.cmds.Warframe.formatDuration
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.Manifest
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.impl.warframe.DarvoService
+import com.derppening.monikabot.impl.warframe.DarvoService.getDarvo
+import com.derppening.monikabot.impl.warframe.DarvoService.toEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
-import java.time.Instant
 
 object Darvo : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        val darvoDeal = try {
-            Warframe.worldState.dailyDeals.first()
-        } catch (e: NoSuchElementException) {
+        if (!DarvoService.isDarvoInWorldState()) {
             buildMessage(event.channel) {
                 withContent("Darvo currently has no items on sale!")
             }
 
             return Parser.HandleState.HANDLED
         }
-        buildEmbed(event.channel) {
-            withAuthorName("Darvo Sale")
-            withTitle(WorldState.getLanguageFromAsset(darvoDeal.storeItem))
 
-            appendField("Time Left", Duration.between(Instant.now(), darvoDeal.expiry.date.numberLong).formatDuration(), false)
-            appendField("Price", "${darvoDeal.originalPrice}p -> ${darvoDeal.salePrice}p", true)
-            appendField("Discount", "${darvoDeal.discount}%", true)
-            if (darvoDeal.amountSold == darvoDeal.amountTotal) {
-                appendField("Amount Left", "Sold Out", false)
-            } else {
-                appendField("Amount Left", "${darvoDeal.amountTotal - darvoDeal.amountSold}/${darvoDeal.amountTotal}", false)
-            }
-
-            val imageRegex = Regex(darvoDeal.storeItem.takeLastWhile { it != '/' } + '$')
-            withImage(Manifest.findImageByRegex(imageRegex))
-
-            withTimestamp(Instant.now())
-        }
+        event.channel.sendMessage(getDarvo().toEmbed())
 
         return Parser.HandleState.HANDLED
     }

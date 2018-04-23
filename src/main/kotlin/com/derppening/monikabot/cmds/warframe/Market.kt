@@ -23,19 +23,11 @@ package com.derppening.monikabot.cmds.warframe
 import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.market.MarketManifest
-import com.derppening.monikabot.models.warframe.market.MarketStats
+import com.derppening.monikabot.impl.warframe.MarketService
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
-import com.derppening.monikabot.util.FuzzyMatcher
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import org.jsoup.Jsoup
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Instant
 
 object Market : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -50,74 +42,17 @@ object Market : IBase, ILogger {
         }
 
         event.channel.toggleTypingStatus()
-
-        val manifestEntry = findItemInMarket(args, event)
-
-        val market = getMarketJson(manifestEntry.urlName).let {
-            if (!it.first) {
-                return Parser.HandleState.HANDLED
-            } else {
-                it.second
-            }
-        }
-
-        val link = "https://warframe.market/items/${manifestEntry.urlName}/statistics"
-
-        val itemInSet = market.include.item.itemsInSet.find {
-            it.urlName == manifestEntry.urlName.toLowerCase()
-        }
-
-        buildEmbed(event.channel) {
-            withTitle("Trade Statistics")
-
-            if (market.payload.statistics.stat48.isNotEmpty()) {
-                appendField("48-Hour Minimum", market.payload.statistics.stat48.last().minPrice.toString(), true)
-                appendField("48-Hour Median", market.payload.statistics.stat48.last().median.toString(), true)
-                appendField("48-Hour Average", market.payload.statistics.stat48.last().avgPrice.toString(), true)
-                appendField("48-Hour Maximum", market.payload.statistics.stat48.last().maxPrice.toString(), true)
-                insertSeparator()
-            }
-
-            if (market.payload.statistics.stat90.isNotEmpty()) {
-                appendField("90-Day Minimum", market.payload.statistics.stat90.last().minPrice.toString(), true)
-                appendField("90-Day Median", market.payload.statistics.stat90.last().median.toString(), true)
-                appendField("90-Day Average", market.payload.statistics.stat90.last().avgPrice.toString(), true)
-                appendField("90-Day Maximum", market.payload.statistics.stat90.last().maxPrice.toString(), true)
-                insertSeparator()
-            }
-
-            if (market.include.item.itemsInSet.size > 1) {
-                appendField("Items in Set", market.include.item.itemsInSet.joinToString("\n") { it.en.itemName }, false)
-            }
-
-            if (itemInSet != null) {
-                itemInSet.en.codex.also {
-                    if (it.length <= 2048) {
-                        appendDescription(it)
+        MarketService.getMarketItem(args, event).also {
+            when (it) {
+                is MarketService.Result.Failure -> {
+                    buildMessage(event.channel) {
+                        withContent(it.message)
                     }
                 }
-                insertSeparator()
-                appendField("Item Mastery Rank", itemInSet.masteryLevel.toString(), false)
-                if (itemInSet.ducats == 0) {
-                    appendField("Ducats", "(Cannot be traded into Ducats)", true)
-                } else {
-                    appendField("Ducats", itemInSet.ducats.toString(), true)
+                is MarketService.Result.Success -> {
+                    event.channel.sendMessage(it.embed)
                 }
-                appendField("Trading Tax", itemInSet.tradingTax.toString(), true)
-                if (itemInSet.en.drop.isNotEmpty()) {
-                    appendField("Drop Locations", itemInSet.en.drop.joinToString("\n") { it.name }, false)
-                } else {
-                    appendField("Drop Locations", "(None)", false)
-                }
-
-                withAuthorName(itemInSet.en.itemName)
-                withAuthorUrl(itemInSet.en.wikiLink)
-                withAuthorIcon(imageLink + itemInSet.thumb)
-                withImage(imageLink + itemInSet.subIcon)
             }
-
-            withUrl(link)
-            withTimestamp(Instant.now())
         }
 
         return Parser.HandleState.HANDLED
@@ -143,75 +78,5 @@ object Market : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Finds an item from the Warframe Market manifest.
-     *
-     * @param search Search string.
-     * @param event Event which invoked the "warframe market" command.
-     *
-     * @return Manifest of the item.
-     */
-    private fun findItemInMarket(search: List<String>, event: MessageReceivedEvent): MarketManifest {
-        val link = "https://warframe.market/"
-        val jsonToParse = Jsoup.connect(link)
-                .timeout(5000)
-                .get()
-                .select("#application-state")
-
-        val manifest = jsonMapper.readTree(jsonToParse.html())
-                .get("items").get("en").let {
-                    jsonMapper.readValue<List<MarketManifest>>(it.toString())
-                }.sortedBy { it.itemName }
-
-        return FuzzyMatcher(search, manifest.map { it.itemName }) {
-            emptyMatchMessage {
-                "Cannot find item with given search!" to event.channel
-            }
-            multipleMatchMessage {
-                "Multiple items match your given search! Including:\n\n{5(\n)}\n\nOf {size} results." to event.channel
-            }
-            regex(RegexOption.IGNORE_CASE)
-        }.matchOne().let { match ->
-            if (match.isNotBlank()) {
-                manifest.find { it.itemName == match } ?: error("Cannot find matching item in MarketManifest")
-            } else {
-                MarketManifest()
-            }
-        }
-    }
-
-    /**
-     * Gets and parses the market JSON.
-     *
-     * @param item Item to retrieve.
-     *
-     * @return Pair of return code and MarketStats object. If returns false, the requested item cannot be found.
-     */
-    private fun getMarketJson(item: String): Pair<Boolean, MarketStats> {
-        val link = "https://warframe.market/items/$item/statistics"
-        val jsonToParse = Jsoup.connect(link)
-                .timeout(5000)
-                .get()
-                .select("#application-state")
-
-        val market = try {
-            jsonMapper.readValue<MarketStats>(jsonToParse.html())
-        } catch (e: Exception) {
-            return Pair(false, MarketStats())
-        }
-
-        return Pair(true, market)
-    }
-
-    /**
-     * Fixed link for warframe market images.
-     */
-    private const val imageLink = "https://warframe.market/static/assets/"
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

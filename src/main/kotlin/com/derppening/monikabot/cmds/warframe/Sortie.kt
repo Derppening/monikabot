@@ -21,47 +21,27 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
-import com.derppening.monikabot.cmds.Warframe.formatDuration
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.impl.warframe.SortieService
+import com.derppening.monikabot.impl.warframe.SortieService.getSortie
+import com.derppening.monikabot.impl.warframe.SortieService.toEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
-import java.time.Instant
 
 object Sortie : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        val sortie = try {
-            Warframe.worldState.sorties.first()
-        } catch (e: NoSuchElementException) {
+        if (!SortieService.isSortieInWorldState()) {
             buildMessage(event.channel) {
                 withContent("Unable to retrieve sortie information! Please try again later.")
             }
-            e.printStackTrace()
-
-            return Parser.HandleState.HANDLED
         }
-        buildEmbed(event.channel) {
-            val boss = WorldState.getSortieBoss(sortie.boss)
-            withTitle("Sortie Information")
 
-            appendField("Expires in", Duration.between(Instant.now(), sortie.expiry.date.numberLong).formatDuration(), false)
-            appendField("Boss", "${boss.name} (${boss.faction})", false)
-            sortie.variants.forEachIndexed { i, m ->
-                val missionType = WorldState.getMissionType(m.missionType)
-                val modifier = WorldState.getSortieModifier(m.modifierType)
-                val node = WorldState.getSolNode(m.node)
-                appendField("Mission ${i + 1} - $missionType on ${node.value}", "Modifier: ${modifier.type}", true)
-            }
-
-            withTimestamp(Instant.now())
-        }
+        event.channel.sendMessage(getSortie().toEmbed())
 
         return Parser.HandleState.HANDLED
     }

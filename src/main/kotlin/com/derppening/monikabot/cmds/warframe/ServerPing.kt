@@ -30,7 +30,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.system.measureTimeMillis
 
-object Ping : IBase, ILogger {
+object ServerPing : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

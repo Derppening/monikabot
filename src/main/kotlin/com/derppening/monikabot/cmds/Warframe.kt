@@ -21,9 +21,9 @@
 package com.derppening.monikabot.cmds
 
 import com.derppening.monikabot.cmds.warframe.*
-import com.derppening.monikabot.cmds.warframe.Ping
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.warframe.DropService
 import com.derppening.monikabot.models.warframe.droptable.DropTable
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
@@ -137,7 +137,7 @@ object Warframe : IBase, ILogger {
 
         logger.debug("updateDropTables(): Parsing took ${timer}ms")
 
-        Drop.doCacheUpdate()
+        DropService.doCacheUpdate()
     }
 
     /**
@@ -197,7 +197,7 @@ object Warframe : IBase, ILogger {
             "invasion" to Invasion,
             "news" to News,
             "market" to Market,
-            "ping" to Ping,
+            "ping" to ServerPing,
             "prime" to Prime,
             "sale" to Sale,
             "sortie" to Sortie,

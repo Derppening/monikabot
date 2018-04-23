@@ -21,41 +21,18 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
-import com.derppening.monikabot.cmds.Warframe.toNearestChronoDay
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.warframe.NewsService.getNewsEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
-import java.time.Instant
-import java.util.*
 
 object News : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        buildEmbed(event.channel) {
-            withTitle("Warframe News")
-
-            val eventPairs = mutableMapOf<Instant, String>()
-
-            for (eventItem in Warframe.worldState.events) {
-                eventPairs[eventItem.date.date.numberLong] = eventItem.messages.find { it.languageCode == Locale.ENGLISH }?.message ?: ""
-            }
-
-            val sortedPairs = eventPairs.entries.sortedBy { it.key }.reversed()
-            sortedPairs.forEach { (k, v) ->
-                val diff = Duration.between(k, Instant.now())
-                val diffString = diff.toNearestChronoDay()
-                if (v.isNotBlank()) {
-                    appendDesc("\n[$diffString] $v")
-                }
-            }
-
-            withTimestamp(Warframe.worldState.time)
-        }
+        event.channel.sendMessage(getNewsEmbed())
 
         return Parser.HandleState.HANDLED
     }

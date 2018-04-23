@@ -23,26 +23,18 @@ package com.derppening.monikabot.cmds.warframe
 import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.warframe.WikiService.convertToLink
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
-import org.apache.commons.text.StringEscapeUtils
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Wiki : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        val str = args.flatMap {
-            it.split(" ")
-        }.joinToString(" ") {
-            it.toLowerCase().capitalize()
-        }.replace(' ', '_').let {
-            StringEscapeUtils.escapeHtml4(it)
-        }
-
         buildMessage(event.channel) {
-            withContent("http://warframe.wikia.com/wiki/$str")
+            withContent("http://warframe.wikia.com/wiki/${convertToLink(args)}")
         }
 
         return Parser.HandleState.HANDLED

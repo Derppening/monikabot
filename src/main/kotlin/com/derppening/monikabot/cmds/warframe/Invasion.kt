@@ -21,11 +21,12 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionEmbeds
+import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionTimerEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -64,42 +65,14 @@ object Invasion : IBase, ILogger {
      * Retrieves and outputs the list of current invasions.
      */
     private fun getInvasionData(event: MessageReceivedEvent) {
-        val invasions = Warframe.worldState.invasions.filterNot { it.completed }
-
-        invasions.forEach {
-            buildEmbed(event.channel) {
-                val defenderFaction = WorldState.getFactionString(it.attackerMissionInfo.faction)
-                val attackerFaction = WorldState.getFactionString(it.defenderMissionInfo.faction)
-                @Suppress("DIVISION_BY_ZERO")
-                val percentageDouble = (it.count * 100.0 / it.goal)
-                val percentage = formatReal(percentageDouble)
-                val percentageText = "${percentage.dropWhile { it == '-' }} ${if (percentageDouble < 0) attackerFaction else defenderFaction}"
-
-                withAuthorName("$attackerFaction vs $defenderFaction")
-                withTitle("Invasion in ${WorldState.getSolNode(it.node).value}")
-
-                appendField("Percentage", percentageText, false)
-
-                val attackerRewards = it.attackerReward.joinToString("\n") {
-                    it.countedItems.joinToString("\n") {
-                        "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
-                    }
+        getInvasionEmbeds().also {
+            if (it.isEmpty()) {
+                buildMessage(event.channel) {
+                    withContent("There are currently no invasions!")
                 }
-                val defenderRewards = it.defenderReward.countedItems.joinToString("\n") {
-                    "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
-                }
-
-                if (attackerRewards.isNotBlank()) {
-                    appendField("Attacker Rewards", attackerRewards, true)
-                }
-                if (defenderRewards.isNotBlank()) {
-                    appendField("Defender Rewards", defenderRewards, true)
-                }
-
-                withTimestamp(Warframe.worldState.time)
             }
-
-            Thread.sleep(100)
+        }.forEach {
+            event.channel.sendMessage(it)
         }
     }
 
@@ -107,18 +80,6 @@ object Invasion : IBase, ILogger {
      * Outputs the current build progress of Balor Fomorian/Razorback.
      */
     private fun getInvasionTimer(event: MessageReceivedEvent) {
-        buildEmbed(event.channel) {
-            withTitle("Invasions - Construction Status")
-            appendField("Grineer - Fomorian", formatReal(Warframe.worldState.projectPct[0]), true)
-            appendField("Corpus - Razorback", formatReal(Warframe.worldState.projectPct[1]), true)
-            withTimestamp(Warframe.worldState.time)
-        }
-    }
-
-    /**
-     * Reformats a real number to 2 decimal places.
-     */
-    private fun formatReal(double: Double): String {
-        return "%.2f%%".format(double)
+        event.channel.sendMessage(getInvasionTimerEmbed())
     }
 }

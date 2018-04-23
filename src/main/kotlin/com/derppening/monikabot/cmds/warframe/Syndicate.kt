@@ -21,17 +21,15 @@
 package com.derppening.monikabot.cmds.warframe
 
 import com.derppening.monikabot.cmds.IBase
-import com.derppening.monikabot.cmds.Warframe
-import com.derppening.monikabot.cmds.Warframe.formatDuration
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.warframe.SyndicateService.findSyndicateFromTag
+import com.derppening.monikabot.impl.warframe.SyndicateService.toEmbed
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.time.Duration
-import java.time.Instant
 
 object Syndicate : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -74,35 +72,22 @@ object Syndicate : IBase, ILogger {
     private fun getMissionsForSyndicate(event: MessageReceivedEvent) {
         val args = getArgumentList(event.message.content).drop(1).joinToString(" ")
 
-        val matches = Warframe.worldState.syndicateMissions.filter {
-            WorldState.getSyndicateName(it.tag).contains(args, true)
-        }
-        if (matches.size > 1) {
-            buildMessage(event.channel) {
-                withContent("The given syndicate name matches more than one syndicate!")
-                appendContent("\nYour provided syndicate name matches: \n" +
-                        matches.joinToString("\n") { "- ${WorldState.getSyndicateName(it.tag)}" })
+        val syndicate = findSyndicateFromTag(args).also {
+            if (it.size > 1) {
+                buildMessage(event.channel) {
+                    withContent("The given syndicate name matches more than one syndicate!")
+                    appendContent("\nYour provided syndicate name matches: \n" +
+                            it.joinToString("\n") { "- ${WorldState.getSyndicateName(it.tag)}" })
+                }
+                return
+            } else if (it.isEmpty()) {
+                buildMessage(event.channel) {
+                    withContent("The given syndicate name doesn't match any syndicate!")
+                }
+                return
             }
-            return
-        } else if (matches.isEmpty()) {
-            buildMessage(event.channel) {
-                withContent("The given syndicate name doesn't match any syndicate!")
-            }
-            return
-        }
+        }.first()
 
-        val syndicate = matches.first()
-        buildEmbed(event.channel) {
-            val name = WorldState.getSyndicateName(syndicate.tag)
-            val timeToExpiry = Duration.between(Instant.now(), syndicate.expiry.date.numberLong).formatDuration()
-
-            withTitle(name)
-            appendField("Expires in", timeToExpiry, false)
-            if (syndicate.nodes.isNotEmpty()) {
-                appendField("Nodes", syndicate.nodes.joinToString("\n") { "- ${WorldState.getSolNode(it).value}" }, false)
-            }
-
-            withTimestamp(Instant.now())
-        }
+        event.channel.sendMessage(syndicate.toEmbed())
     }
 }
