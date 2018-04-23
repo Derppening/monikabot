@@ -118,7 +118,7 @@
 - `trivia`: Further fix various bugs
 
 [v1.1.0-rc.6]
-- ~~Add persistent ping information to Warframe servers~~ Temporarily Reverted due to issues
+- ~~Add persistent ping information to Warframe servers~~ Temporarily reverted due to issues
 
 [v1.1.0]
 - Add various commands
@@ -153,3 +153,8 @@
 [v1.2.0-beta.1]
 - `random`: Added ability to randomize entries in a list
 - `warframe market`: Fix bug where information will not be displayed if codex entry is too long
+
+[v1.2.0-beta.2]
+- Add Khora to `warframe primes` prediction
+- Monika now attempts to automatically reconnect when connection is down
+- **Note:** This version is known to be less stable than normal builds. Please report any bugs to me and I'll try to fix them ASAP!
