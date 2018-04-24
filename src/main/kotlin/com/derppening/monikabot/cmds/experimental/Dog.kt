@@ -26,6 +26,8 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.URLHelper.openAndSetUserAgent
+import com.derppening.monikabot.util.URLHelper.readText
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -198,21 +200,28 @@ object Dog : IBase, ILogger {
     }
 
     private fun getRandomPic(): String {
-        return jsonMapper.readTree(URL("https://dog.ceo/api/breeds/image/random")).get("message").asText()
+        val page = "https://dog.ceo/api/breeds/image/random"
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json).get("message").asText()
     }
 
     private fun getBreedPic(breed: String, subbreed: String): String {
-        return jsonMapper.let {
-            if (subbreed.isBlank()) {
-                it.readTree(URL("https://dog.ceo/api/breed/$breed/images/random"))
-            } else {
-                it.readTree(URL("https://dog.ceo/api/breed/$breed/$subbreed/images/random"))
-            }
-        }.get("message").asText()
+        val page = if (subbreed.isBlank()) {
+            "https://dog.ceo/api/breed/$breed/images/random"
+        } else {
+            "https://dog.ceo/api/breed/$breed/$subbreed/images/random"
+        }
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json).get("message").asText()
     }
 
     private fun getList(): List<String> {
-        return jsonMapper.readTree(URL("https://dog.ceo/api/breeds/list"))
+        val page = "https://dog.ceo/api/breeds/list"
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json)
                 .get("message")
                 .let {
                     jsonMapper.readValue(it.toString())
@@ -220,7 +229,10 @@ object Dog : IBase, ILogger {
     }
 
     private fun getBreedList(subbreed: String): List<String> {
-        return jsonMapper.readTree(URL("https://dog.ceo/api/breed/$subbreed/list"))
+        val page = "https://dog.ceo/api/breed/$subbreed/list"
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json)
                 .get("message")
                 .let {
                     jsonMapper.readValue(it.toString())
