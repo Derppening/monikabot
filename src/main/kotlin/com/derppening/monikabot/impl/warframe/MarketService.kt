@@ -31,13 +31,12 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.jsoup.Jsoup
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import java.time.Instant
 
 object MarketService : ILogger {
-    fun getMarketItem(args: List<String>, event: MessageReceivedEvent): Result {
-        val manifestEntry = findItemInMarket(args, event).let {
+    fun getMarketItem(args: List<String>): Result {
+        val manifestEntry = findItemInMarket(args).let {
             if (it.first.isNotBlank()) {
                 return Result.Failure(it.first)
             } else {
@@ -121,7 +120,7 @@ object MarketService : ILogger {
      *
      * @return Manifest of the item.
      */
-    private fun findItemInMarket(search: List<String>, event: MessageReceivedEvent): Pair<String, MarketManifest> {
+    private fun findItemInMarket(search: List<String>): Pair<String, MarketManifest> {
         val link = "https://warframe.market/"
         val jsonToParse = Jsoup.connect(link)
                 .timeout(5000)

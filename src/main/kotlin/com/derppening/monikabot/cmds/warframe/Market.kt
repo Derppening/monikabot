@@ -42,7 +42,7 @@ object Market : IBase, ILogger {
         }
 
         event.channel.toggleTypingStatus()
-        MarketService.getMarketItem(args, event).also {
+        MarketService.getMarketItem(args).also {
             when (it) {
                 is MarketService.Result.Failure -> {
                     buildMessage(event.channel) {
