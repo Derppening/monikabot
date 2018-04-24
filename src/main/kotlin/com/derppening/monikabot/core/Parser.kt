@@ -51,49 +51,47 @@ object Parser : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        logger.debug("Message \"${event.message.content}\" " +
-                "from ${event.author.getDiscordTag()} " +
-                "in ${event.channel.getChannelName()} " +
-                "has ID ${event.messageID}")
-
-        if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
-            logger.debug("Message ${event.messageID} ignored")
-            return
-        }
-
-        if (Trivia.checkUserTriviaStatus(event)) {
-            logger.debug("Message ${event.messageID} ignored: User in Trivia session")
-            return
-        }
-
-        val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
-            when {
-                it.last() == '!' && Core.monikaVersionBranch != "development" -> {
-                    logger.debug("Message ${event.messageID} ignored: Development version requested")
-                    return
-                }
-                it.last() == '!' -> {
-                    it.dropLast(1)
-                }
-                Core.monikaVersionBranch == "development" -> {
-                    logger.debug("Message ${event.messageID} ignored: Stable version requested")
-                    return
-                }
-                else -> it
-            }
-        }
-
-        if (cmd.isBlank()) {
-            logger.debug("Message ${event.messageID} has no command")
-            buildMessage(event.channel) {
-                withContent(getRandomNullResponse())
-            }
-            return
-        }
-
         thread(name = "Delegator Thread (${event.messageID} from ${event.author.getDiscordTag()})") {
-            // detach thread for every invocation
-            logger.info("Thread detached")
+            logger.debug("Thread detached")
+            logger.debug("Message \"${event.message.content}\" " +
+                    "from ${event.author.getDiscordTag()} " +
+                    "in ${event.channel.getChannelName()} " +
+                    "has ID ${event.messageID}")
+
+            if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
+                logger.debug("Message ${event.messageID} ignored")
+                return@thread
+            }
+
+            if (Trivia.checkUserTriviaStatus(event)) {
+                logger.debug("Message ${event.messageID} ignored: User in Trivia session")
+                return@thread
+            }
+
+            val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
+                when {
+                    it.last() == '!' && Core.monikaVersionBranch != "development" -> {
+                        logger.debug("Message ${event.messageID} ignored: Development version requested")
+                        return@thread
+                    }
+                    it.last() == '!' -> {
+                        it.dropLast(1)
+                    }
+                    Core.monikaVersionBranch == "development" -> {
+                        logger.debug("Message ${event.messageID} ignored: Stable version requested")
+                        return@thread
+                    }
+                    else -> it
+                }
+            }
+
+            if (cmd.isBlank()) {
+                logger.debug("Message ${event.messageID} has no command")
+                buildMessage(event.channel) {
+                    withContent(getRandomNullResponse())
+                }
+                return@thread
+            }
 
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
             val retval = if (runExperimental && Config.enableExperimentalFeatures) {
