@@ -26,8 +26,6 @@ import com.derppening.monikabot.core.Parser
 fun setupDispatchers() {
     // core
     Client.dispatcher.registerListener(Client)
-
-    // cmds
     Client.dispatcher.registerListener(Parser)
 }
 

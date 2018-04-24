@@ -20,7 +20,7 @@
 
 package com.derppening.monikabot.models.util
 
-import com.derppening.monikabot.cmds.Reminder
+import com.derppening.monikabot.commands.Reminder
 import com.derppening.monikabot.core.Core.removeQuotes
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*

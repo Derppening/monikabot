@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.core
 
-import com.derppening.monikabot.cmds.Config
-import com.derppening.monikabot.cmds.Reminder
+import com.derppening.monikabot.commands.Config
+import com.derppening.monikabot.commands.Reminder
 import com.derppening.monikabot.core.Persistence.client
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber

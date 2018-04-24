@@ -20,7 +20,7 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.cmds.Warframe
+import com.derppening.monikabot.commands.Warframe
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.worldstate.WorldState

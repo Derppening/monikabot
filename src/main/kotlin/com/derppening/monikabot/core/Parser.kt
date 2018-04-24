@@ -20,9 +20,9 @@
 
 package com.derppening.monikabot.core
 
-import com.derppening.monikabot.cmds.*
-import com.derppening.monikabot.cmds.experimental.Dog
-import com.derppening.monikabot.cmds.experimental.Emoticon
+import com.derppening.monikabot.commands.*
+import com.derppening.monikabot.commands.experimental.Dog
+import com.derppening.monikabot.commands.experimental.Emoticon
 import com.derppening.monikabot.core.Core.getChannelName
 import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Core.isFromSuperuser
