@@ -23,17 +23,15 @@ package com.derppening.monikabot.cmds.experimental
 import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.experimental.DogService
+import com.derppening.monikabot.impl.experimental.DogService.getBreed
+import com.derppening.monikabot.impl.experimental.DogService.getRandomPic
+import com.derppening.monikabot.impl.experimental.DogService.getSubbreed
+import com.derppening.monikabot.impl.experimental.DogService.list
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
-import com.derppening.monikabot.util.URLHelper.openAndSetUserAgent
-import com.derppening.monikabot.util.URLHelper.readText
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.net.URL
 
 object Dog : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -76,72 +74,33 @@ object Dog : IBase, ILogger {
     }
 
     private fun list(args: List<String>, event: MessageReceivedEvent) {
-        val list = getList()
-
-        if (args.size > 1) {
-            val breeds = findBreedFuzzy(args.drop(1).joinToString(""))
-            when (breeds.size) {
-                0 -> {
+        list(args.getOrNull(1) ?: "").also {
+            when (it) {
+                is DogService.ListResult.Success -> {
+                    event.channel.sendMessage(it.embed)
+                }
+                is DogService.ListResult.Failure -> {
                     buildMessage(event.channel) {
-                        buildMessage(event.channel) {
-                            withContent("I can't find a breed named \"${args.drop(1).joinToString("")}!")
-                        }
+                        withContent(it.message)
                     }
                 }
-                1 -> {
-                    val breed = args.drop(1).joinToString("").capitalize()
-                    val subbreedList = getBreedList(breed)
-                    buildEmbed(event.channel) {
-                        withTitle("List of Subbreeds of $breed")
-                        withDesc(subbreedList.joinToString("\n") { it.capitalize() })
-
-                        withFooterText("Total: ${subbreedList.size}")
-                    }
-                }
-                else -> {
-                    buildMessage(event.channel) {
-                        withContent("Multiple breeds match your given search! Including:\n\n")
-                        appendContent(breeds.take(5).joinToString("\n") { "- ${it.capitalize()}" })
-                        if (breeds.size > 5) {
-                            appendContent("\n\n...And ${breeds.size - 5} more results.")
-                        }
-                    }
-                }
-            }
-        } else {
-            buildEmbed(event.channel) {
-                withTitle("List of Breeds")
-                withDesc(list.joinToString("\n") { it.capitalize() })
-
-                withFooterText("Total: ${list.size}")
             }
         }
     }
 
     private fun showBreed(args: List<String>, event: MessageReceivedEvent) {
         event.channel.toggleTypingStatus()
-        val breeds = findBreedFuzzy(args[0])
-        when (breeds.size) {
-            0 -> {
-                buildMessage(event.channel) {
-                    withContent("I can't find a breed named \"${args[0]}\"!")
-                }
-            }
-            1 -> {
-                if (args.size == 1) {
-                    buildEmbed(event.channel) {
-                        withImage(getBreedPic(args[0], ""))
+
+        if (args.size != 1) {
+            showSubbreed(args, event)
+        } else {
+            getBreed(args[0]).also {
+                when (it) {
+                    is DogService.ShowResult.Success -> {
+                        buildEmbed(event.channel) { withImage(it.link) }
                     }
-                } else {
-                    showSubbreed(args, event)
-                }
-            }
-            else -> {
-                buildMessage(event.channel) {
-                    withContent("Multiple breeds match your given search! Including:\n\n")
-                    appendContent(breeds.take(5).joinToString("\n") { "- ${it.capitalize()}" })
-                    if (breeds.size > 5) {
-                        appendContent("\n\n...And ${breeds.size - 5} more results.")
+                    is DogService.ShowResult.Failure -> {
+                        buildMessage(event.channel) { withContent(it.message) }
                     }
                 }
             }
@@ -149,98 +108,17 @@ object Dog : IBase, ILogger {
     }
 
     private fun showSubbreed(args: List<String>, event: MessageReceivedEvent) {
-        val subbreedList = findSubbreedFuzzy(args[0], args[1])
-        when (subbreedList.size) {
-            0 -> {
-                buildMessage(event.channel) {
-                    withContent("I can't find a subbreed named \"${args[1]}!")
+        event.channel.toggleTypingStatus()
+
+        getSubbreed(args[0], args[1]).also {
+            when (it) {
+                is DogService.ShowResult.Success -> {
+                    buildEmbed(event.channel) { withImage(it.link) }
                 }
-            }
-            1 -> {
-                buildEmbed(event.channel) {
-                    withImage(getBreedPic(args[0], subbreedList.first()))
-                }
-            }
-            else -> {
-                buildMessage(event.channel) {
-                    withContent("Multiple subbreeds match your given search! Including:\n\n")
-                    appendContent(subbreedList.take(5).joinToString("\n") { "- ${it.capitalize()}" })
-                    if (subbreedList.size > 5) {
-                        appendContent("\n\n...And ${subbreedList.size - 5} more results.")
-                    }
+                is DogService.ShowResult.Failure -> {
+                    buildMessage(event.channel) { withContent(it.message) }
                 }
             }
         }
-    }
-
-    private fun findBreedFuzzy(keyword: String): List<String> {
-        val list = getList()
-
-        return when {
-            list.any { it.equals(keyword, true) } -> {
-                listOf(list.first { it.equals(keyword, true) })
-            }
-            else -> {
-                list.filter { it.startsWith(keyword, true) }
-            }
-        }
-    }
-
-    private fun findSubbreedFuzzy(breed: String, keyword: String): List<String> {
-        val list = getBreedList(breed)
-
-        return when {
-            list.any { it.equals(keyword, true) } -> {
-                listOf(list.first { it.equals(keyword, true) })
-            }
-            else -> {
-                list.filter { it.startsWith(keyword, true) }
-            }
-        }
-    }
-
-    private fun getRandomPic(): String {
-        val page = "https://dog.ceo/api/breeds/image/random"
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json).get("message").asText()
-    }
-
-    private fun getBreedPic(breed: String, subbreed: String): String {
-        val page = if (subbreed.isBlank()) {
-            "https://dog.ceo/api/breed/$breed/images/random"
-        } else {
-            "https://dog.ceo/api/breed/$breed/$subbreed/images/random"
-        }
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json).get("message").asText()
-    }
-
-    private fun getList(): List<String> {
-        val page = "https://dog.ceo/api/breeds/list"
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json)
-                .get("message")
-                .let {
-                    jsonMapper.readValue(it.toString())
-                }
-    }
-
-    private fun getBreedList(subbreed: String): List<String> {
-        val page = "https://dog.ceo/api/breed/$subbreed/list"
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json)
-                .get("message")
-                .let {
-                    jsonMapper.readValue(it.toString())
-                }
-    }
-    
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

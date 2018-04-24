@@ -24,44 +24,32 @@ import com.derppening.monikabot.cmds.IBase
 import com.derppening.monikabot.core.Core.popLeadingMention
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.experimental.EmoticonService
+import com.derppening.monikabot.impl.experimental.EmoticonService.findEmoticon
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.io.File
-import java.nio.file.Paths
 
 object Emoticon : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val testRegex = popLeadingMention(event.message.content, event.guild)
-                .toLowerCase().replace("*", ".+").dropLastWhile { it == '!' }
-        val matching = pairs.filter { it.key.matches(testRegex.toRegex()) }
+        val str = popLeadingMention(event.message.content, event.guild).dropLastWhile { it == '!' }
 
-        return when (matching.size) {
-            0 -> {
-                Parser.HandleState.NOT_FOUND
-            }
-            1 -> {
-                buildMessage(event.channel) {
-                    withContent(matching.values.first())
+        return findEmoticon(str).let {
+            when (it) {
+                is EmoticonService.Result.Success -> {
+                    buildMessage(event.channel) {
+                        withContent(it.emote)
+                    }
+                    Parser.HandleState.HANDLED
                 }
-                Parser.HandleState.HANDLED
-            }
-            else -> {
-                buildMessage(event.author.orCreatePMChannel) {
-                    withContent("Multiple Matches!\n\n")
-                    appendContent(matching.entries.joinToString("\n") { "${it.key} - ${it.value}" })
+                is EmoticonService.Result.Failure -> {
+                    if (it.message.isNotBlank()) {
+                        buildMessage(event.author.orCreatePMChannel) {
+                            withContent(it.message)
+                        }
+                    }
+                    it.state
                 }
-                Parser.HandleState.UNHANDLED
             }
         }
     }
-
-    private fun readFromFile(): Map<String, String> =
-            File(Paths.get("persistent/emoticons.txt").toUri())
-                    .readLines()
-                    .associateBy(
-                            { it.takeWhile { it != '=' } },
-                            { it.dropWhile { it != '=' }.drop(1) }
-                    )
-
-    private val pairs = readFromFile()
 }
