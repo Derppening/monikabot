@@ -19,7 +19,7 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.2.+'
+    ext.kotlin_version = '1.2.40'
     ext.discord4j_version = '2.10.+'
     ext.logback_version = '1.2.+'
     ext.jackson_core_version = '2.9.+'
@@ -45,7 +45,7 @@ apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
-mainClassName = "com.derppening.monikabot.MainKt"
+mainClassName = "com.derppening.monikabot.Main"
 applicationDefaultJvmArgs = ["-Xmx1G", "-XX:+UseG1GC"]
 
 sourceCompatibility = 1.8

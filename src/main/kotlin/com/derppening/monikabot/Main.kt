@@ -23,12 +23,15 @@ package com.derppening.monikabot
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.Parser
 
-fun setupDispatchers() {
-    // core
-    Client.dispatcher.registerListener(Client)
-    Client.dispatcher.registerListener(Parser)
-}
+object Main {
+    private fun setupDispatchers() {
+        // core
+        Client.dispatcher.registerListener(Client)
+        Client.dispatcher.registerListener(Parser)
+    }
 
-fun main(args: Array<String>) {
-    setupDispatchers()
+    @JvmStatic
+    fun main(args: Array<String>) {
+        setupDispatchers()
+    }
 }
