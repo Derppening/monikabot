@@ -34,6 +34,7 @@ sealed class BaseEnemy {
     }
 
     class EnemyBlueprint : BaseEnemy() {
+        val enemyItemDropChance = 0.0
         val enemyBlueprintDropChance = 0.0
     }
 }

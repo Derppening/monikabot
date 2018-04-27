@@ -41,10 +41,12 @@ class DropTable {
     val sortieRewards = listOf<BaseDrop.RewardDrop>()
     val keyRewards = listOf<KeyReward>()
     val cetusBountyRewards = listOf<CetusBountyReward>()
+    val miscItems = listOf<EnemyBlueprintTable>()
 
     class BlueprintLocation {
         @JsonProperty("_id")
         val id = ""
+        val itemName = ""
         val blueprintName = ""
         val enemies = listOf<BaseEnemy.EnemyBlueprint>()
     }
@@ -68,7 +70,9 @@ class DropTable {
         @JsonProperty("_id")
         val id = ""
         val enemyName = ""
+        val enemyItemDropChance = 0.0
         val blueprintDropChance = 0.0
+        val items = listOf<BaseDrop.RewardDrop>()
         val mods = listOf<BaseDrop.ModDrop>()
     }
 
