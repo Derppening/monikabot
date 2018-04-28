@@ -19,7 +19,7 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.2.40'
+    ext.kotlin_version = '1.2.+'
     ext.discord4j_version = '2.10.+'
     ext.logback_version = '1.2.+'
     ext.jackson_core_version = '2.9.+'
