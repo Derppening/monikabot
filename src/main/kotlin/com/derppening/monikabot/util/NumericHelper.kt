@@ -20,11 +20,60 @@
 
 package com.derppening.monikabot.util
 
+import java.math.BigDecimal
+import java.math.MathContext
+
 object NumericHelper {
+    enum class Rounding {
+        DECIMAL_PLACES,
+        SIGNIFICANT_FIGURES
+    }
+
     /**
-     * Reformats a real number to 2 decimal places.
+     * Formats a real number.
+     *
+     * @param double Number to format.
+     * @param rounding Type of rounding to use.
+     * @param isPercent Whether to format as a percentage.
+     *
+     * @return String of formatted number.
      */
-    fun formatReal(double: Double): String {
-        return "%.2f%%".format(double)
+    fun formatReal(double: Double,
+                   rounding: Pair<Rounding, Int> = Rounding.DECIMAL_PLACES to 2,
+                   isPercent: Boolean = false): String {
+        return when (rounding.first) {
+            Rounding.DECIMAL_PLACES -> formatRealDecimal(double, rounding.second, isPercent)
+            Rounding.SIGNIFICANT_FIGURES -> formatRealSigFig(double, rounding.second, isPercent)
+        }
+    }
+
+    /**
+     * Formats a real number by decimal places.
+     *
+     * @param double Number to format.
+     * @param dp Decimal places.
+     * @param isPercent whether to format as a percentage.
+     */
+    fun formatRealDecimal(double: Double, dp: Int, isPercent: Boolean): String {
+        return if (isPercent) {
+            "%.${dp}f%%".format(double * 100)
+        } else {
+            "%.${dp}f".format(double)
+        }
+    }
+
+    /**
+     * Formats a real number by significant figures.
+     *
+     * @param double Number to format.
+     * @param sf Significant figures.
+     * @param isPercent whether to format as a percentage.
+     */
+    fun formatRealSigFig(double: Double, sf: Int, isPercent: Boolean): String {
+        return if (isPercent) {
+            "${BigDecimal(double * 100).round(MathContext(sf)).toDouble()}%"
+        } else {
+            BigDecimal(double).round(MathContext(sf)).toDouble().toString()
+        }
     }
 }

@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.NumericHelper.formatReal
 import sx.blah.discord.api.internal.json.objects.EmbedObject
@@ -30,7 +30,7 @@ import java.time.Instant
 
 object InvasionService : ILogger {
     fun getInvasionEmbeds(): List<EmbedObject> {
-        return Warframe.worldState.invasions.filterNot {
+        return worldState.invasions.filterNot {
             it.completed
         }.map {
             it.toEmbed()
@@ -41,8 +41,8 @@ object InvasionService : ILogger {
         return EmbedBuilder().apply {
             withTitle("Invasions - Construction Status")
 
-            appendField("Grineer - Fomorian", formatReal(Warframe.worldState.projectPct[0]), true)
-            appendField("Corpus - Razorback", formatReal(Warframe.worldState.projectPct[1]), true)
+            appendField("Grineer - Fomorian", formatReal(worldState.projectPct[0]), true)
+            appendField("Corpus - Razorback", formatReal(worldState.projectPct[1]), true)
 
             withTimestamp(Instant.now())
         }.build()

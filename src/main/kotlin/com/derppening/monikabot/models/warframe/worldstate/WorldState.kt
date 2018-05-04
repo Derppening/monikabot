@@ -236,6 +236,7 @@ class WorldState {
         @JsonProperty("_id")
         val id = ID()
         val node = ""
+        val seed = 0L
         val hide = false
         val faction = ""
         val enemySpec = ""

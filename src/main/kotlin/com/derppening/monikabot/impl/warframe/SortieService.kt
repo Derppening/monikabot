@@ -20,9 +20,9 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.ChronoHelper.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
@@ -31,14 +31,14 @@ import java.time.Duration
 import java.time.Instant
 
 object SortieService : ILogger {
-    fun isSortieInWorldState(): Boolean = Warframe.worldState.sorties.isNotEmpty()
+    fun isSortieInWorldState(): Boolean = worldState.sorties.isNotEmpty()
 
     fun getSortie(): WorldState.Sorties {
-        if (Warframe.worldState.sorties.size > 1) {
+        if (worldState.sorties.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
 
-        return Warframe.worldState.sorties.first()
+        return worldState.sorties.first()
     }
 
     fun WorldState.Sorties.toEmbed(): EmbedObject {

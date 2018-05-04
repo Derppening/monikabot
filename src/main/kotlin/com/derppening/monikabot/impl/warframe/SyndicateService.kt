@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.ChronoHelper.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
@@ -31,7 +31,7 @@ import java.time.Instant
 
 object SyndicateService : ILogger {
     fun findSyndicateFromTag(tag: String): List<WorldState.SyndicateMission> {
-        return Warframe.worldState.syndicateMissions.filter {
+        return worldState.syndicateMissions.filter {
             WorldState.getSyndicateName(it.tag).contains(tag, true)
         }
     }

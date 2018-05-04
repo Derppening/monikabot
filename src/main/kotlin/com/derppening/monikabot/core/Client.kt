@@ -20,9 +20,9 @@
 
 package com.derppening.monikabot.core
 
-import com.derppening.monikabot.cmds.Config
-import com.derppening.monikabot.cmds.Reminder
 import com.derppening.monikabot.core.Persistence.client
+import com.derppening.monikabot.impl.ConfigService
+import com.derppening.monikabot.impl.ReminderService
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.ReadyEvent
@@ -47,13 +47,13 @@ object Client : ILogger, IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             changePresence(defaultState, defaultActivity, defaultText)
 
-            PersistentMessage.modify("Config", "Experimental Features", Config.enableExperimentalFeatures.toString())
-            PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", Config.ownerModeEchoForSu.toString())
+            PersistentMessage.modify("Config", "Experimental Features", ConfigService.enableExperimentalFeatures.toString())
+            PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", ConfigService.ownerModeEchoForSu.toString())
             PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 
             logger.info("Initialization complete with $shardCount shard(s)")
 
-            Reminder.importTimersFromFile()
+            ReminderService.importTimersFromFile()
         } catch (e: DiscordException) {
             e.printStackTrace()
         }
@@ -82,7 +82,7 @@ object Client : ILogger, IDiscordClient by client {
     }
 
     fun logoutHandler() {
-        Reminder.exportTimersToFile()
+        ReminderService.exportTimersToFile()
         Client.clearTimers()
 
         logout()

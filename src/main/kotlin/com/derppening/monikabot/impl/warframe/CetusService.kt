@@ -20,7 +20,7 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.cmds.Warframe
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.ChronoHelper.dateTimeFormatter
 import com.derppening.monikabot.util.ChronoHelper.formatDuration
@@ -35,7 +35,7 @@ import java.util.*
 
 object CetusService {
     fun getBountyEmbeds(): List<EmbedObject> {
-        val cetusInfo = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
+        val cetusInfo = worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
                 ?: throw Exception("Cannot find Cetus information")
         val timeLeft = Duration.between(Instant.now(), cetusInfo.expiry.date.numberLong)
         val timeLeftString = timeLeft.formatDuration()
@@ -59,7 +59,7 @@ object CetusService {
 
     fun getGhoulEmbeds(): List<EmbedObject> {
         val ghoulBounties = try {
-            Warframe.worldState.goals.first { it.tag == "GhoulEmergence" }
+            worldState.goals.first { it.tag == "GhoulEmergence" }
         } catch (nsee: NoSuchElementException) {
             return emptyList()
         }
@@ -88,7 +88,7 @@ object CetusService {
 
     fun getPlagueStarEmbeds(): List<EmbedObject> {
         val plaugestar = try {
-            Warframe.worldState.goals.first { it.tag == "InfestedPlains" }
+            worldState.goals.first { it.tag == "InfestedPlains" }
         } catch (nsee: NoSuchElementException) {
             return emptyList()
         }
@@ -114,7 +114,7 @@ object CetusService {
     }
 
     fun getTimeEmbed(): EmbedObject {
-        val timeContainer = Warframe.worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }?.let {
+        val timeContainer = worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }?.let {
             CetusTime(it.activation.date.numberLong, it.expiry.date.numberLong)
         } ?: throw Exception("Cannot find Cetus information")
 
@@ -159,7 +159,7 @@ object CetusService {
 
         val nightTimes
             get() = run {
-                val nextNight = if (_timeLeft.first == CetusTimeState.DAY) {
+                val nextNight = if (_timeLeft.first != CetusTimeState.NIGHT) {
                     end.minus(50, ChronoUnit.MINUTES)
                 } else {
                     end.plus(100, ChronoUnit.MINUTES)
@@ -178,11 +178,15 @@ object CetusService {
                 "${formatTimeElement((sec / 3600) % 24)}:${formatTimeElement(sec / 60 % 60)}:${formatTimeElement(sec % 60)}"
             }
 
-        private enum class CetusTimeState {
-            SUNRISE,
-            DAY,
-            DUSK,
-            NIGHT
+        private enum class CetusTimeState(val start: Duration, val end: Duration) {
+            DAWN(Duration.ZERO, Duration.ofMinutes(7).plusSeconds(30)),
+            SUNRISE(Duration.ofMinutes(7).plusSeconds(30), Duration.ofMinutes(15)),
+            MORNING(Duration.ofMinutes(15), Duration.ofMinutes(30)),
+            DAY(Duration.ofMinutes(30), Duration.ofMinutes(70)),
+            EVENING(Duration.ofMinutes(70), Duration.ofMinutes(85)),
+            SUNSET(Duration.ofMinutes(85), Duration.ofMinutes(92).plusSeconds(30)),
+            DUSK(Duration.ofMinutes(92).plusSeconds(30), Duration.ofMinutes(100)),
+            NIGHT(Duration.ofMinutes(100), Duration.ofMinutes(150))
         }
     }
 }

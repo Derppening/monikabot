@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.cmds.Warframe
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.dropTables
 import com.derppening.monikabot.models.warframe.drop.DropInfo
 import com.derppening.monikabot.models.warframe.droptable.BaseDrop
 import com.derppening.monikabot.models.warframe.droptable.BaseEnemy
@@ -62,14 +62,14 @@ object DropService : ILogger {
     }
 
     fun findBlueprint(args: List<String>): FindResult {
-        val mod = FuzzyMatcher(args, Warframe.dropTables.blueprintLocations.map { it.blueprintName }) {
+        val mod = FuzzyMatcher(args, dropTables.blueprintLocations.map { it.blueprintName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
                 return FindResult.Failure(it)
             }
         }.first().let { modName ->
-            Warframe.dropTables.blueprintLocations.first { modName == it.blueprintName }
+            dropTables.blueprintLocations.first { modName == it.blueprintName }
         }
 
         return EmbedBuilder().apply {
@@ -91,7 +91,7 @@ object DropService : ILogger {
     }
 
     fun findEnemy(args: List<String>): FindResult {
-        val allEnemyMap = Warframe.dropTables.enemyModTables.map { it.enemyName }.union(Warframe.dropTables.enemyBlueprintTables.map { it.enemyName })
+        val allEnemyMap = dropTables.enemyModTables.map { it.enemyName }.union(dropTables.enemyBlueprintTables.map { it.enemyName })
 
         val (modTable, bpTable) = FuzzyMatcher(args, allEnemyMap.toList()) {
             regex(RegexOption.IGNORE_CASE)
@@ -100,8 +100,8 @@ object DropService : ILogger {
                 return FindResult.Failure(it)
             }
         }.first().let { enemyName ->
-            Warframe.dropTables.enemyModTables.firstOrNull { it.enemyName == enemyName } to
-                    Warframe.dropTables.enemyBlueprintTables.firstOrNull { it.enemyName == enemyName }
+            dropTables.enemyModTables.firstOrNull { it.enemyName == enemyName } to
+                    dropTables.enemyBlueprintTables.firstOrNull { it.enemyName == enemyName }
         }
 
         return EmbedBuilder().apply {
@@ -145,14 +145,14 @@ object DropService : ILogger {
     }
 
     fun findKey(args: List<String>): FindResult {
-        val key = FuzzyMatcher(args, Warframe.dropTables.keyRewards.map { it.keyName }) {
+        val key = FuzzyMatcher(args, dropTables.keyRewards.map { it.keyName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
                 return FindResult.Failure(it)
             }
         }.first().let { keyName ->
-            Warframe.dropTables.keyRewards.first { keyName == it.keyName }
+            dropTables.keyRewards.first { keyName == it.keyName }
         }
 
         return EmbedBuilder().apply {
@@ -177,14 +177,14 @@ object DropService : ILogger {
     }
 
     fun findMission(args: List<String>): FindResult {
-        val mission = FuzzyMatcher(args, Warframe.dropTables.missionRewards.flatMap { it.nodes.map { it.name } }) {
+        val mission = FuzzyMatcher(args, dropTables.missionRewards.flatMap { it.nodes.map { it.name } }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
                 return FindResult.Failure(it)
             }
         }.first().let { missionName ->
-            Warframe.dropTables.missionRewards.let {
+            dropTables.missionRewards.let {
                 "$missionName (${it.first { it.nodes.any { it.name == missionName } }.name})" to
                         it.flatMap { it.nodes }.first { it.name == missionName }
             }
@@ -212,14 +212,14 @@ object DropService : ILogger {
     }
 
     fun findMod(args: List<String>): FindResult {
-        val mod = FuzzyMatcher(args, Warframe.dropTables.modLocations.map { it.modName }) {
+        val mod = FuzzyMatcher(args, dropTables.modLocations.map { it.modName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
                 return FindResult.Failure(it)
             }
         }.first().let { modName ->
-            Warframe.dropTables.modLocations.first { modName == it.modName }
+            dropTables.modLocations.first { modName == it.modName }
         }
 
         return EmbedBuilder().apply {
@@ -241,14 +241,14 @@ object DropService : ILogger {
     }
 
     fun findOp(args: List<String>): FindResult {
-        val op = FuzzyMatcher(args, Warframe.dropTables.transientRewards.map { it.objectiveName }) {
+        val op = FuzzyMatcher(args, dropTables.transientRewards.map { it.objectiveName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
                 return FindResult.Failure(it)
             }
         }.first().let { opName ->
-            Warframe.dropTables.transientRewards.first { it.objectiveName == opName }
+            dropTables.transientRewards.first { it.objectiveName == opName }
         }
 
         return EmbedBuilder().apply {
@@ -284,9 +284,9 @@ object DropService : ILogger {
         }.first()
 
         val relics = item.let { itemName ->
-            Warframe.dropTables.relics
+            dropTables.relics
                     .filter { it.state == "Flawless" }
-                    .filter { it.rewards.any { it.itemName == itemName }}
+                    .filter { it.rewards.any { it.itemName == itemName } }
         }
 
         return EmbedBuilder().apply {
@@ -311,7 +311,7 @@ object DropService : ILogger {
     fun findRelic(args: List<String>): FindResult {
         val (tier, relicName) = args
 
-        val relic = Warframe.dropTables.relics.find {
+        val relic = dropTables.relics.find {
             it.tier.startsWith(tier, true) &&
                     it.relicName.equals(relicName, true) &&
                     it.state == "Flawless"
@@ -333,7 +333,7 @@ object DropService : ILogger {
     }
 
     fun sortie(args: List<String> = emptyList()): FindResult {
-        val sortieDropTable = Warframe.dropTables.sortieRewards
+        val sortieDropTable = dropTables.sortieRewards
 
         return EmbedBuilder().apply {
             withTitle("Sorties Drop Table")
@@ -379,7 +379,7 @@ object DropService : ILogger {
                         ?: allDrops.add(DropInfo(name, mutableListOf(info)))
             }
 
-            Warframe.dropTables.missionRewards.forEach { planet ->
+            dropTables.missionRewards.forEach { planet ->
                 planet.nodes.forEach { node ->
                     val rot: (String) -> String = {
                         "${node.name} (${planet.name}) - Rotation $it"
@@ -391,35 +391,35 @@ object DropService : ILogger {
                 }
             }
 
-            Warframe.dropTables.relics.filter { it.state == "Intact" }.forEach { relic ->
+           dropTables.relics.filter { it.state == "Intact" }.forEach { relic ->
                 relic.rewards.forEach {
                     parseReward(it, "${relic.tier} ${relic.relicName} Relic")
                 }
             }
 
-            Warframe.dropTables.transientRewards.forEach { transient ->
+           dropTables.transientRewards.forEach { transient ->
                 transient.rewards.forEach {
                     parseReward(it, "${transient.objectiveName} - Rotation ${it.rotation}")
                 }
             }
 
-            Warframe.dropTables.modLocations.forEach { mod ->
+            dropTables.modLocations.forEach { mod ->
                 mod.enemies.forEach {
                     parseEnemy(mod.modName, it)
                 }
             }
 
-            Warframe.dropTables.blueprintLocations.forEach { bp ->
+           dropTables.blueprintLocations.forEach { bp ->
                 bp.enemies.forEach {
                     parseEnemy(bp.blueprintName, it)
                 }
             }
 
-            Warframe.dropTables.sortieRewards.forEach {
+            dropTables.sortieRewards.forEach {
                 parseReward(it, "Sorties")
             }
 
-            Warframe.dropTables.keyRewards.forEach { key ->
+            dropTables.keyRewards.forEach { key ->
                 val rot: (String) -> String = {
                     "${key.keyName} - Rotation $it"
                 }
@@ -429,7 +429,7 @@ object DropService : ILogger {
                 key.rewards.c.forEach { parseReward(it, rot("C")) }
             }
 
-            Warframe.dropTables.cetusBountyRewards.forEach { bounty ->
+            dropTables.cetusBountyRewards.forEach { bounty ->
                 val rot: (String) -> String = {
                     "${bounty.bountyLevel} - Rotation $it"
                 }
@@ -442,7 +442,7 @@ object DropService : ILogger {
     }
 
     fun doCacheUpdate() {
-        relicDrops = Warframe.dropTables.relics.flatMap { it.rewards.map { it.itemName } }.distinct()
+        relicDrops = dropTables.relics.flatMap { it.rewards.map { it.itemName } }.distinct()
         flatMapDropTable()
     }
 

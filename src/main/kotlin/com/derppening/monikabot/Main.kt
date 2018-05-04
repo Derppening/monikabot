@@ -22,15 +22,23 @@ package com.derppening.monikabot
 
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.WarframeService
 
-fun setupDispatchers() {
-    // core
-    Client.dispatcher.registerListener(Client)
+object Main {
+    private fun setupDispatchers() {
+        // core
+        Client.dispatcher.registerListener(Client)
+        Client.dispatcher.registerListener(Parser)
+    }
 
-    // cmds
-    Client.dispatcher.registerListener(Parser)
-}
+    private fun setupTimers() {
+        Client.registerTimer(WarframeService.updateDropTablesTask)
+        Client.registerTimer(WarframeService.updateWorldStateTask)
+    }
 
-fun main(args: Array<String>) {
-    setupDispatchers()
+    @JvmStatic
+    fun main(args: Array<String>) {
+        setupDispatchers()
+        setupTimers()
+    }
 }

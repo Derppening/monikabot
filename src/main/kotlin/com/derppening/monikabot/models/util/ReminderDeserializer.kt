@@ -20,20 +20,20 @@
 
 package com.derppening.monikabot.models.util
 
-import com.derppening.monikabot.cmds.Reminder
 import com.derppening.monikabot.core.Core.removeQuotes
+import com.derppening.monikabot.impl.ReminderService
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.Instant
 
-class ReminderDeserializer : JsonDeserializer<Reminder.Timer>() {
-    override fun deserialize(parser: JsonParser?, context: DeserializationContext?): Reminder.Timer {
+class ReminderDeserializer : JsonDeserializer<ReminderService.Timer>() {
+    override fun deserialize(parser: JsonParser?, context: DeserializationContext?): ReminderService.Timer {
         val mapper = ObjectMapper().apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }.readValue<JsonNode>(parser?.readValueAsTree<JsonNode>().toString())
-        return Reminder.Timer(mapper["timerName\$monikabot_main"].toString().removeQuotes(),
+        return ReminderService.Timer(mapper["timerName\$monikabot_main"].toString().removeQuotes(),
                 Instant.ofEpochSecond(mapper["expiryDateTime\$monikabot_main"]["epochSecond"].longValue()),
                 mapper["userID\$monikabot_main"].longValue())
     }
