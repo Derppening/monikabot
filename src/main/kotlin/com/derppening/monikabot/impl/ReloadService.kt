@@ -18,27 +18,15 @@
  *
  */
 
-package com.derppening.monikabot
+package com.derppening.monikabot.impl
 
-import com.derppening.monikabot.core.Client
+import com.derppening.monikabot.core.Core
+import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.WarframeService
 
-object Main {
-    private fun setupDispatchers() {
-        // core
-        Client.dispatcher.registerListener(Client)
-        Client.dispatcher.registerListener(Parser)
-    }
-
-    private fun setupTimers() {
-        Client.registerTimer(WarframeService.updateDropTablesTask)
-        Client.registerTimer(WarframeService.updateWorldStateTask)
-    }
-
-    @JvmStatic
-    fun main(args: Array<String>) {
-        setupDispatchers()
-        setupTimers()
+object ReloadService : ILogger {
+    fun commitReload() {
+        Core.reload()
+        Parser.loadNullResponses()
     }
 }

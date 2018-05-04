@@ -18,27 +18,32 @@
  *
  */
 
-package com.derppening.monikabot
+package com.derppening.monikabot.impl
 
-import com.derppening.monikabot.core.Client
-import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.WarframeService
+import com.derppening.monikabot.core.ILogger
+import sx.blah.discord.handle.obj.IChannel
+import sx.blah.discord.util.DiscordException
 
-object Main {
-    private fun setupDispatchers() {
-        // core
-        Client.dispatcher.registerListener(Client)
-        Client.dispatcher.registerListener(Parser)
+object ClearService : ILogger {
+    enum class Result {
+        SUCCESS,
+        FAILURE_PRIVATE_CHANNEL,
+        FAILURE_OTHER
     }
 
-    private fun setupTimers() {
-        Client.registerTimer(WarframeService.updateDropTablesTask)
-        Client.registerTimer(WarframeService.updateWorldStateTask)
-    }
+    fun clearChannel(channel: IChannel, isClearAll: Boolean): Result {
+        if (channel.isPrivate) {
+            return Result.FAILURE_PRIVATE_CHANNEL
+        }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        setupDispatchers()
-        setupTimers()
+        try {
+            val messages = if (isClearAll) channel.fullMessageHistory else channel.messageHistory
+            channel.bulkDelete(messages)
+        } catch (de: DiscordException) {
+            de.printStackTrace()
+            return Result.FAILURE_OTHER
+        }
+
+        return Result.SUCCESS
     }
 }

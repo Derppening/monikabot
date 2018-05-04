@@ -20,17 +20,14 @@
 
 package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.Core.isFromOwner
 import com.derppening.monikabot.core.Core.isOwnerLocationValid
-import com.derppening.monikabot.core.Core.removeQuotes
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.StatusService.setNewStatus
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.handle.obj.ActivityType
-import sx.blah.discord.handle.obj.StatusType
 
 object Status : IBase {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -42,81 +39,7 @@ object Status : IBase {
 
         val args = getArgumentList(event.message.content).toMutableList()
 
-        if (args.size == 0) {
-            Client.resetStatus()
-
-            return Parser.HandleState.HANDLED
-        }
-
-        val status = when (args[0]) {
-            "--reset" -> {
-                Client.resetStatus()
-                return Parser.HandleState.HANDLED
-            }
-            "--idle" -> {
-                args.removeAt(0)
-                StatusType.IDLE
-            }
-            "--dnd", "--busy" -> {
-                args.removeAt(0)
-                StatusType.DND
-            }
-            "--offline", "--invisible" -> {
-                args.removeAt(0)
-                StatusType.INVISIBLE
-            }
-            "--online" -> {
-                args.removeAt(0)
-                StatusType.ONLINE
-            }
-            else -> StatusType.ONLINE
-        }
-
-        val activity = when (args[0]) {
-            "--play", "--playing" -> {
-                args.removeAt(0)
-                ActivityType.PLAYING
-            }
-            "--stream", "--streaming" -> {
-                args.removeAt(0)
-                ActivityType.STREAMING
-            }
-            "--listen", "--listening" -> {
-                args.removeAt(0)
-                ActivityType.LISTENING
-            }
-            "--watch", "--watching" -> {
-                args.removeAt(0)
-                ActivityType.WATCHING
-            }
-            else -> ActivityType.PLAYING
-        }
-
-        val arg = args.joinToString(" ").removeQuotes()
-        val streamUrl = arg.substringAfter("--").trim().dropWhile { it == '<' }.dropLastWhile { it == '>' }
-        val message = arg.let {
-            if (activity == ActivityType.STREAMING) {
-                it.substringBefore("--").trim()
-            } else {
-                it
-            }
-        }
-
-        try {
-            if (activity == ActivityType.STREAMING) {
-                Client.changeStreamingPresence(status, message, streamUrl)
-            } else {
-                Client.changePresence(status, activity, message)
-            }
-            log(ILogger.LogLevel.INFO, "Successfully updated")
-        } catch (e: Exception) {
-            log(ILogger.LogLevel.ERROR, "Cannot set status") {
-                author { event.author }
-                channel { event.channel }
-                info { e.message ?: "Unknown Exception" }
-            }
-            e.printStackTrace()
-        }
+        setNewStatus(args)
 
         return Parser.HandleState.HANDLED
     }

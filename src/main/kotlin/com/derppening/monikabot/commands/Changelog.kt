@@ -22,25 +22,24 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.ChangelogService.getAll
+import com.derppening.monikabot.impl.ChangelogService.getLatest
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.io.File
 
 object Changelog : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
-        val changes = readChangelog()
-
         val showRelease = args.any { it.matches(Regex("-{0,2}release")) }
         val showAllChanges = args.any { it.matches(Regex("-{0,2}all")) }
 
         if (showAllChanges) {
-            outputAllChanges(event, changes, showRelease)
+            outputAllChanges(event, showRelease)
         } else {
-            outputLatestChanges(event, changes, showRelease)
+            outputLatestChanges(event, showRelease)
         }
 
         return Parser.HandleState.HANDLED
@@ -68,12 +67,8 @@ object Changelog : IBase, ILogger {
     /**
      * Displays the changes of the most recent 5 builds.
      */
-    private fun outputAllChanges(event: MessageReceivedEvent, changes: List<Pair<String, List<String>>>, showRel: Boolean) {
-        val displayChanges = if (showRel) {
-            changes.filterNot { (k, _) -> k.contains('-') }
-        } else {
-            changes
-        }.takeLast(5)
+    private fun outputAllChanges(event: MessageReceivedEvent, showRel: Boolean) {
+        val displayChanges = getAll(showRel)
 
         buildEmbed(event.channel) {
             withTitle("Last 5 Changelogs")
@@ -90,16 +85,8 @@ object Changelog : IBase, ILogger {
     /**
      * Displays the changes of the most recent build.
      */
-    private fun outputLatestChanges(event: MessageReceivedEvent, changes: List<Pair<String, List<String>>>, showRel: Boolean) {
-        val displayChange: Pair<String, List<String>>
-
-        try {
-            displayChange = if (showRel) {
-                changes.filterNot { (k, _) -> k.contains('-') }
-            } else {
-                changes
-            }.last()
-        } catch (nsee: NoSuchElementException) {
+    private fun outputLatestChanges(event: MessageReceivedEvent, showRel: Boolean) {
+        val displayChange = getLatest(showRel) ?: run {
             buildMessage(event.channel) {
                 withContent("There are no official releases (yet)!")
             }
@@ -110,25 +97,5 @@ object Changelog : IBase, ILogger {
             withTitle("Changelog for ${displayChange.first}")
             withDesc(displayChange.second.joinToString("\n"))
         }
-    }
-
-    /**
-     * Reads and returns the change log of the bot.
-     */
-    private fun readChangelog(): List<Pair<String, List<String>>> {
-        val contents = File(Thread.currentThread().contextClassLoader.getResource("lang/Changelog.md").toURI()).readLines()
-
-        val logMap = mutableMapOf<String, MutableList<String>>()
-        var ver = ""
-        for (line in contents) {
-            if (line.startsWith('[') && line.endsWith(']')) {
-                ver = line.substring(1, line.lastIndex)
-                logMap[ver] = mutableListOf()
-            } else if (ver.isNotBlank()) {
-                logMap[ver]?.add(line)
-            }
-        }
-
-        return logMap.toList()
     }
 }

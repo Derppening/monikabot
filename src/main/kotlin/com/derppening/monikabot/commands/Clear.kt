@@ -22,6 +22,8 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.ClearService
+import com.derppening.monikabot.impl.ClearService.clearChannel
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
@@ -33,19 +35,13 @@ object Clear : IBase, ILogger {
 
         val allFlag = args.any { it.matches(Regex("-{0,2}all")) }
 
-        if (event.channel.isPrivate) {
-            buildMessage(event.channel) {
-                withContent("I can't delete clear messages in private channels!")
+        when (clearChannel(event.channel, allFlag)) {
+            ClearService.Result.FAILURE_PRIVATE_CHANNEL -> {
+                buildMessage(event.channel) {
+                    withContent("I can't delete clear messages in private channels!")
+                }
             }
-
-            log(ILogger.LogLevel.ERROR, "Cannot bulk delete messages") {
-                author { event.author }
-                channel { event.channel }
-                info { "In a private channel" }
-            }
-        } else {
-            val messages = if (allFlag) event.channel.fullMessageHistory else event.channel.messageHistory
-            event.channel.bulkDelete(messages)
+            else -> {}
         }
 
         return Parser.HandleState.HANDLED

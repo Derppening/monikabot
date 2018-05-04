@@ -23,21 +23,10 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.commands.warframe.*
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.warframe.DropService
-import com.derppening.monikabot.models.warframe.droptable.DropTable
-import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import java.net.URL
-import java.time.Duration
-import kotlin.concurrent.timer
-import kotlin.system.measureTimeMillis
 
 object Warframe : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
@@ -74,7 +63,7 @@ object Warframe : IBase, ILogger {
                     buildMessage(event.channel) {
                         withContent("Your message matches multiple commands!")
                         appendContent("\n\nYour provided command matches:\n")
-                        appendContent(commands.filter { it.key.startsWith(args[0]) }.entries.distinctBy { it.value }.joinToString("\n") {
+                        appendContent(cmdMatches.entries.distinctBy { it.value }.joinToString("\n") {
                             "- warframe ${it.key}"
                         })
                     }
@@ -116,77 +105,6 @@ object Warframe : IBase, ILogger {
         }
     }
 
-    /**
-     * Function to update drop tables.
-     */
-    private fun updateDropTables() {
-        val info = jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue<DropTable.Info>(URL("${dropTableDataUrl}/info.json"))
-
-        if (info.hash == dropTableInfo.hash && info.timestamp == dropTableInfo.timestamp) {
-            return
-        }
-
-        dropTableInfo = info
-
-        val timer = measureTimeMillis {
-            dropTables = jsonMapper.readValue(URL("${dropTableDataUrl}/all.json"))
-        }
-
-        logger.debug("updateDropTables(): Parsing took ${timer}ms")
-
-        DropService.doCacheUpdate()
-    }
-
-    /**
-     * Function to update world state.
-     */
-    private fun updateWorldState() {
-        val timer = measureTimeMillis {
-            worldState = jsonMapper.readValue(URL(worldStateUrl))
-        }
-
-        logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
-    }
-
-    /**
-     * Formats a duration.
-     */
-    internal fun Duration.formatDuration(): String =
-            (if (toDays() > 0) "${toDays()}d " else "") +
-                    (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
-                    (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
-                    "${seconds % 60}s"
-
-    /**
-     * Rounds a duration to the smallest time unit, from Seconds to Days.
-     */
-    internal fun Duration.toNearestChronoDay(): String =
-            when {
-                toDays() > 0 -> "${toDays()}d"
-                toHours() > 0 -> "${toHours()}h"
-                toMinutes() > 0 -> "${toMinutes()}m"
-                else -> "${seconds}s"
-            }
-
-    /**
-     * Rounds a duration to the smallest time unit, from Days to (approximated) Years.
-     */
-    internal fun Duration.toNearestChronoYear(): String =
-            when {
-                toDays() > 365 -> "${toDays() / 365} years"
-                toDays() > 30 -> "${toDays() / 30} months"
-                else -> "${toDays()} days"
-            }
-
-    val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 300000) { updateDropTables() }
-    val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 60000) { updateWorldState() }
-
-    private const val dropTableDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-drop-data/gh-pages/data/"
-    private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
-
     private val commands = mapOf(
             "alert" to Alert,
             "baro" to Baro,
@@ -214,15 +132,4 @@ object Warframe : IBase, ILogger {
             "syndicates" to Syndicate,
             "wikia" to Wiki
     )
-
-    private var dropTableInfo = DropTable.Info()
-    internal var dropTables = DropTable()
-        private set
-    internal var worldState = WorldState()
-        private set
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-    }
 }

@@ -20,10 +20,11 @@
 
 package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.core.Core
-import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.EchoService
+import com.derppening.monikabot.impl.EchoService.toGuildChannel
+import com.derppening.monikabot.impl.EchoService.toPrivateChannel
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
@@ -139,84 +140,26 @@ object Echo : IBase, ILogger {
     }
 
     private fun messageToPrivateChannel(args: List<String>, event: MessageReceivedEvent) {
-        val username = args[1].dropLastWhile { it != '#' }.dropLastWhile { it == '#' }
-        val discriminator = args[1].dropWhile { it != '#' }.dropWhile { it == '#' }
-
-        if (username.isBlank() || discriminator.isBlank()) {
-            buildMessage(event.channel) {
-                withContent("Please specify a destination!")
-            }
-        } else if (discriminator.toIntOrNull() == null) {
-            buildMessage(event.channel) {
-                withContent("The Discord Tag is formatted incorrectly!")
-            }
-        }
-
-        try {
-            val channel = Core.getUserByTag(username, discriminator.toInt())?.orCreatePMChannel
-                    ?: error("Cannot find user!")
-
-            val message = args.drop(2).joinToString(" ")
-            buildMessage(channel) {
-                withContent(message)
-
-                onDiscordError { e ->
-                    buildMessage(event.channel) {
-                        withContent("I can't deliver the message! Reason: ${e.errorMessage}")
-                    }
+        val result = toPrivateChannel(args)
+        when (result) {
+            is EchoService.Result.Failure -> {
+                buildMessage(event.channel) {
+                    withContent(result.message)
                 }
             }
-        } catch (e: Exception) {
-            buildMessage(event.channel) {
-                withContent("I can't deliver the message! Reason: ${e.message}")
-            }
-            e.printStackTrace()
+            else -> {}
         }
     }
 
     private fun messageToGuildChannel(args: List<String>, event: MessageReceivedEvent) {
-        val guildStr = args[1].dropLastWhile { it != '/' }.dropLastWhile { it == '/' }.let {
-            if (it.isBlank() && !event.channel.isPrivate) {
-                event.channel.guild.name
-            } else {
-                it
-            }
-        }
-        val channelStr = args[1].dropWhile { it != '/' }.dropWhile { it == '/' || it == '#' }
-
-        if (guildStr.isBlank() || channelStr.isBlank()) {
-            buildMessage(event.channel) {
-                withContent("Please specify a destination!")
-            }
-
-            return
-        }
-
-        try {
-            val guild = Core.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
-            val channel = Core.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
-
-            if (!event.isFromSuperuser() && !guild.users.contains(event.author)) {
-                error("You can only send messages to guilds which you are in!")
-            }
-
-            val message = args.drop(2).joinToString(" ")
-            buildMessage(channel) {
-                withContent(message)
-
-                onDiscordError { e ->
-                    buildMessage(event.channel) {
-                        withContent("I can't deliver the message! Reason: ${e.errorMessage}")
-                    }
+        val result = toGuildChannel(args, event)
+        when (result) {
+            is EchoService.Result.Failure -> {
+                buildMessage(event.channel) {
+                    withContent(result.message)
                 }
             }
-        } catch (e: Exception) {
-            buildMessage(event.channel) {
-                withContent("I can't deliver the message! Reason: ${e.message}")
-            }
-            e.printStackTrace()
+            else -> {}
         }
-
-        return
     }
 }

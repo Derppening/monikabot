@@ -20,9 +20,9 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.commands.Warframe
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.ChronoHelper.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
@@ -31,14 +31,14 @@ import java.time.Duration
 import java.time.Instant
 
 object BaroService : ILogger {
-    fun isBaroInWorldState(): Boolean = Warframe.worldState.voidTraders.isNotEmpty()
+    fun isBaroInWorldState(): Boolean = worldState.voidTraders.isNotEmpty()
 
     fun getBaro(): WorldState.VoidTrader {
-        if (Warframe.worldState.voidTraders.size > 1) {
+        if (worldState.voidTraders.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
 
-        return Warframe.worldState.voidTraders.first()
+        return worldState.voidTraders.first()
     }
 
     fun WorldState.VoidTrader.toEmbed(): EmbedObject {

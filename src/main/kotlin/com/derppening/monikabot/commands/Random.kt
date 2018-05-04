@@ -22,6 +22,7 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.RandomService.generateRandom
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
@@ -31,53 +32,8 @@ object Random : IBase {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).toMutableList()
 
-        // special cases
-        if (args.size == 1 && args[0].matches(Regex("dic?e"))) {
-            rollDie(event)
-            return Parser.HandleState.HANDLED
-        } else if (args.size == 1 && args[0].equals("coin", true)) {
-            flipCoin(event)
-            return Parser.HandleState.HANDLED
-        } else if (args[0].equals("list", true)) {
-            randomList(args.drop(1), event)
-            return Parser.HandleState.HANDLED
-        }
-
-        val isReal = args.contains("real").also { args.removeIf { it.contains("real") } }
-        args.remove("from")
-        args.remove("to")
-
-        if (args.size != 2) {
-            buildMessage(event.channel) {
-                withContent("Give me ${if (args.size > 2) "only " else ""}the minimum and maximum number!! >_>")
-            }
-
-            return Parser.HandleState.HANDLED
-        }
-
-        val min: Double
-        val max: Double
-        try {
-            min = args[0].toDoubleOrNull() ?: error("Minimum number is not a number!")
-            max = args[1].toDoubleOrNull() ?: error("Maximum number is not a number!")
-
-            if (min >= max) error("Minimum number is bigger than the maximum!")
-        } catch (e: Exception) {
-            buildMessage(event.channel) {
-                withContent("${e.message} >_>")
-            }
-
-            return Parser.HandleState.HANDLED
-        }
-
         buildMessage(event.channel) {
-            if (isReal) {
-                val n = generateReal(min, max)
-                withContent("You got $n!")
-            } else {
-                val n = generateInt(min.toInt(), (max + 1).toInt())
-                withContent("You got a $n!")
-            }
+            withContent(generateRandom(args))
         }
 
         return Parser.HandleState.HANDLED
@@ -107,37 +63,4 @@ object Random : IBase {
             }
         }
     }
-
-    private fun randomList(args: List<String>, event: MessageReceivedEvent) {
-        args.shuffled().firstOrNull().also {
-            buildMessage(event.channel) {
-                if (it != null) {
-                    withContent("You got $it!")
-                } else {
-                    withContent("Give me items to randomize!")
-                }
-            }
-        }
-    }
-
-    /**
-     * Rolls a dice.
-     */
-    private fun rollDie(event: MessageReceivedEvent) {
-        buildMessage(event.channel) {
-            withContent("You got a ${generateInt(1, 7)}!")
-        }
-    }
-
-    /**
-     * Flips a coin
-     */
-    private fun flipCoin(event: MessageReceivedEvent) {
-        buildMessage(event.channel) {
-            withContent("You got ${if (generateInt(0, 2) == 0) "tails" else "heads"}!")
-        }
-    }
-
-    private fun generateInt(min: Int, max: Int): Int = java.util.Random().nextInt(max - min) + min
-    private fun generateReal(min: Double, max: Double): Double = (java.util.Random().nextDouble() * (max - min)) + min
 }

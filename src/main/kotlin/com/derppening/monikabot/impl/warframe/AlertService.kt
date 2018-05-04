@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.commands.Warframe
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.Manifest
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.ChronoHelper.formatDuration
@@ -32,13 +32,13 @@ import java.time.Instant
 
 object AlertService : ILogger {
     fun getAlertEmbeds(): List<EmbedObject> {
-        return Warframe.worldState.alerts.map {
+        return worldState.alerts.map {
             it.toEmbed()
         }
     }
 
     fun getGoalEmbeds(): List<EmbedObject> {
-        return Warframe.worldState.goals.filterNot { goal ->
+        return worldState.goals.filterNot { goal ->
             filteredTags.any { it == goal.tag }
         }.map {
             it.toEmbed()

@@ -20,17 +20,15 @@
 
 package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.Core.isFromOwner
 import com.derppening.monikabot.core.Core.isOwnerLocationValid
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.StopService.cleanup
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.handle.obj.ActivityType
-import sx.blah.discord.handle.obj.StatusType
 
 object Stop : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -49,16 +47,8 @@ object Stop : IBase, ILogger {
         }
 
         val isForced = args.any { it.matches(Regex("-{0,2}force")) }
-        if (!isForced && Core.monikaVersionBranch == "stable") {
-            Client.changePresence(StatusType.DND, ActivityType.PLAYING, "Maintenance")
-            if (Trivia.users.isNotEmpty()) {
-                log(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
-                Trivia.gracefulShutdown()
-            }
-            Thread.sleep(60000)
-        }
 
-        Client.logoutHandler()
+        cleanup(isForced)
 
         return Parser.HandleState.UNHANDLED
     }

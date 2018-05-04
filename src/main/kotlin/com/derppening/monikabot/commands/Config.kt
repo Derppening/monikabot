@@ -20,16 +20,18 @@
 
 package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.core.PersistentMessage
+import com.derppening.monikabot.impl.ConfigService
+import com.derppening.monikabot.impl.ConfigService.configureExperimentalFlag
+import com.derppening.monikabot.impl.ConfigService.configureOwnerEchoFlag
+import com.derppening.monikabot.impl.ConfigService.enableExperimentalFeatures
+import com.derppening.monikabot.impl.ConfigService.ownerModeEchoForSu
 import com.derppening.monikabot.util.BuilderHelper
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import kotlin.concurrent.thread
 
 object Config : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -77,30 +79,26 @@ object Config : IBase, ILogger {
      * @param event Event of the original message.
      */
     private fun experimentalHandler(args: List<String>, event: MessageReceivedEvent) {
-        if (args.size == 1) {
-            buildMessage(event.channel) {
-                withContent("Experimental Features: ${if (enableExperimentalFeatures) "Enabled" else "Disabled"}.")
+        when (configureExperimentalFlag(args)) {
+            ConfigService.Result.GET -> {
+                buildMessage(event.channel) {
+                    withContent("Experimental Features: ${if (enableExperimentalFeatures) "Enabled" else "Disabled"}.")
+                }
             }
-
-            return
-        } else if (args.size != 2 || args[1].matches(Regex("-{0,2}help"))) {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for config-experimental`")
-                withDesc("Whether to enable experimental features.")
-                appendField("\u200B", "\u200B", false)
-                appendField("Usage", "```config experimental [enable|disable]```", false)
-                appendField("`[enable|disable]`", "Enables/Disables experimental features.", false)
+            ConfigService.Result.SET -> {
+                buildMessage(event.channel) {
+                    withContent("Experimental Features are now ${if (enableExperimentalFeatures) "enabled" else "disabled"}.")
+                }
             }
-            return
-        }
-
-        enableExperimentalFeatures = args[1].toBoolean() || args[1] == "enable"
-        buildMessage(event.channel) {
-            withContent("Experimental Features are now ${if (enableExperimentalFeatures) "enabled" else "disabled"}.")
-        }
-
-        thread {
-            PersistentMessage.modify("Config", "Experimental Features", enableExperimentalFeatures.toString(), true)
+            ConfigService.Result.HELP -> {
+                buildEmbed(event.channel) {
+                    withTitle("Help Text for config-experimental`")
+                    withDesc("Whether to enable experimental features.")
+                    insertSeparator()
+                    appendField("Usage", "```config experimental [enable|disable]```", false)
+                    appendField("`[enable|disable]`", "Enables/Disables experimental features.", false)
+                }
+            }
         }
     }
 
@@ -111,41 +109,26 @@ object Config : IBase, ILogger {
      * @param event Event of the original message.
      */
     private fun ownerModeEchoHandler(args: List<String>, event: MessageReceivedEvent) {
-        if (args.size == 1) {
-            buildMessage(event.channel) {
-                withContent("Owner Mode Echo for Superusers: ${if (ownerModeEchoForSu) "Allow" else "Deny"}.")
+        when (configureOwnerEchoFlag(args)) {
+            ConfigService.Result.GET -> {
+                buildMessage(event.channel) {
+                    withContent("Owner Mode Echo for Superusers: ${if (ownerModeEchoForSu) "Allow" else "Deny"}.")
+                }
             }
-
-            return
-        } else if (args.size != 2 || args[1].matches(Regex("-{0,2}help"))) {
-            buildEmbed(event.channel) {
-                withTitle("Help Text for config-owner_echo_for_su`")
-                withDesc("Whether to allow superusers access to owner mode `echo`.")
-                appendField("\u200B", "\u200B", false)
-                appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
-                appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+            ConfigService.Result.SET -> {
+                buildMessage(event.channel) {
+                    withContent("Experimental Features are now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
+                }
             }
-            return
-        }
-
-        enableExperimentalFeatures = args[1] == "allow"
-        buildMessage(event.channel) {
-            withContent("Experimental Features are now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
-        }
-
-        thread {
-            PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", ownerModeEchoForSu.toString(), true)
+            ConfigService.Result.HELP -> {
+                buildEmbed(event.channel) {
+                    withTitle("Help Text for config-owner_echo_for_su`")
+                    withDesc("Whether to allow superusers access to owner mode `echo`.")
+                    insertSeparator()
+                    appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
+                    appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+                }
+            }
         }
     }
-
-    /**
-     * Whether to enable experimental features.
-     */
-    var enableExperimentalFeatures = Core.monikaVersionBranch == "development"
-        private set
-    /**
-     * Whether to allow superusers to access owner mode echo.
-     */
-    var ownerModeEchoForSu = true
-        private set
 }

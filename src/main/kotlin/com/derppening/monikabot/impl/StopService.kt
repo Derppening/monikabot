@@ -18,27 +18,25 @@
  *
  */
 
-package com.derppening.monikabot
+package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.Client
-import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.WarframeService
+import com.derppening.monikabot.core.Core
+import com.derppening.monikabot.core.ILogger
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 
-object Main {
-    private fun setupDispatchers() {
-        // core
-        Client.dispatcher.registerListener(Client)
-        Client.dispatcher.registerListener(Parser)
-    }
+object StopService : ILogger {
+    fun cleanup(isForced: Boolean) {
+        if (!isForced && Core.monikaVersionBranch == "stable") {
+            Client.changePresence(StatusType.DND, ActivityType.PLAYING, "Maintenance")
+            if (TriviaService.users.isNotEmpty()) {
+                log(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
+                TriviaService.gracefulShutdown()
+            }
+            Thread.sleep(60000)
+        }
 
-    private fun setupTimers() {
-        Client.registerTimer(WarframeService.updateDropTablesTask)
-        Client.registerTimer(WarframeService.updateWorldStateTask)
-    }
-
-    @JvmStatic
-    fun main(args: Array<String>) {
-        setupDispatchers()
-        setupTimers()
+        Client.logoutHandler()
     }
 }

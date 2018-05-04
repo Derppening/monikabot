@@ -22,11 +22,11 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.DebugService.appendToMessage
+import com.derppening.monikabot.impl.DebugService.editMessage
+import com.derppening.monikabot.impl.DebugService.longOperation
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.toEmbedObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.DiscordException
 
 object Debug : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
@@ -39,62 +39,13 @@ object Debug : IBase, ILogger {
 
         when (args[0].toLowerCase()) {
             "append" -> {
-                val args = args.drop(1)
-                val id = args[0].toLongOrNull() ?: 0
-
-                val message = event.client.getMessageByID(id)
-                if (message == null) {
-                    buildMessage(event.channel) {
-                        withContent("Cannot find message with ID $id")
-                    }
-                    return Parser.HandleState.HANDLED
-                }
-
-                if (message.embeds.isNotEmpty()) {
-                    val key = args.find { it.startsWith("key=", true) }?.removePrefix("key=") ?: ""
-                    val value = args.find { it.startsWith("val=", true) }?.removePrefix("val=") ?: ""
-
-                    val from = message.embeds.first()
-                    val to = from.toEmbedObject {
-                        appendField(key, value, false)
-                    }
-                    try {
-                        message.edit(to)
-                    } catch (e: DiscordException) {
-                        log(ILogger.LogLevel.ERROR, "Unable to edit message") {
-                            stackTrace { e.stackTrace }
-                        }
-                    }
-                } else {
-                    val text = args.drop(1).joinToString(" ")
-                    try {
-                        message.edit(message.content + text)
-                    } catch (e: DiscordException) {
-                        log(ILogger.LogLevel.ERROR, "Unable to edit message") {
-                            stackTrace { e.stackTrace }
-                        }
-                    }
-                }
+                appendToMessage(args.drop(1), event.client)
             }
             "edit" -> {
-                val args = args.drop(1)
-                val id = args[0].toLongOrNull() ?: 0
-                val editText = args.drop(1).joinToString(" ")
-
-                try {
-                    event.client.getMessageByID(id)?.edit(editText) ?: buildMessage(event.channel) {
-                        withContent("Cannot find message with ID $id")
-                    }
-                } catch (e: DiscordException) {
-                    log(ILogger.LogLevel.ERROR, "Unable to edit message") {
-                        stackTrace { e.stackTrace }
-                    }
-                }
+                editMessage(args.drop(1), event.client)
             }
             "longop" -> {
-                logger.debug("longop started")
-                Thread.sleep(10000)
-                logger.debug("longop ended")
+                longOperation()
             }
             else -> {
                 log(ILogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {

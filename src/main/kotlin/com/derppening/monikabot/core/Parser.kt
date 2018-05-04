@@ -29,6 +29,8 @@ import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.Core.isMentionMe
 import com.derppening.monikabot.core.Core.isOwnerLocationValid
 import com.derppening.monikabot.core.Core.popLeadingMention
+import com.derppening.monikabot.impl.ConfigService
+import com.derppening.monikabot.impl.TriviaService
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -63,7 +65,7 @@ object Parser : ILogger {
                 return@thread
             }
 
-            if (Trivia.checkUserTriviaStatus(event)) {
+            if (TriviaService.checkUserTriviaStatus(event)) {
                 logger.debug("Message ${event.messageID} ignored: User in Trivia session")
                 return@thread
             }
@@ -94,7 +96,7 @@ object Parser : ILogger {
             }
 
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
-            val retval = if (runExperimental && Config.enableExperimentalFeatures) {
+            val retval = if (runExperimental && ConfigService.enableExperimentalFeatures) {
                 parseExperimental(event, cmd)
             } else {
                 if (runExperimental) {

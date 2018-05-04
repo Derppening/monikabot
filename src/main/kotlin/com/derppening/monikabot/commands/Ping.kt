@@ -23,6 +23,7 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.PingService.getEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -43,38 +44,9 @@ object Ping : IBase, ILogger {
 
             appendField("Discord Server", "${Client.shards.first().responseTime}ms", false)
 
-            digitalOceanPings.entries.joinToString("\n") { (server, ip) ->
-                val p = ProcessBuilder("ping -c 1 $ip".split(" "))
-                val process = p.start()
-                process.waitFor()
-
-                val str = process.inputStream.bufferedReader().readText()
-                val time = Regex("time=((?:[\\d.])+ ms)").find(str)?.groups?.get(1)?.value ?: ""
-
-                if (time.isNotBlank()) {
-                    "$server: $time"
-                } else {
-                    "$server: Unreachable"
-                }
-            }.also {
-                appendField("DigitalOcean Servers", it, false)
-            }
-
-            dnsPings.entries.joinToString("\n") { (server, ip) ->
-                val p = ProcessBuilder("ping -c 1 $ip".split(" "))
-                val process = p.start()
-                process.waitFor()
-
-                val str = process.inputStream.bufferedReader().readText()
-                val time = Regex("time=((?:[\\d.])+ ms)").find(str)?.groups?.get(1)?.value ?: ""
-
-                if (time.isNotBlank()) {
-                    "$server: $time"
-                } else {
-                    "$server: Unreachable"
-                }
-            }.also {
-                appendField("DNS Servers", it, false)
+            getEmbed().also {
+                appendField("DigitalOcean Servers", it.digitalOcean, false)
+                appendField("DNS Servers", it.dns, false)
             }
 
             withTimestamp(Instant.now())
@@ -99,21 +71,4 @@ object Ping : IBase, ILogger {
             }
         }
     }
-
-    private val digitalOceanPings = mapOf(
-            "New Jersey" to "104.236.17.211",
-            "Singapore" to "128.199.105.91",
-            "Germany" to "165.227.164.4",
-            "Netherlands" to "188.166.23.150",
-            "California" to "192.184.13.42"
-    )
-
-    private val dnsPings = mapOf(
-            "Google" to "8.8.8.8",
-            "CloudFlare" to "1.1.1.1",
-            "Quad9" to "9.9.9.9",
-            "OpenDNS" to "208.67.222.222",
-            "Yandex DNS" to "77.88.8.7",
-            "Comodo DNS" to "8.26.56.26"
-    )
 }

@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.commands.Warframe
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.EmbedBuilder
@@ -29,7 +29,7 @@ import java.time.Instant
 
 object SaleService : ILogger {
     fun getSaleEmbed(): EmbedObject {
-        return Warframe.worldState.flashSales.toEmbed()
+        return worldState.flashSales.toEmbed()
     }
 
     fun List<WorldState.FlashSale>.toEmbed(): EmbedObject {
