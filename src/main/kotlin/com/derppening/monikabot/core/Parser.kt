@@ -62,11 +62,13 @@ object Parser : ILogger {
 
             if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
                 logger.debug("Message ${event.messageID} ignored")
+                logger.debug("Joining thread")
                 return@thread
             }
 
             if (TriviaService.checkUserTriviaStatus(event)) {
                 logger.debug("Message ${event.messageID} ignored: User in Trivia session")
+                logger.debug("Joining thread")
                 return@thread
             }
 
@@ -74,6 +76,7 @@ object Parser : ILogger {
                 when {
                     it.last() == '!' && Core.monikaVersionBranch != "development" -> {
                         logger.debug("Message ${event.messageID} ignored: Development version requested")
+                        logger.debug("Joining thread")
                         return@thread
                     }
                     it.last() == '!' -> {
@@ -81,6 +84,7 @@ object Parser : ILogger {
                     }
                     Core.monikaVersionBranch == "development" -> {
                         logger.debug("Message ${event.messageID} ignored: Stable version requested")
+                        logger.debug("Joining thread")
                         return@thread
                     }
                     else -> it
@@ -92,6 +96,7 @@ object Parser : ILogger {
                 buildMessage(event.channel) {
                     withContent(getRandomNullResponse())
                 }
+                logger.debug("Joining thread")
                 return@thread
             }
 
@@ -157,7 +162,7 @@ object Parser : ILogger {
                 else -> {
                 }
             }
-            logger.info("Joining thread")
+            logger.debug("Joining thread")
         }
     }
 
