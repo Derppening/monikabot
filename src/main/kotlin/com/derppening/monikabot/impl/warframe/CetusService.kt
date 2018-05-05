@@ -64,7 +64,7 @@ object CetusService {
             return emptyList()
         }
 
-        val healthPct = formatReal(ghoulBounties.healthPct)
+        val healthPct = formatReal(ghoulBounties.healthPct, isPercent = true)
         val ghoulTimeLeftString = Duration.between(Instant.now(), ghoulBounties.expiry.date.numberLong).formatDuration()
         val ghoulDesc = ghoulBounties.desc
         val ghoulTooltip = ghoulBounties.tooltip
