@@ -162,3 +162,7 @@
 [v1.2.0-beta.3]
 - More internal changes
 - **Note:** This version is known to be less stable than normal builds. Please report any bugs to me and I'll try to fix them ASAP!
+
+[v1.2.0-beta.4]
+- Add `metar` command for displaying current weather
+- `rng`: Also display minimum attempts guaranteeing 99% success rate
