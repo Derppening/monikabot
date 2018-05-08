@@ -2,42 +2,6 @@
 
 A Discord bot that does... Whatever things I want ~~her~~ it to do.
 
-## Getting Started
-
-These instructions will set the project up and run the application on your local machine.
-
-### Prerequisites
-
-- [Java SE Development Kit 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-
-You will also need a [Discord](https://discordapp.com/) account, and a [Discord Application](https://discordapp.com/developers/applications/me) already setup.
-
-### Compiling and Running
-
-This step assumes that you have already downloaded a copy of MonikaBot's source code.
-
-In `src/main/resources/properties`, add a file named `source.properties`.
-
-```sh
-cd <project_root>
-touch src/main/resources/properties/source.properties
-```
-
-Add the following information into the file.
-
-```sh
-adminId=<id_of_your_account>
-privateKey=<private_key_of_bot>
-```
-
-Additionally, you may add `suId` property to allow other users to become a superuser, and `debugChannelId` to specify a channel to dump debug information.
-
-Finally, run Gradle to get started (use `gradle.bat` if on Windows).
-
-```sh
-./gradle run
-```
-
 ### Distributing the Binary
 
 Currently there are no mechanisms to distribute the binary.
@@ -67,5 +31,5 @@ Note that if the channel is a server channel, you must mention Monika's Discord 
 
 This project is licensed under GPLv3 license - see [COPYING](LICENSE) for details.
 
-This project uses the [Discord4J](https://github.com/austinv11/Discord4J) interface, which is licensed under 
-[LGPLv3](https://github.com/austinv11/Discord4J/blob/master/LICENSE.txt) license.
+This project uses the [Discord4J](https://github.com/Discord4J/Discord4J) interface, which is licensed under 
+[LGPLv3](https://github.com/Discord4J/Discord4J/blob/master/LICENSE.txt) license.

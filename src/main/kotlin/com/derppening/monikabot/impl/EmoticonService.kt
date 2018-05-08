@@ -18,7 +18,7 @@
  *
  */
 
-package com.derppening.monikabot.impl.experimental
+package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser

@@ -18,14 +18,13 @@
  *
  */
 
-package com.derppening.monikabot.commands.experimental
+package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.Core.popLeadingMention
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.experimental.EmoticonService
-import com.derppening.monikabot.impl.experimental.EmoticonService.findEmoticon
+import com.derppening.monikabot.impl.EmoticonService
+import com.derppening.monikabot.impl.EmoticonService.findEmoticon
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 

@@ -57,9 +57,11 @@ object Help : IBase {
     private fun listFunctions(embed: EmbedBuilder): EmbedBuilder {
         return embed.apply {
             appendField("`changelog`", "Views the changelog of MonikaBot.", false)
+            appendField("`dog`", "Retrieves a photo of a dog.", false)
             appendField("`echo`", "Repeats a string.", false)
             appendField("`help`", "Displays help for primary commands.", false)
             appendField("`issue`", "Shortcut to submitting a bug report or feature request.", false)
+            appendField("`metar`", "Displays METAR information for an airfield.", false)
             appendField("`ping`", "Displays latency information of the bot.", false)
             appendField("`random`", "Randomly generates numbers.", false)
             appendField("`reminder`", "Adds a reminder for yourself.", false)

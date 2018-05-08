@@ -201,6 +201,7 @@ object Core {
      */
     private const val VERSION_PROP = "version.properties"
 
+    val checkwxKey: String? = getProperties(SOURCE_PROP).getProperty("checkwxKey")
     /**
      * PM Channel of bot admin.
      */

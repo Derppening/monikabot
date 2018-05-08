@@ -18,16 +18,15 @@
  *
  */
 
-package com.derppening.monikabot.commands.experimental
+package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.experimental.DogService
-import com.derppening.monikabot.impl.experimental.DogService.getBreed
-import com.derppening.monikabot.impl.experimental.DogService.getRandomPic
-import com.derppening.monikabot.impl.experimental.DogService.getSubbreed
-import com.derppening.monikabot.impl.experimental.DogService.list
+import com.derppening.monikabot.impl.DogService
+import com.derppening.monikabot.impl.DogService.getBreed
+import com.derppening.monikabot.impl.DogService.getRandomPic
+import com.derppening.monikabot.impl.DogService.getSubbreed
+import com.derppening.monikabot.impl.DogService.list
 import com.derppening.monikabot.util.BuilderHelper.buildEmbed
 import com.derppening.monikabot.util.BuilderHelper.buildMessage
 import com.derppening.monikabot.util.BuilderHelper.insertSeparator

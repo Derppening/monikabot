@@ -18,7 +18,7 @@
  *
  */
 
-package com.derppening.monikabot.impl.experimental
+package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.FuzzyMatcher
@@ -112,8 +112,8 @@ object DogService : ILogger {
                         } else {
                             ""
                         }).let {
-                            ShowResult.Failure(it)
-                        }
+                    ShowResult.Failure(it)
+                }
             }
         }
     }

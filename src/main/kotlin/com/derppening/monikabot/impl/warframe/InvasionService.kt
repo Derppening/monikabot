@@ -41,8 +41,8 @@ object InvasionService : ILogger {
         return EmbedBuilder().apply {
             withTitle("Invasions - Construction Status")
 
-            appendField("Grineer - Fomorian", formatReal(worldState.projectPct[0]), true)
-            appendField("Corpus - Razorback", formatReal(worldState.projectPct[1]), true)
+            appendField("Grineer - Fomorian", formatReal(worldState.projectPct[0], isPercent = true), true)
+            appendField("Corpus - Razorback", formatReal(worldState.projectPct[1], isPercent = true), true)
 
             withTimestamp(Instant.now())
         }.build()
