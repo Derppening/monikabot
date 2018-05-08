@@ -213,6 +213,7 @@ object Parser : ILogger {
             "echo" to Echo,
             "help" to Help,
             "issue" to Issue,
+            "metar" to METAR,
             "ping" to Ping,
             "random" to Random,
             "reload" to Reload,
@@ -229,6 +230,5 @@ object Parser : ILogger {
             "bugreport" to Issue
     )
 
-    private val experimentalCommands: Map<String, IBase> = mapOf(
-    )
+    private val experimentalCommands: Map<String, IBase> = emptyMap()
 }
