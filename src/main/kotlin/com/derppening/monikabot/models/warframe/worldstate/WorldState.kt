@@ -90,6 +90,7 @@ class WorldState {
     class Goal {
         @JsonProperty("_id")
         val id = ID()
+        val fomorian = false
         val activation = Date()
         val expiry = Date()
         val healthPct = 0.0
@@ -99,6 +100,9 @@ class WorldState {
         val goal = 1
         val success = 0
         val personal = false
+        val best = false
+        val scoreVar = ""
+        val scoreMaxTag = ""
         val clampNodeScores = false
         val node = ""
         val missionKeyName = ""
@@ -106,7 +110,12 @@ class WorldState {
         val desc = ""
         val tooltip = ""
         val icon = ""
+        val regionDrops = listOf<Any>()
+        val archwingDrops = listOf<String>()
+        val scoreLocTag = ""
         val tag = ""
+        val missionInfo = Alert.MissionInfo()
+        val continuousHubEvent = ContinuousHubEvent()
         val jobAffiliationTag = ""
         val reward = Reward()
         val jobs = listOf<Job>()
@@ -114,7 +123,15 @@ class WorldState {
         val instructionalItem = ""
 
         class Reward {
+            val credits = 0
             val items = listOf<String>()
+        }
+
+        class ContinuousHubEvent {
+            val transmission = ""
+            val activation = Date()
+            val expiry = Date()
+            val repeatInterval = 0
         }
     }
 
@@ -136,6 +153,7 @@ class WorldState {
             val enemySpec = ""
             val extraEnemySpec = ""
             val vipAgent = ""
+            val leadersAlwaysAllowed = false
             val customAdvancedSpawners = listOf<String>()
             val minEnemyLevel = 0
             val maxEnemyLevel = 0
@@ -145,7 +163,12 @@ class WorldState {
             val archwingRequired = false
             @JsonProperty("isSharkwingMission")
             val isSharkwingMission = false
+            val requiredItems = listOf<String>()
+            val consumeRequiredItems = false
             val missionReward = MissionReward()
+            val goalTag = ""
+            val levelAuras = listOf<String>()
+            val icon = ""
             val nightmare = false
         }
     }
@@ -328,6 +351,7 @@ class WorldState {
         val credits = 0
         val items = listOf<String>()
         val countedItems = listOf<CountedItems>()
+        val randomizedItems = ""
 
         class CountedItems {
             val itemType = ""
@@ -597,5 +621,4 @@ class WorldState {
             configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }
     }
-
 }
