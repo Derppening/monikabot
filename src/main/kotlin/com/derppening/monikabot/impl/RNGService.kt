@@ -88,23 +88,28 @@ object RNGService : ILogger {
 
             val min = run {
                 var min50 = 0
-                val min90: Int
+                var min90 = 0
+                val min99: Int
                 var i = 0
                 while (true) {
                     if (min50 == 0 && 1 - (1 - p).pow(i) > 0.5) {
                         min50 = i
                     }
-                    if (1 - (1 - p).pow(i) > 0.9) {
+                    if (min90 == 0 && 1 - (1 - p).pow(i) > 0.9) {
                         min90 = i
+                    }
+                    if (1 - (1 - p).pow(i) > 0.99) {
+                        min99 = i
                         break
                     }
                     ++i
                 }
 
-                Pair(min50, min90)
+                Triple(min50, min90, min99)
             }
-            appendField("Number of Attempts for >50% Chance", min.first.toString(), true)
-            appendField("Number of Attempts for >90% Chance", min.second.toString(), true)
+            appendField("Attempts for >50% Chance", min.first.toString(), true)
+            appendField(">90% Chance", min.second.toString(), true)
+            appendField(">99% Chance", min.third.toString(), true)
 
             if (attempts.first) {
                 insertSeparator()
