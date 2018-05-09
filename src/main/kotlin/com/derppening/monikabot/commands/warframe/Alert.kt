@@ -40,8 +40,8 @@ object Alert : IBase, ILogger {
                     getGoals(event)
                     getAlerts(event)
                 }
-                "alert".startsWith(args[0]) -> getAlerts(event)
-                "special".startsWith(args[0]) -> getGoals(event, true)
+                args[0].endsWith("alert") -> getAlerts(event)
+                args[0].endsWith("special") -> getGoals(event, true)
                 else -> {
                     help(event, false)
                 }
