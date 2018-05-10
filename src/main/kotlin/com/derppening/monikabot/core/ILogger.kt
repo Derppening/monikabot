@@ -32,6 +32,27 @@ import sx.blah.discord.handle.obj.IUser
 import java.awt.Color
 
 interface ILogger {
+    val logger: Logger
+        get() = LoggerFactory.getLogger(javaClass.name)!!
+
+    /**
+     * Logs a message to the debug channel.
+     *
+     * @param level Level of logging.
+     * @param message Message to log.
+     * @param action Actions to apply to the logger.
+     */
+    fun log(level: LogLevel, message: String, action: LogHelper.() -> Unit = {}) {
+        LogHelper(level, message, this.javaClass).apply(action).build()
+    }
+
+    /**
+     * Logs a "FIX" message to the console.
+     */
+    fun fix(fixtext: String, method: String, vararg args: String) {
+        logger.warn("FIXME in $method: $fixtext")
+    }
+
     enum class LogLevel {
         DEBUG,
         INFO,
@@ -46,11 +67,25 @@ interface ILogger {
         private var info: () -> String = { "" }
         private var stackTrace: () -> Array<StackTraceElement>? = { null }
 
-        fun message(action: () -> IMessage) { srcMessage = action }
-        fun author(action: () -> IUser) { srcAuthor = action }
-        fun channel(action: () -> IChannel) { srcChannel = action }
-        fun info(action: () -> String) { info = action }
-        fun stackTrace(action: () -> Array<StackTraceElement>) { stackTrace = action }
+        fun message(action: () -> IMessage) {
+            srcMessage = action
+        }
+
+        fun author(action: () -> IUser) {
+            srcAuthor = action
+        }
+
+        fun channel(action: () -> IChannel) {
+            srcChannel = action
+        }
+
+        fun info(action: () -> String) {
+            info = action
+        }
+
+        fun stackTrace(action: () -> Array<StackTraceElement>) {
+            stackTrace = action
+        }
 
         fun build() {
             buildEmbed(debugChannel) {
@@ -87,22 +122,4 @@ interface ILogger {
             }
         }
     }
-
-    /**
-     * Logs a message to the debug channel.
-     *
-     * @param level Level of logging.
-     * @param message Message to log.
-     * @param action Actions to apply to the logger.
-     */
-    fun log(level: LogLevel, message: String, action: LogHelper.() -> Unit = {}) {
-        LogHelper(level, message, this.javaClass).apply(action).build()
-    }
-
-    fun fix(fixtext: String, method: String, vararg args: String) {
-        logger.warn("FIXME in $method: $fixtext")
-    }
-
-    val logger: Logger
-        get() = LoggerFactory.getLogger(javaClass.name)!!
 }

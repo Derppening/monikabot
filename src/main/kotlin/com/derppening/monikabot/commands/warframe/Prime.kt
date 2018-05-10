@@ -23,9 +23,9 @@ package com.derppening.monikabot.commands.warframe
 import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimeMessage
-import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimeMessage
-import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimeMessage
+import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimesStr
+import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimesStr
+import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimesStr
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
@@ -43,6 +43,42 @@ object Prime : IBase, ILogger {
         displayPrimes(args, event)
 
         return Parser.HandleState.HANDLED
+    }
+
+    private fun displayPrimes(args: List<String>, event: MessageReceivedEvent) {
+        val listSize = if (args.isNotEmpty()) {
+            try {
+                args[0].toInt()
+            } catch (e: NumberFormatException) {
+                buildMessage(event.channel) {
+                    content {
+                        withContent("The number of primes to show is not an integer!")
+                    }
+                }
+                return
+            }
+        } else {
+            5
+        }
+
+        buildMessage(event.channel) {
+            content {
+                if (args.isNotEmpty()) {
+                    appendContent("Released Primes: ")
+                    appendContent(getReleasedPrimesStr(listSize).joinToString(""))
+                } else {
+                    appendContent("Current Primes:")
+                    appendContent(getCurrentPrimesStr().joinToString(""))
+                }
+            }
+        }
+
+        buildMessage(event.channel) {
+            content {
+                appendContent("**[PREDICTED]** Upcoming Primes:")
+                appendContent(getPredictedPrimesStr(listSize).joinToString(""))
+            }
+        }
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
@@ -65,30 +101,5 @@ object Prime : IBase, ILogger {
                 }
             }
         }
-    }
-
-    private fun displayPrimes(args: List<String>, event: MessageReceivedEvent) {
-        val listSize = if (args.isNotEmpty()) {
-            try {
-                args[0].toInt()
-            } catch (e: NumberFormatException) {
-                buildMessage(event.channel) {
-                    content {
-                        withContent("The number of primes to show is not an integer!")
-                    }
-                }
-                return
-            }
-        } else {
-            5
-        }
-
-        if (args.isNotEmpty()) {
-            getReleasedPrimeMessage(listSize)
-        } else {
-            getCurrentPrimeMessage()
-        }.withChannel(event.channel).send()
-
-        getPredictedPrimeMessage(listSize).withChannel(event.channel).build()
     }
 }

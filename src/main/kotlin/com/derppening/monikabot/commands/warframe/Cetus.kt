@@ -29,6 +29,7 @@ import com.derppening.monikabot.impl.warframe.CetusService.getPlagueStarEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getTimeEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -58,6 +59,48 @@ object Cetus : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
+    private fun getBounties(event: MessageReceivedEvent) {
+        getPlagueStarInfo(event)
+
+        getBountyEmbeds().forEach {
+            sendEmbed(it to event.channel)
+        }
+
+        getGhoulBounties(event)
+    }
+
+    private fun getGhoulBounties(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
+        getGhoulEmbeds().also {
+            if (it.isEmpty() && isDirectlyInvoked) {
+                buildMessage(event.channel) {
+                    content {
+                        withContent("There are currently no Ghoul Bounties!")
+                    }
+                }
+            }
+        }.forEach {
+            sendEmbed(it to event.channel)
+        }
+    }
+
+    private fun getPlagueStarInfo(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
+        getPlagueStarEmbeds().also {
+            if (it.isEmpty() && isDirectlyInvoked) {
+                buildMessage(event.channel) {
+                    content {
+                        withContent("Operation: Plague Star is not active!")
+                    }
+                }
+            }
+        }.forEach {
+            sendEmbed(it to event.channel)
+        }
+    }
+
+    private fun getTime(event: MessageReceivedEvent) {
+        sendEmbed(getTimeEmbed() to event.channel)
+    }
+
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
             fields {
@@ -82,53 +125,5 @@ object Cetus : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Retrieves and outputs a list of all current bounties.
-     */
-    private fun getBounties(event: MessageReceivedEvent) {
-        getPlagueStarInfo(event)
-
-        getBountyEmbeds().forEach {
-            event.channel.sendMessage(it)
-        }
-
-        getGhoulBounties(event)
-    }
-
-    /**
-     * Retrieves and outputs a list of all Ghoul bounties.
-     */
-    private fun getGhoulBounties(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
-        getGhoulEmbeds().also {
-            if (it.isEmpty() && isDirectlyInvoked) {
-                buildMessage(event.channel) {
-                    content {
-                        withContent("There are currently no Ghoul Bounties!")
-                    }
-                }
-            }
-        }.forEach {
-            event.channel.sendMessage(it)
-        }
-    }
-
-    private fun getPlagueStarInfo(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
-        getPlagueStarEmbeds().also {
-            if (it.isEmpty() && isDirectlyInvoked) {
-                buildMessage(event.channel) {
-                    content {
-                        withContent("Operation: Plague Star is not active!")
-                    }
-                }
-            }
-        }.forEach {
-            event.channel.sendMessage(it)
-        }
-    }
-
-    private fun getTime(event: MessageReceivedEvent) {
-        event.channel.sendMessage(getTimeEmbed())
     }
 }

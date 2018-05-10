@@ -38,10 +38,7 @@ class PlanetDeserializer : JsonDeserializer<Set<DropTable.Planet>>() {
             val nodeFields = planetTree[planetName].fieldNames()
             planetTree[planetName].forEach {
                 val nodeName = nodeFields.next()
-                val drops = ObjectMapper().apply {
-                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                }.readValue<DropTable.MissionDropInfo>(it.toString())
+                val drops = mapper.readValue<DropTable.MissionDropInfo>(it.toString())
 
                 nodes.add(DropTable.Planet.Node(nodeName, drops))
             }
@@ -50,5 +47,12 @@ class PlanetDeserializer : JsonDeserializer<Set<DropTable.Planet>>() {
         }
 
         return planetSet
+    }
+
+    companion object {
+        val mapper = ObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+        }
     }
 }

@@ -34,12 +34,12 @@ import java.time.Instant
 object DarvoService : ILogger {
     fun isDarvoInWorldState(): Boolean = worldState.dailyDeals.isNotEmpty()
 
-    fun getDarvo(): WorldState.DailyDeal {
+    fun getDarvoEmbed(): EmbedObject {
         if (worldState.dailyDeals.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
 
-        return worldState.dailyDeals.first()
+        return worldState.dailyDeals.first().toEmbed()
     }
 
     fun WorldState.DailyDeal.toEmbed(): EmbedObject {

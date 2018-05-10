@@ -22,10 +22,8 @@ package com.derppening.monikabot.models.warframe.droptable
 
 import com.derppening.monikabot.models.warframe.util.DropRewardDeserializer
 import com.derppening.monikabot.models.warframe.util.PlanetDeserializer
+import com.derppening.monikabot.models.warframe.util.TimeMillisDeserializer
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.time.Instant
 
@@ -143,12 +141,6 @@ class DropTable {
         val hash = ""
         @JsonDeserialize(using = TimeMillisDeserializer::class)
         val timestamp = Instant.EPOCH
-
-        class TimeMillisDeserializer : JsonDeserializer<Instant>() {
-            override fun deserialize(parser: JsonParser, context: DeserializationContext?): Instant {
-                return Instant.ofEpochMilli(parser.valueAsLong)
-            }
-        }
     }
 
 }

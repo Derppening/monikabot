@@ -34,6 +34,23 @@ import kotlin.concurrent.timer
 import kotlin.system.measureTimeMillis
 
 object WarframeService : ILogger {
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
+
+    private const val DROPTABLE_DATA_URL = "https://raw.githubusercontent.com/WFCD/warframe-drop-data/gh-pages/data/"
+    private const val WORLDSTATE_URL = "http://content.warframe.com/dynamic/worldState.php"
+
+    private var dropTableInfo = DropTable.Info()
+    var dropTables = DropTable()
+        private set
+    var worldState = WorldState()
+        private set
+
+    val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 300000) { updateDropTables() }
+    val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
+
     /**
      * Function to update drop tables.
      */
@@ -41,7 +58,7 @@ object WarframeService : ILogger {
         val info = jacksonObjectMapper().apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue<DropTable.Info>(URL("$dropTableDataUrl/info.json"))
+        }.readValue<DropTable.Info>(URL("$DROPTABLE_DATA_URL/info.json"))
 
         if (info.hash == dropTableInfo.hash && info.timestamp == dropTableInfo.timestamp) {
             return
@@ -50,7 +67,7 @@ object WarframeService : ILogger {
         dropTableInfo = info
 
         val timer = measureTimeMillis {
-            dropTables = jsonMapper.readValue(URL("$dropTableDataUrl/all.json"))
+            dropTables = jsonMapper.readValue(URL("$DROPTABLE_DATA_URL/all.json"))
         }
 
         Warframe.logger.debug("updateDropTables(): Parsing took ${timer}ms")
@@ -64,7 +81,7 @@ object WarframeService : ILogger {
     private fun updateWorldState() {
         try {
             val timer = measureTimeMillis {
-                worldState = jsonMapper.readValue(URL(worldStateUrl))
+                worldState = jsonMapper.readValue(URL(WORLDSTATE_URL))
             }
 
             Warframe.logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
@@ -72,22 +89,5 @@ object WarframeService : ILogger {
             Warframe.logger.warn("updateWorldState(): Unable to update! Will retry next cycle...")
             e.printStackTrace()
         }
-    }
-
-    val updateDropTablesTask = timer("Update Drop Table Timer", true, 0, 300000) { updateDropTables() }
-    val updateWorldStateTask = timer("Update WorldState Timer", true, 0, 30000) { updateWorldState() }
-
-    private const val dropTableDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-drop-data/gh-pages/data/"
-    private const val worldStateUrl = "http://content.warframe.com/dynamic/worldState.php"
-
-    private var dropTableInfo = DropTable.Info()
-    internal var dropTables = DropTable()
-        private set
-    internal var worldState = WorldState()
-        private set
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

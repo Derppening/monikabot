@@ -42,29 +42,50 @@ object InvasionService : ILogger {
         }
     }
 
+    fun WorldState.Invasion.toEmbed(): EmbedObject {
+        return EmbedBuilder().apply {
+            val defenderFaction = WorldState.getFactionString(attackerMissionInfo.faction)
+            val attackerFaction = WorldState.getFactionString(defenderMissionInfo.faction)
+            @Suppress("DIVISION_BY_ZERO")
+            val percentageDouble = (count * 100.0 / goal)
+            val percentage = formatReal(percentageDouble)
+            val percentageText = "${percentage.dropWhile { it == '-' }} ${if (percentageDouble < 0) attackerFaction else defenderFaction}"
+
+            withAuthorName("$attackerFaction vs $defenderFaction")
+            withTitle("Invasion in ${WorldState.getSolNode(node).value}")
+
+            appendField("Percentage", percentageText, false)
+
+            val attackerRewards = attackerReward.joinToString("\n") {
+                it.countedItems.joinToString("\n") {
+                    "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
+                }
+            }
+            val defenderRewards = defenderReward.countedItems.joinToString("\n") {
+                "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
+            }
+
+            if (attackerRewards.isNotBlank()) {
+                appendField("Attacker Rewards", attackerRewards, true)
+            }
+            if (defenderRewards.isNotBlank()) {
+                appendField("Defender Rewards", defenderRewards, true)
+            }
+
+            withTimestamp(Instant.now())
+        }.build()
+    }
+
     fun getInvasionAlertEmbed(): EmbedObject {
         return worldState.goals.filter {
             it.fomorian
         }.also {
             if (it.size > 1) {
-                fix("worldState[\"goals\"].filter { it.fomorian }w has more than 1 entry!", Core.getMethodName())
+                fix("worldState[\"goals\"].filter { it.fomorian } has more than 1 entry!", Core.getMethodName())
             }
         }.map {
             it.toEmbed()
         }.first()
-    }
-
-    fun getInvasionTimerEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
-            withTitle("Invasions - Construction Status")
-
-            val fomorianPercent = clamp(worldState.projectPct[0], 0.0, 100.0, compareBy { it })
-            val razorbackPercent = clamp(worldState.projectPct[1], 0.0, 100.0, compareBy { it })
-            appendField("Grineer - Fomorian", "${formatReal(fomorianPercent)}%", true)
-            appendField("Corpus - Razorback", "${formatReal(razorbackPercent)}%", true)
-
-            withTimestamp(Instant.now())
-        }.build()
     }
 
     fun WorldState.Goal.toEmbed(): EmbedObject {
@@ -102,35 +123,14 @@ object InvasionService : ILogger {
         }.build()
     }
 
-    fun WorldState.Invasion.toEmbed(): EmbedObject {
+    fun getInvasionTimerEmbed(): EmbedObject {
         return EmbedBuilder().apply {
-            val defenderFaction = WorldState.getFactionString(attackerMissionInfo.faction)
-            val attackerFaction = WorldState.getFactionString(defenderMissionInfo.faction)
-            @Suppress("DIVISION_BY_ZERO")
-            val percentageDouble = (count * 100.0 / goal)
-            val percentage = formatReal(percentageDouble)
-            val percentageText = "${percentage.dropWhile { it == '-' }} ${if (percentageDouble < 0) attackerFaction else defenderFaction}"
+            withTitle("Invasions - Construction Status")
 
-            withAuthorName("$attackerFaction vs $defenderFaction")
-            withTitle("Invasion in ${WorldState.getSolNode(node).value}")
-
-            appendField("Percentage", percentageText, false)
-
-            val attackerRewards = attackerReward.joinToString("\n") {
-                it.countedItems.joinToString("\n") {
-                    "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
-                }
-            }
-            val defenderRewards = defenderReward.countedItems.joinToString("\n") {
-                "${it.itemCount}x ${WorldState.getLanguageFromAsset(it.itemType)}"
-            }
-
-            if (attackerRewards.isNotBlank()) {
-                appendField("Attacker Rewards", attackerRewards, true)
-            }
-            if (defenderRewards.isNotBlank()) {
-                appendField("Defender Rewards", defenderRewards, true)
-            }
+            val fomorianPercent = clamp(worldState.projectPct[0], 0.0, 100.0, compareBy { it })
+            val razorbackPercent = clamp(worldState.projectPct[1], 0.0, 100.0, compareBy { it })
+            appendField("Grineer - Fomorian", "${formatReal(fomorianPercent)}%", true)
+            appendField("Corpus - Razorback", "${formatReal(razorbackPercent)}%", true)
 
             withTimestamp(Instant.now())
         }.build()

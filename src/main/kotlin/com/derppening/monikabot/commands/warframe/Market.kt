@@ -24,8 +24,10 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.MarketService
+import com.derppening.monikabot.impl.warframe.MarketService.getMarketItem
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -44,7 +46,7 @@ object Market : IBase, ILogger {
         }
 
         event.channel.toggleTypingStatus()
-        MarketService.getMarketItem(args).also {
+        getMarketItem(args).also {
             when (it) {
                 is MarketService.Result.Failure -> {
                     buildMessage(event.channel) {
@@ -54,7 +56,7 @@ object Market : IBase, ILogger {
                     }
                 }
                 is MarketService.Result.Success -> {
-                    event.channel.sendMessage(it.embed)
+                    sendEmbed(it.embed to event.channel)
                 }
             }
         }

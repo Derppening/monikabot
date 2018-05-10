@@ -33,6 +33,24 @@ import java.text.DecimalFormat
 import kotlin.system.measureTimeMillis
 
 object DropService : ILogger {
+    private val rarity = listOf(
+            "Common",
+            "Uncommon",
+            "Rare",
+            "Legendary"
+    )
+
+    private val relicTiers = listOf(
+            "Lith",
+            "Meso",
+            "Neo",
+            "Axi"
+    )
+
+    private var relicDrops = emptyList<String>()
+
+    private val allDrops = mutableListOf<DropInfo>()
+
     fun findAll(args: List<String>): FindResult {
         val drop = FuzzyMatcher(args, allDrops.map { it.name }) {
             regex(RegexOption.IGNORE_CASE)
@@ -391,13 +409,13 @@ object DropService : ILogger {
                 }
             }
 
-           dropTables.relics.filter { it.state == "Intact" }.forEach { relic ->
+            dropTables.relics.filter { it.state == "Intact" }.forEach { relic ->
                 relic.rewards.forEach {
                     parseReward(it, "${relic.tier} ${relic.relicName} Relic")
                 }
             }
 
-           dropTables.transientRewards.forEach { transient ->
+            dropTables.transientRewards.forEach { transient ->
                 transient.rewards.forEach {
                     parseReward(it, "${transient.objectiveName} - Rotation ${it.rotation}")
                 }
@@ -409,7 +427,7 @@ object DropService : ILogger {
                 }
             }
 
-           dropTables.blueprintLocations.forEach { bp ->
+            dropTables.blueprintLocations.forEach { bp ->
                 bp.enemies.forEach {
                     parseEnemy(bp.blueprintName, it)
                 }
@@ -458,22 +476,4 @@ object DropService : ILogger {
         class Success(val match: EmbedObject) : FindResult()
         class Failure(val matches: List<String>) : FindResult()
     }
-
-    private val rarity = listOf(
-            "Common",
-            "Uncommon",
-            "Rare",
-            "Legendary"
-    )
-
-    private val relicTiers = listOf(
-            "Lith",
-            "Meso",
-            "Neo",
-            "Axi"
-    )
-
-    private var relicDrops = emptyList<String>()
-
-    private val allDrops = mutableListOf<DropInfo>()
 }

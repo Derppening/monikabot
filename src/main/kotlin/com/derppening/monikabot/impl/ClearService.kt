@@ -25,12 +25,6 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.DiscordException
 
 object ClearService : ILogger {
-    enum class Result {
-        SUCCESS,
-        FAILURE_PRIVATE_CHANNEL,
-        FAILURE_OTHER
-    }
-
     fun clearChannel(channel: IChannel, isClearAll: Boolean): Result {
         if (channel.isPrivate) {
             return Result.FAILURE_PRIVATE_CHANNEL
@@ -45,5 +39,11 @@ object ClearService : ILogger {
         }
 
         return Result.SUCCESS
+    }
+
+    enum class Result {
+        SUCCESS,
+        FAILURE_PRIVATE_CHANNEL,
+        FAILURE_OTHER
     }
 }

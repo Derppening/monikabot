@@ -29,12 +29,16 @@ import java.time.Instant
 
 class ReminderDeserializer : JsonDeserializer<ReminderService.Timer>() {
     override fun deserialize(parser: JsonParser?, context: DeserializationContext?): ReminderService.Timer {
+        val node = mapper.readValue<JsonNode>(parser?.readValueAsTree<JsonNode>().toString())
+        return ReminderService.Timer(node["timerName\$monikabot_main"].toString().removeQuotes(),
+                Instant.ofEpochSecond(node["expiryDateTime\$monikabot_main"]["epochSecond"].longValue()),
+                node["userID\$monikabot_main"].longValue())
+    }
+
+    companion object {
         val mapper = ObjectMapper().apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue<JsonNode>(parser?.readValueAsTree<JsonNode>().toString())
-        return ReminderService.Timer(mapper["timerName\$monikabot_main"].toString().removeQuotes(),
-                Instant.ofEpochSecond(mapper["expiryDateTime\$monikabot_main"]["epochSecond"].longValue()),
-                mapper["userID\$monikabot_main"].longValue())
+        }
     }
 }

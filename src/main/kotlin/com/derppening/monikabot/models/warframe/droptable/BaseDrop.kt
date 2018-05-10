@@ -31,6 +31,7 @@ sealed class BaseDrop {
     open class ModDrop : BaseDrop() {
         val modName = ""
     }
+
     open class RewardDrop : BaseDrop() {
         val itemName = ""
     }

@@ -43,7 +43,8 @@ object Clear : IBase, ILogger {
                     }
                 }
             }
-            else -> {}
+            else -> {
+            }
         }
 
         return Parser.HandleState.HANDLED

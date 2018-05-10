@@ -33,12 +33,12 @@ import java.time.Instant
 object SortieService : ILogger {
     fun isSortieInWorldState(): Boolean = worldState.sorties.isNotEmpty()
 
-    fun getSortie(): WorldState.Sorties {
+    fun getSortie(): EmbedObject {
         if (worldState.sorties.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
 
-        return worldState.sorties.first()
+        return worldState.sorties.first().toEmbed()
     }
 
     fun WorldState.Sorties.toEmbed(): EmbedObject {

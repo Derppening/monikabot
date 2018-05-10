@@ -26,6 +26,11 @@ import java.time.Instant
 
 object PersistentMessage : IChannel by debugChannel, ILogger {
     /**
+     * Map of persistent information.
+     */
+    private val map = mutableMapOf<String, MutableMap<String, String>>()
+
+    /**
      * Modifies persistent buildMessage.
      *
      * @param header Header which the key belongs to.
@@ -72,9 +77,4 @@ object PersistentMessage : IChannel by debugChannel, ILogger {
             "Nothing to see here!"
         }
     }
-
-    /**
-     * Map of persistent information.
-     */
-    private val map = mutableMapOf<String, MutableMap<String, String>>()
 }

@@ -28,11 +28,6 @@ import sx.blah.discord.util.EmbedBuilder
 import kotlin.math.pow
 
 object RNGService : ILogger {
-    sealed class Result {
-        class Failure(val message: String) : Result()
-        class Success(val embeds: EmbedBuilder.() -> Unit) : Result()
-    }
-
     fun computeRNGStats(args: List<String>): Result {
         var prob = Pair(false, 0.0)
         var attempts = Pair(false, 0)
@@ -69,9 +64,9 @@ object RNGService : ILogger {
                 error("You cannot format a number to a negative number of significant figures!")
             }
         } catch (e: NumberFormatException) {
-                return Result.Failure("One of the numbers is not formatted properly!")
+            return Result.Failure("One of the numbers is not formatted properly!")
         } catch (e: Exception) {
-                return Result.Failure(e.message!!)
+            return Result.Failure(e.message!!)
         }
 
         return Result.Success {
@@ -129,5 +124,10 @@ object RNGService : ILogger {
                 appendField("Percentile", formatReal(percentile, round, true), true)
             }
         }
+    }
+
+    sealed class Result {
+        class Failure(val message: String) : Result()
+        class Success(val embeds: EmbedBuilder.() -> Unit) : Result()
     }
 }

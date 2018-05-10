@@ -27,6 +27,7 @@ import com.derppening.monikabot.impl.warframe.DropService
 import com.derppening.monikabot.impl.warframe.DropService.FindResult
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IChannel
@@ -55,47 +56,6 @@ object Drop : IBase, ILogger {
         }
 
         return Parser.HandleState.HANDLED
-    }
-
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-drop`")
-                withDesc("Displays drop chance information for different locations in-game.")
-                insertSeparator()
-
-                appendField("Usage", "```warframe drop [loc_type] [location]```", false)
-                appendField("`[loc_type]`", "Specifies the type of location to search for." +
-                        "\nRecognized categories include:" +
-                        "\n- `blueprint`" +
-//                    "\n- `bounty`" +
-                        "\n- `enemy`" +
-                        "\n- `key`" +
-                        "\n- `mission`" +
-                        "\n- `operation`" +
-                        "\n- `relic`" +
-                        "\n- `sortie`", false)
-                appendField("`[location]", "The name of the location to lookup drop tables.", false)
-                insertSeparator()
-
-                appendField("Usage", "```warframe drop [item_type] [location]```", false)
-                appendField("`[item_type]`", "If give, specifies the category of item to search for." +
-                        "\nRecognized categories include:" +
-                        "\n- `mod`" +
-                        "\n- `prime`", false)
-                appendField("`[item]`", "Item to search drop locations for.", false)
-            }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
-        }
     }
 
     private fun findAll(args: List<String>, event: MessageReceivedEvent) {
@@ -150,7 +110,7 @@ object Drop : IBase, ILogger {
     private fun serviceDelegator(args: List<String>, channel: IChannel, func: (List<String>) -> FindResult) {
         func(args).also {
             when (it) {
-                is FindResult.Success -> channel.sendMessage(it.match)
+                is FindResult.Success -> sendEmbed(it.match to channel)
                 is FindResult.Failure -> failureMessage(it, channel)
             }
         }
@@ -165,6 +125,47 @@ object Drop : IBase, ILogger {
                     withContent("Multiple results match your given search! Including:" +
                             "\n\n${it.matches.take(5).joinToString("\n")}" +
                             "\n\n... With a total of ${it.matches.size} results.")
+                }
+            }
+        }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `warframe-drop`")
+                withDesc("Displays drop chance information for different locations in-game.")
+                insertSeparator()
+
+                appendField("Usage", "```warframe drop [loc_type] [location]```", false)
+                appendField("`[loc_type]`", "Specifies the type of location to search for." +
+                        "\nRecognized categories include:" +
+                        "\n- `blueprint`" +
+//                    "\n- `bounty`" +
+                        "\n- `enemy`" +
+                        "\n- `key`" +
+                        "\n- `mission`" +
+                        "\n- `operation`" +
+                        "\n- `relic`" +
+                        "\n- `sortie`", false)
+                appendField("`[location]", "The name of the location to lookup drop tables.", false)
+                insertSeparator()
+
+                appendField("Usage", "```warframe drop [item_type] [location]```", false)
+                appendField("`[item_type]`", "If give, specifies the category of item to search for." +
+                        "\nRecognized categories include:" +
+                        "\n- `mod`" +
+                        "\n- `prime`", false)
+                appendField("`[item]`", "Item to search drop locations for.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

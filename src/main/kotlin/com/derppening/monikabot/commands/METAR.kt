@@ -25,6 +25,7 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.METARService.toEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object METAR : IBase, ILogger {
@@ -32,7 +33,7 @@ object METAR : IBase, ILogger {
         val args = getArgumentList(event.message.content)
 
         if (args.size == 1) {
-            event.channel.sendMessage(toEmbed(args[0].toUpperCase()))
+            sendEmbed(toEmbed(args[0].toUpperCase()) to event.channel)
         } else {
             help(event, false)
         }

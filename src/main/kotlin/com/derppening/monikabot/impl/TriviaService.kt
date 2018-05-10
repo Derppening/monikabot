@@ -36,6 +36,13 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import java.net.URL
 
 object TriviaService : ILogger {
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
+
+    val users = mutableListOf<Long>()
+
     fun startTrivia(args: List<String>, event: MessageReceivedEvent) {
         val questions = args.firstOrNull()?.toIntOrNull() ?: 5
         val difficulty = args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
@@ -190,6 +197,10 @@ object TriviaService : ILogger {
         Trivia.logger.info("Ending Trivia for ${event.author.getDiscordTag()}")
     }
 
+    private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
+        return jsonMapper.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
+    }
+
     /**
      * Checks whether the current user is playing trivia.
      */
@@ -219,13 +230,6 @@ object TriviaService : ILogger {
         }
     }
 
-    var users = mutableListOf<Long>()
-        private set
-
-    private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
-        return jsonMapper.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
-    }
-
     class TriviaData {
         @JsonProperty("response_code")
         val responseCode = 0
@@ -241,10 +245,5 @@ object TriviaService : ILogger {
             @JsonProperty("incorrect_answers")
             val incorrectAnswers = listOf<String>()
         }
-    }
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

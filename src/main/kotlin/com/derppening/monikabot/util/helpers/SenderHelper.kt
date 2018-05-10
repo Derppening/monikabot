@@ -26,29 +26,24 @@ import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.RateLimitException
 
 abstract class SenderHelper<T> : ILogger {
-        var genericHandler: (Exception) -> Unit = {}
-            private set
-        var discordHandler: (DiscordException) -> Unit = {}
-            private set
-
-        /**
-         * Sets the handler for Exception.
-         */
-        fun genericException(handler: (Exception) -> Unit) {
-            genericHandler = handler
-        }
-
-        /**
-         * Sets the handler for DiscordException.
-         */
-        fun discordException(handler: (DiscordException) -> Unit) {
-            discordHandler = handler
-        }
+    var genericHandler: (Exception) -> Unit = {}
+        private set
+    var discordHandler: (DiscordException) -> Unit = {}
+        private set
 
     /**
-     * Implementation for how to send objects of type [T] to channel.
+     * Sets the handler for Exception.
      */
-    protected abstract fun sendImpl(): IMessage
+    fun genericException(handler: (Exception) -> Unit) {
+        genericHandler = handler
+    }
+
+    /**
+     * Sets the handler for DiscordException.
+     */
+    fun discordException(handler: (DiscordException) -> Unit) {
+        discordHandler = handler
+    }
 
     /**
      * Handlers when an exception is thrown.
@@ -56,14 +51,26 @@ abstract class SenderHelper<T> : ILogger {
     fun onError(action: SenderHelper<T>.() -> Unit) {
         apply(action)
     }
+
+    /**
+     * Implementation for how to send objects of type [T] to channel.
+     */
+    protected abstract fun sendImpl(): IMessage
+
     /**
      * Details on how to construct the object (if required).
      */
     protected open fun impl(action: T.() -> Unit): T = data()
+
     /**
      * Returns the underlying data.
      */
     abstract fun data(): T
+
+    /**
+     * Sends the object.
+     */
+    fun send(): IMessage? = deliverObject()
 
     /**
      * Delivers an object using the method specified in [sendImpl].
@@ -89,6 +96,4 @@ abstract class SenderHelper<T> : ILogger {
             }
         }
     }
-
-    fun send(): IMessage? = deliverObject()
 }

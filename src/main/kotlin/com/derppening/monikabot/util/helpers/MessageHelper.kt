@@ -27,6 +27,10 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.MessageBuilder
 
 object MessageHelper : ILogger {
+    fun buildMessage(channel: IChannel, action: MessageHelper.() -> Unit): IMessage? {
+        return MessageHelper(channel, action).send()
+    }
+
     /**
      * Helper class for sending messages from builders.
      */
@@ -46,9 +50,5 @@ object MessageHelper : ILogger {
 
         override fun impl(action: MessageBuilder.() -> Unit): MessageBuilder = builder.apply(action)
         override fun data() = builder
-    }
-
-    fun buildMessage(channel: IChannel, action: MessageHelper.() -> Unit): IMessage? {
-        return MessageHelper(channel, action).send()
     }
 }

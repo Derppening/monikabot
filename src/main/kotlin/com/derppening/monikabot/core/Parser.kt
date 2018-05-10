@@ -36,13 +36,37 @@ import java.io.File
 import kotlin.concurrent.thread
 
 object Parser : ILogger {
-    enum class HandleState {
-        HANDLED,
-        UNHANDLED,
-        PERMISSION_DENIED,
-        MULTIPLE_MATCHES,
-        NOT_FOUND
-    }
+    private var nullResponses = loadNullResponses()
+
+    private const val NULL_RESPONSE_PATH = "lang/NullResponse.txt"
+
+    private val commands: Map<String, IBase> = mapOf(
+            "changelog" to Changelog,
+            "clear" to Clear,
+            "config" to Config,
+            "debug" to Debug,
+            "dog" to Dog,
+            "echo" to Echo,
+            "help" to Help,
+            "issue" to Issue,
+            "metar" to METAR,
+            "ping" to Ping,
+            "random" to Random,
+            "reload" to Reload,
+            "reminder" to Reminder,
+            "rng" to RNG,
+            "status" to Status,
+            "stop" to Stop,
+            "timer" to Reminder,
+            "trivia" to Trivia,
+            "version" to Version,
+            "warframe" to Warframe,
+
+            // aliases
+            "bugreport" to Issue
+    )
+
+    private val experimentalCommands: Map<String, IBase> = emptyMap()
 
     /**
      * Command delegator for all messages.
@@ -179,6 +203,19 @@ object Parser : ILogger {
     }
 
     /**
+     * Returns true if the invocation is valid, i.e.:
+     *  - In a private channel, or
+     *  - Message starts with a mention of the bot.
+     */
+    private fun isInvocationValid(event: MessageReceivedEvent) =
+            event.channel.isPrivate || event.message.isMentionMe()
+
+    /**
+     * Returns a random message from nullResponses.
+     */
+    private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
+
+    /**
      * Reloads responses when bot is invoked but no command is given.
      */
     fun loadNullResponses(): List<String> {
@@ -187,60 +224,22 @@ object Parser : ILogger {
     }
 
     /**
+     * Returns the command from a string.
+     */
+    private fun getCommand(message: String): String = message.split(' ')[0]
+
+    /**
      * Parses commands with "--experimental" flag given.
      */
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
         return experimentalCommands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
     }
 
-    /**
-     * Returns true if the invocation is valid, i.e.:
-     *  - In a private channel, or
-     *  - Message starts with a mention of the bot.
-     */
-    private fun isInvocationValid(event: MessageReceivedEvent) =
-            event.channel.isPrivate || event.message.isMentionMe()
-
-
-    /**
-     * Returns the command from a string.
-     */
-    private fun getCommand(message: String): String = message.split(' ')[0]
-
-    /**
-     * Returns a random message from nullResponses.
-     */
-    private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
-
-    private var nullResponses = loadNullResponses()
-
-    private const val NULL_RESPONSE_PATH = "lang/NullResponse.txt"
-
-    private val commands: Map<String, IBase> = mapOf(
-            "changelog" to Changelog,
-            "clear" to Clear,
-            "config" to Config,
-            "debug" to Debug,
-            "dog" to Dog,
-            "echo" to Echo,
-            "help" to Help,
-            "issue" to Issue,
-            "metar" to METAR,
-            "ping" to Ping,
-            "random" to Random,
-            "reload" to Reload,
-            "reminder" to Reminder,
-            "rng" to RNG,
-            "status" to Status,
-            "stop" to Stop,
-            "timer" to Reminder,
-            "trivia" to Trivia,
-            "version" to Version,
-            "warframe" to Warframe,
-
-            // aliases
-            "bugreport" to Issue
-    )
-
-    private val experimentalCommands: Map<String, IBase> = emptyMap()
+    enum class HandleState {
+        HANDLED,
+        UNHANDLED,
+        PERMISSION_DENIED,
+        MULTIPLE_MATCHES,
+        NOT_FOUND
+    }
 }

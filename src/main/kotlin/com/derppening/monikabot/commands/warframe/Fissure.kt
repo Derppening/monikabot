@@ -26,6 +26,7 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.FissureService.getFissureEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Fissure : IBase, ILogger {
@@ -33,7 +34,7 @@ object Fissure : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1)
 
         event.channel.toggleTypingStatus()
-        event.channel.sendMessage(getFissureEmbed())
+        sendEmbed(getFissureEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED
     }

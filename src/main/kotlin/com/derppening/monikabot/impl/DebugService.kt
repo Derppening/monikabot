@@ -72,10 +72,10 @@ object DebugService : ILogger {
 
         try {
             client.getMessageByID(id)?.edit(editText)
-                ?: run {
-                    log(ILogger.LogLevel.ERROR, "Cannot find message with ID $id")
-                    return false
-                }
+                    ?: run {
+                        log(ILogger.LogLevel.ERROR, "Cannot find message with ID $id")
+                        return false
+                    }
         } catch (e: DiscordException) {
             log(ILogger.LogLevel.ERROR, "Unable to edit message") {
                 stackTrace { e.stackTrace }

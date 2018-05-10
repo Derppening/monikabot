@@ -27,6 +27,15 @@ import java.io.File
 import java.nio.file.Paths
 
 object EmoticonService : ILogger {
+    private val pairs = readFromFile()
+
+    private fun readFromFile(): Map<String, String> =
+            File(Paths.get("persistent/emoticons.txt").toUri())
+                    .readLines()
+                    .associate {
+                        it.takeWhile { it != '=' } to it.dropWhile { it != '=' }.drop(1)
+                    }
+
     fun findEmoticon(search: String): Result {
         return FuzzyMatcher(listOf(search), pairs.map { it.key }) {
             regex(RegexOption.IGNORE_CASE)
@@ -50,14 +59,4 @@ object EmoticonService : ILogger {
         class Success(val emote: String) : Result()
         class Failure(val state: Parser.HandleState, val message: String = "") : Result()
     }
-
-    private fun readFromFile(): Map<String, String> =
-            File(Paths.get("persistent/emoticons.txt").toUri())
-                    .readLines()
-                    .associateBy(
-                            { it.takeWhile { it != '=' } },
-                            { it.dropWhile { it != '=' }.drop(1) }
-                    )
-
-    private val pairs = readFromFile()
 }

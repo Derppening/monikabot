@@ -45,6 +45,42 @@ object Changelog : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
+
+    private fun outputAllChanges(event: MessageReceivedEvent, showRel: Boolean) {
+        val displayChanges = getAll(showRel)
+
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Last 5 Changelogs")
+                if (displayChanges.isEmpty()) {
+                    withDesc("There are no official releases (yet)!")
+                } else {
+                    displayChanges.forEach { (ver, changetext) ->
+                        appendField(ver, changetext.joinToString("\n"), false)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun outputLatestChanges(event: MessageReceivedEvent, showRel: Boolean) {
+        val displayChange = getLatest(showRel) ?: run {
+            buildMessage(event.channel) {
+                content {
+                    withContent("There are no official releases (yet)!")
+                }
+            }
+            return
+        }
+
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Changelog for ${displayChange.first}")
+                withDesc(displayChange.second.joinToString("\n"))
+            }
+        }
+    }
+
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
             fields {
@@ -64,47 +100,6 @@ object Changelog : IBase, ILogger {
                         info { e.errorMessage }
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * Displays the changes of the most recent 5 builds.
-     */
-    private fun outputAllChanges(event: MessageReceivedEvent, showRel: Boolean) {
-        val displayChanges = getAll(showRel)
-
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Last 5 Changelogs")
-                if (displayChanges.isEmpty()) {
-                    withDesc("There are no official releases (yet)!")
-                } else {
-                    displayChanges.forEach { (ver, changetext) ->
-                        appendField(ver, changetext.joinToString("\n"), false)
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Displays the changes of the most recent build.
-     */
-    private fun outputLatestChanges(event: MessageReceivedEvent, showRel: Boolean) {
-        val displayChange = getLatest(showRel) ?: run {
-            buildMessage(event.channel) {
-                content {
-                    withContent("There are no official releases (yet)!")
-                }
-            }
-            return
-        }
-
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Changelog for ${displayChange.first}")
-                withDesc(displayChange.second.joinToString("\n"))
             }
         }
     }

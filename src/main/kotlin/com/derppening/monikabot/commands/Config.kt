@@ -53,28 +53,6 @@ object Config : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `config`")
-                withDesc("Core configurations for MonikaBot.")
-                insertSeparator()
-                appendField("Usage", "```config [configuration] [options...]```", false)
-                appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
-            }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Handler for "config experimental" commands.
      *
@@ -141,6 +119,28 @@ object Config : IBase, ILogger {
                         insertSeparator()
                         appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
                         appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `config`")
+                withDesc("Core configurations for MonikaBot.")
+                insertSeparator()
+                appendField("Usage", "```config [configuration] [options...]```", false)
+                appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
                     }
                 }
             }

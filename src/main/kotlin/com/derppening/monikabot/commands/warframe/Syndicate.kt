@@ -28,6 +28,7 @@ import com.derppening.monikabot.impl.warframe.SyndicateService.toEmbed
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -44,30 +45,7 @@ object Syndicate : IBase, ILogger {
             }
         }
 
-
         return Parser.HandleState.HANDLED
-    }
-
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-syndicate`")
-                withDesc("Displays missions of a given syndicate.")
-                insertSeparator()
-                appendField("Usage", "```warframe syndicate [syndicate]```", false)
-                appendField("`[syndicate]`", "The syndicate to show missions for.", false)
-            }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -96,6 +74,28 @@ object Syndicate : IBase, ILogger {
             }
         }.first()
 
-        event.channel.sendMessage(syndicate.toEmbed())
+        sendEmbed(syndicate.toEmbed() to event.channel)
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `warframe-syndicate`")
+                withDesc("Displays missions of a given syndicate.")
+                insertSeparator()
+                appendField("Usage", "```warframe syndicate [syndicate]```", false)
+                appendField("`[syndicate]`", "The syndicate to show missions for.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
+                }
+            }
+        }
     }
 }

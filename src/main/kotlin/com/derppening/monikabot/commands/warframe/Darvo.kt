@@ -24,10 +24,10 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.DarvoService
-import com.derppening.monikabot.impl.warframe.DarvoService.getDarvo
-import com.derppening.monikabot.impl.warframe.DarvoService.toEmbed
+import com.derppening.monikabot.impl.warframe.DarvoService.getDarvoEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -45,7 +45,7 @@ object Darvo : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        event.channel.sendMessage(getDarvo().toEmbed())
+        sendEmbed(getDarvoEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED
     }

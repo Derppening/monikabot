@@ -33,12 +33,12 @@ import java.time.Instant
 object BaroService : ILogger {
     fun isBaroInWorldState(): Boolean = worldState.voidTraders.isNotEmpty()
 
-    fun getBaro(): WorldState.VoidTrader {
+    fun getBaroEmbed(): EmbedObject {
         if (worldState.voidTraders.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
 
-        return worldState.voidTraders.first()
+        return worldState.voidTraders.first().toEmbed()
     }
 
     fun WorldState.VoidTrader.toEmbed(): EmbedObject {

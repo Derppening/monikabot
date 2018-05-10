@@ -28,11 +28,6 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.DiscordException
 
 object EchoService : ILogger {
-    sealed class Result {
-        class Success : Result()
-        class Failure(val message: String) : Result()
-    }
-
     fun toPrivateChannel(args: List<String>): Result {
         val username = args[1].dropLastWhile { it != '#' }.dropLastWhile { it == '#' }
         val discriminator = args[1].dropWhile { it != '#' }.dropWhile { it == '#' }
@@ -101,5 +96,10 @@ object EchoService : ILogger {
         }
 
         return Result.Success()
+    }
+
+    sealed class Result {
+        class Success : Result()
+        class Failure(val message: String) : Result()
     }
 }

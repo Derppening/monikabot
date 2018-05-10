@@ -39,8 +39,27 @@ import kotlin.system.exitProcess
  */
 object Client : ILogger, IDiscordClient by client {
     /**
-     * Listener for ReadyEvent.
+     * Default activity.
      */
+    private val defaultActivity = ActivityType.PLAYING
+    /**
+     * Default user name.
+     */
+    private const val defaultUserName = "MonikaBot"
+    /**
+     * Default state.
+     */
+    private val defaultState = StatusType.ONLINE
+    /**
+     * Default text.
+     */
+    private const val defaultText = "Okay Everyone!"
+
+    /**
+     * List of all background timers.
+     */
+    private val timers = mutableListOf<Timer>()
+
     @EventSubscriber
     fun onReadyListener(event: ReadyEvent) {
         try {
@@ -68,7 +87,8 @@ object Client : ILogger, IDiscordClient by client {
                 Thread.sleep(30000)
                 try {
                     event.client.login()
-                } catch (e: Exception) {}
+                } catch (e: Exception) {
+                }
             }
         }
     }
@@ -112,26 +132,4 @@ object Client : ILogger, IDiscordClient by client {
         changePresence(defaultState, defaultActivity, defaultText)
         log(ILogger.LogLevel.INFO, "Successfully updated")
     }
-
-    /**
-     * List of all background timers.
-     */
-    private val timers = mutableListOf<Timer>()
-
-    /**
-     * Default activity.
-     */
-    private val defaultActivity = ActivityType.PLAYING
-    /**
-     * Default user name.
-     */
-    private const val defaultUserName = "MonikaBot"
-    /**
-     * Default state.
-     */
-    private val defaultState = StatusType.ONLINE
-    /**
-     * Default text.
-     */
-    private const val defaultText = "Okay Everyone!"
 }

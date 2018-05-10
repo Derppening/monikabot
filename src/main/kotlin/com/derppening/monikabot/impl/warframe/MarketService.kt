@@ -35,6 +35,16 @@ import sx.blah.discord.util.EmbedBuilder
 import java.time.Instant
 
 object MarketService : ILogger {
+    /**
+     * Fixed link for warframe market images.
+     */
+    private const val imageLink = "https://warframe.market/static/assets/"
+
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
+
     fun getMarketItem(args: List<String>): Result {
         val manifestEntry = findItemInMarket(args).let {
             if (it.first.isNotBlank()) {
@@ -173,15 +183,5 @@ object MarketService : ILogger {
     sealed class Result {
         class Success(val embed: EmbedObject) : Result()
         class Failure(val message: String) : Result()
-    }
-
-    /**
-     * Fixed link for warframe market images.
-     */
-    private const val imageLink = "https://warframe.market/static/assets/"
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

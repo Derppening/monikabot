@@ -25,6 +25,8 @@ import java.net.URL
 import java.net.URLConnection
 
 object URLHelper : ILogger {
+    private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
+
     fun URL.openAndSetUserAgent(userAgent: String = USER_AGENT): URLConnection = openConnection().also {
         it.setRequestProperty("User-Agent", userAgent)
     }
@@ -36,6 +38,4 @@ object URLHelper : ILogger {
     fun URLConnection.readText(): String = getInputStream().bufferedReader().readText()
 
     fun URLConnection.readLines(): List<String> = getInputStream().bufferedReader().readLines()
-
-    private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
 }

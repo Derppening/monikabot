@@ -24,10 +24,10 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.BaroService
-import com.derppening.monikabot.impl.warframe.BaroService.getBaro
-import com.derppening.monikabot.impl.warframe.BaroService.toEmbed
+import com.derppening.monikabot.impl.warframe.BaroService.getBaroEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -46,7 +46,7 @@ object Baro : IBase, ILogger {
         }
 
         event.channel.toggleTypingStatus()
-        event.channel.sendMessage(getBaro().toEmbed())
+        sendEmbed(getBaroEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED
     }

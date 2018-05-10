@@ -364,9 +364,16 @@ class WorldState {
     }
 
     companion object {
-        internal fun getArcaneInfo(arcane: String): Arcane {
+        private const val WORLDSTATE_DATA_URL = "https://raw.githubusercontent.com/WFCD/warframe-worldstate-data/master/data"
+
+        private val jsonMapper = jacksonObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+        }
+
+        fun getArcaneInfo(arcane: String): Arcane {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/arcanes.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/arcanes.json"))
                         .find { arcane.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             jsonMapper.readValue<Arcane>(it.toString())
@@ -376,9 +383,9 @@ class WorldState {
             }
         }
 
-        internal fun getFactionString(faction: String): String {
+        fun getFactionString(faction: String): String {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/factionsData.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/factionsData.json"))
                         .get(faction)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -386,9 +393,9 @@ class WorldState {
             }
         }
 
-        internal fun getFissureModifier(tier: String): String {
+        fun getFissureModifier(tier: String): String {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/fissureModifiers.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/fissureModifiers.json"))
                         .get(tier)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -396,8 +403,8 @@ class WorldState {
             }
         }
 
-        internal fun getLanguageFromAsset(encoded: String): String {
-            val mapper = jsonMapper.readTree(URL("${worldStateDataUrl}/languages.json"))
+        fun getLanguageFromAsset(encoded: String): String {
+            val mapper = jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/languages.json"))
             return try {
                 mapper.get(encoded).get("value").asText()
             } catch (e: Exception) {
@@ -409,9 +416,9 @@ class WorldState {
             }
         }
 
-        internal fun getMissionType(missionType: String): String {
+        fun getMissionType(missionType: String): String {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/missionTypes.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/missionTypes.json"))
                         .get(missionType)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -419,9 +426,9 @@ class WorldState {
             }
         }
 
-        internal fun getSolNode(solNode: String): SolNode {
+        fun getSolNode(solNode: String): SolNode {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/solNodes.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/solNodes.json"))
                         .get(solNode)
                         .let {
                             jsonMapper.readValue(it.toString())
@@ -431,9 +438,9 @@ class WorldState {
             }
         }
 
-        internal fun getSortieModifier(modifier: String): SortieModifier {
+        fun getSortieModifier(modifier: String): SortieModifier {
             return try {
-                val tree = jsonMapper.readTree(URL("${worldStateDataUrl}/sortieData.json"))
+                val tree = jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/sortieData.json"))
 
                 SortieModifier(tree.get("modifierTypes").get(modifier).asText(), tree.get("modifierDescriptions").get(modifier).asText())
             } catch (e: Exception) {
@@ -441,9 +448,9 @@ class WorldState {
             }
         }
 
-        internal fun getSortieBoss(boss: String): SortieBoss {
+        fun getSortieBoss(boss: String): SortieBoss {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/sortieData.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/sortieData.json"))
                         .get("bosses")
                         .get(boss)
                         .let {
@@ -454,9 +461,9 @@ class WorldState {
             }
         }
 
-        internal fun getSyndicateName(syndicate: String): String {
+        fun getSyndicateName(syndicate: String): String {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/syndicatesData.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/syndicatesData.json"))
                         .get(syndicate)
                         .get("name").asText()
             } catch (e: Exception) {
@@ -464,9 +471,9 @@ class WorldState {
             }
         }
 
-        internal fun getUpgradeType(upgrade: String): String {
+        fun getUpgradeType(upgrade: String): String {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/upgradeTypes.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/upgradeTypes.json"))
                         .get(upgrade)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -474,9 +481,9 @@ class WorldState {
             }
         }
 
-        internal fun getWarframeInfo(warframe: String): Warframe {
+        fun getWarframeInfo(warframe: String): Warframe {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/warframes.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/warframes.json"))
                         .find { warframe.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             jsonMapper.readValue<Warframe>(it.toString())
@@ -486,9 +493,9 @@ class WorldState {
             }
         }
 
-        internal fun getWeaponInfo(weapon: String): Weapon {
+        fun getWeaponInfo(weapon: String): Weapon {
             return try {
-                jsonMapper.readTree(URL("${worldStateDataUrl}/weapons.json"))
+                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/weapons.json"))
                         .find { weapon.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             jsonMapper.readValue<Weapon>(it.toString())
@@ -612,13 +619,6 @@ class WorldState {
             val channeling = 0.0
             val stancePolarity = ""
 
-        }
-
-        private const val worldStateDataUrl = "https://raw.githubusercontent.com/WFCD/warframe-worldstate-data/master/data"
-
-        private val jsonMapper = jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }
     }
 }

@@ -29,6 +29,34 @@ import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Warframe : IBase, ILogger {
+    private val commands = mapOf(
+            "alert" to Alert,
+            "baro" to Baro,
+            "cetus" to Cetus,
+            "darvo" to Darvo,
+            "drop" to Drop,
+            "fissure" to Fissure,
+            "invasion" to Invasion,
+            "news" to News,
+            "market" to Market,
+            "ping" to ServerPing,
+            "prime" to Prime,
+            "sale" to Sale,
+            "sortie" to Sortie,
+            "syndicate" to Syndicate,
+            "wiki" to Wiki,
+
+            // aliases
+            "alerts" to Alert,
+            "drops" to Drop,
+            "fissures" to Fissure,
+            "invasions" to Invasion,
+            "primes" to Prime,
+            "sorties" to Sortie,
+            "syndicates" to Syndicate,
+            "wikia" to Wiki
+    )
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -114,32 +142,4 @@ object Warframe : IBase, ILogger {
             }
         }
     }
-
-    private val commands = mapOf(
-            "alert" to Alert,
-            "baro" to Baro,
-            "cetus" to Cetus,
-            "darvo" to Darvo,
-            "drop" to Drop,
-            "fissure" to Fissure,
-            "invasion" to Invasion,
-            "news" to News,
-            "market" to Market,
-            "ping" to ServerPing,
-            "prime" to Prime,
-            "sale" to Sale,
-            "sortie" to Sortie,
-            "syndicate" to Syndicate,
-            "wiki" to Wiki,
-
-            // aliases
-            "alerts" to Alert,
-            "drops" to Drop,
-            "fissures" to Fissure,
-            "invasions" to Invasion,
-            "primes" to Prime,
-            "sorties" to Sortie,
-            "syndicates" to Syndicate,
-            "wikia" to Wiki
-    )
 }

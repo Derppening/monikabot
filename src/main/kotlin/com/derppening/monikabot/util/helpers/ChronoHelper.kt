@@ -37,13 +37,6 @@ object ChronoHelper {
                     "${seconds % 60}s"
 
     /**
-     * Formats an integer into "00" format.
-     */
-    fun formatTimeElement(int: Int): String {
-        return int.toString().padStart(2, '0')
-    }
-
-    /**
      * Rounds a duration to the smallest time unit, from Seconds to Days.
      */
     fun Duration.toNearestChronoDay(): String =
@@ -63,6 +56,13 @@ object ChronoHelper {
                 toDays() > 30 -> "${toDays() / 30} months"
                 else -> "${toDays()} days"
             }
+
+    /**
+     * Formats an integer into "00" format.
+     */
+    fun formatTimeElement(int: Int): String {
+        return int.toString().padStart(2, '0')
+    }
 
     /**
      * Formats a date.

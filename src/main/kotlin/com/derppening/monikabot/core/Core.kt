@@ -26,10 +26,64 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 object Core {
+    /**
+     * Filename of source.properties.
+     */
+    private const val SOURCE_PROP = "source.properties"
+    /**
+     * Filename of version.properties.
+     */
+    private const val VERSION_PROP = "version.properties"
+
+    /**
+     * API Key for CheckWX.
+     */
+    val checkwxKey: String? = getProperties(SOURCE_PROP).getProperty("checkwxKey")
+    /**
+     * Bot private key.
+     */
+    val privateKey = getProperties(SOURCE_PROP).getProperty("privateKey")!!
+
+    /**
+     * PM Channel of bot admin.
+     */
+    val ownerPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(ownerId).orCreatePMChannel }
+    /**
+     * Debug channel.
+     */
+    val serverDebugChannel: IChannel? by lazy { Client.getChannelByID(serverDebugChannelId) }
+
+    /**
+     * ID of bot admin.
+     */
+    private val ownerId = getProperties(SOURCE_PROP).getProperty("adminId").toLong()
+    /**
+     * IDs for bot superusers.
+     */
+    private var suIds = loadSuIds()
+    /**
+     * ID of Debug channel.
+     */
+    private val serverDebugChannelId = getProperties(SOURCE_PROP).getProperty("debugChannelId").toLong()
+
+    /**
+     * SemVer version of the bot.
+     */
+    var monikaSemVersion = loadSemVersion()
+        private set
+    /**
+     * The git branch of this bot.
+     */
+    val monikaVersionBranch = getProperties(VERSION_PROP).getProperty("gitbranch")!!
+    /**
+     * Version of the bot.
+     */
+    var monikaVersion = loadVersion()
+        private set
+
     /**
      * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
      */
@@ -115,14 +169,50 @@ object Core {
     }
 
     /**
+     * Remove quotes from a word.
+     */
+    fun String.removeQuotes(): String = dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
+
+    /**
+     * Pops the first word in a string.
+     */
+    private fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }
+
+    /**
+     * Gets the method name which invoked this method.
+     */
+    fun getMethodName(vararg args: String): String {
+        return Thread.currentThread().stackTrace[2].methodName + "(${args.joinToString(", ")})"
+    }
+
+    /**
      * Performs a full reload of the bot.
      */
     fun reload() {
         loadVersion()
         loadSuIds()
 
-        thread {
-            PersistentMessage.modify("Misc", "Version", monikaVersion, true)
+        PersistentMessage.modify("Misc", "Version", monikaVersion, true)
+    }
+
+    /**
+     * Loads a property object based on a file. Application will terminate if file cannot be found.
+     *
+     * @param filename Filename of properties file to load.
+     *
+     * @return Properties object of loaded file.
+     */
+    private fun getProperties(filename: String): Properties {
+        try {
+            return Properties().apply {
+                val relpath = "properties/$filename"
+                load(FileInputStream(File(Thread.currentThread().contextClassLoader.getResource(relpath).toURI())))
+            }
+        } catch (ioException: FileNotFoundException) {
+            println("Cannot find properties file")
+            ioException.printStackTrace()
+
+            exitProcess(0)
         }
     }
 
@@ -153,93 +243,4 @@ object Core {
                 .union(listOf(ownerId))
         return suIds
     }
-
-    /**
-     * Gets the method name which invoked this method.
-     */
-    fun getMethodName(vararg args: String): String {
-        return Thread.currentThread().stackTrace[2].methodName + "(${args.joinToString(", ")})"
-    }
-
-    /**
-     * Remove quotes from a word.
-     */
-    fun String.removeQuotes(): String = dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
-
-    /**
-     * Loads a property object based on a file. Application will terminate if file cannot be found.
-     *
-     * @param filename Filename of properties file to load.
-     *
-     * @return Properties object of loaded file.
-     */
-    private fun getProperties(filename: String): Properties {
-        try {
-            return Properties().apply {
-                val relpath = "properties/$filename"
-                load(FileInputStream(File(Thread.currentThread().contextClassLoader.getResource(relpath).toURI())))
-            }
-        } catch (ioException: FileNotFoundException) {
-            println("Cannot find properties file")
-            ioException.printStackTrace()
-
-            exitProcess(0)
-        }
-    }
-
-    /**
-     * Pops the first word in a string.
-     */
-    private fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }
-
-    /**
-     * Filename of source.properties.
-     */
-    private const val SOURCE_PROP = "source.properties"
-    /**
-     * Filename of version.properties.
-     */
-    private const val VERSION_PROP = "version.properties"
-
-    val checkwxKey: String? = getProperties(SOURCE_PROP).getProperty("checkwxKey")
-    /**
-     * PM Channel of bot admin.
-     */
-    val ownerPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(ownerId).orCreatePMChannel }
-    /**
-     * Debug channel.
-     */
-    val serverDebugChannel: IChannel? by lazy { Client.getChannelByID(serverDebugChannelId) }
-    /**
-     * Bot private key.
-     */
-    val privateKey = getProperties(SOURCE_PROP).getProperty("privateKey")!!
-
-    /**
-     * SemVer version of the bot.
-     */
-    var monikaSemVersion = loadSemVersion()
-        private set
-    /**
-     * The git branch of this bot.
-     */
-    val monikaVersionBranch = getProperties(VERSION_PROP).getProperty("gitbranch")!!
-    /**
-     * Version of the bot.
-     */
-    var monikaVersion = loadVersion()
-        private set
-
-    /**
-     * ID of bot admin.
-     */
-    private val ownerId = getProperties(SOURCE_PROP).getProperty("adminId").toLong()
-    /**
-     * IDs for bot superusers.
-     */
-    private var suIds = loadSuIds()
-    /**
-     * ID of Debug channel.
-     */
-    private val serverDebugChannelId = getProperties(SOURCE_PROP).getProperty("debugChannelId").toLong()
 }

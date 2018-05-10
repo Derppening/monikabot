@@ -28,6 +28,7 @@ import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionEmbeds
 import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionTimerEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -42,6 +43,25 @@ object Invasion : IBase, ILogger {
         }
 
         return Parser.HandleState.HANDLED
+    }
+
+    private fun getInvasionData(event: MessageReceivedEvent) {
+        getInvasionEmbeds().also {
+            if (it.isEmpty()) {
+                buildMessage(event.channel) {
+                    content {
+                        withContent("There are currently no invasions!")
+                    }
+                }
+            }
+        }.forEach {
+            sendEmbed(it to event.channel)
+        }
+    }
+
+    private fun getInvasionTimer(event: MessageReceivedEvent) {
+        sendEmbed(getInvasionTimerEmbed() to event.channel)
+        sendEmbed(getInvasionAlertEmbed() to event.channel)
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
@@ -64,30 +84,5 @@ object Invasion : IBase, ILogger {
                 }
             }
         }
-    }
-
-    /**
-     * Retrieves and outputs the list of current invasions.
-     */
-    private fun getInvasionData(event: MessageReceivedEvent) {
-        getInvasionEmbeds().also {
-            if (it.isEmpty()) {
-                buildMessage(event.channel) {
-                    content {
-                        withContent("There are currently no invasions!")
-                    }
-                }
-            }
-        }.forEach {
-            event.channel.sendMessage(it)
-        }
-    }
-
-    /**
-     * Outputs the current build progress of Balor Fomorian/Razorback.
-     */
-    private fun getInvasionTimer(event: MessageReceivedEvent) {
-        event.channel.sendMessage(getInvasionTimerEmbed())
-        event.channel.sendMessage(getInvasionAlertEmbed())
     }
 }

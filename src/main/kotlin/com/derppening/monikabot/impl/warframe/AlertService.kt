@@ -31,21 +31,22 @@ import java.time.Duration
 import java.time.Instant
 
 object AlertService : ILogger {
+    /**
+     * List of tags to filter out when displaying alerts.
+     */
+    private val filteredTags = listOf(
+            "GhoulEmergence",
+            "InfestedPlains",
+            "FriendlyFireTacAlert"
+    )
+
     fun getAlertEmbeds(): List<EmbedObject> {
         return worldState.alerts.map {
             it.toEmbed()
         }
     }
 
-    fun getGoalEmbeds(): List<EmbedObject> {
-        return worldState.goals.filterNot { goal ->
-            filteredTags.any { it == goal.tag }
-        }.map {
-            it.toEmbed()
-        }
-    }
-
-    fun WorldState.Alert.toEmbed(): EmbedObject {
+    private fun WorldState.Alert.toEmbed(): EmbedObject {
         return EmbedBuilder().apply {
             val detail = missionInfo
             val archwing = when {
@@ -81,7 +82,15 @@ object AlertService : ILogger {
         }.build()
     }
 
-    fun WorldState.Goal.toEmbed(): EmbedObject {
+    fun getGoalEmbeds(): List<EmbedObject> {
+        return worldState.goals.filterNot { goal ->
+            filteredTags.any { it == goal.tag }
+        }.map {
+            it.toEmbed()
+        }
+    }
+
+    private fun WorldState.Goal.toEmbed(): EmbedObject {
         return EmbedBuilder().apply {
             WorldState.getLanguageFromAsset(missionKeyName).let {
                 when {
@@ -114,13 +123,4 @@ object AlertService : ILogger {
             withTimestamp(Instant.now())
         }.build()
     }
-
-    /**
-     * List of tags to filter out when displaying alerts.
-     */
-    private val filteredTags = listOf(
-            "GhoulEmergence",
-            "InfestedPlains",
-            "FriendlyFireTacAlert"
-    )
 }

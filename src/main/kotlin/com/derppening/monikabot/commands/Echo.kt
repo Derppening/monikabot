@@ -117,6 +117,36 @@ object Echo : IBase, ILogger {
         return Parser.HandleState.UNHANDLED
     }
 
+    private fun messageToPrivateChannel(args: List<String>, event: MessageReceivedEvent) {
+        val result = toPrivateChannel(args)
+        when (result) {
+            is EchoService.Result.Failure -> {
+                buildMessage(event.channel) {
+                    content {
+                        withContent(result.message)
+                    }
+                }
+            }
+            else -> {
+            }
+        }
+    }
+
+    private fun messageToGuildChannel(args: List<String>, event: MessageReceivedEvent) {
+        val result = toGuildChannel(args, event)
+        when (result) {
+            is EchoService.Result.Failure -> {
+                buildMessage(event.channel) {
+                    content {
+                        withContent(result.message)
+                    }
+                }
+            }
+            else -> {
+            }
+        }
+    }
+
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
             fields {
@@ -148,34 +178,6 @@ object Echo : IBase, ILogger {
                     }
                 }
             }
-        }
-    }
-
-    private fun messageToPrivateChannel(args: List<String>, event: MessageReceivedEvent) {
-        val result = toPrivateChannel(args)
-        when (result) {
-            is EchoService.Result.Failure -> {
-                buildMessage(event.channel) {
-                    content {
-                        withContent(result.message)
-                    }
-                }
-            }
-            else -> {}
-        }
-    }
-
-    private fun messageToGuildChannel(args: List<String>, event: MessageReceivedEvent) {
-        val result = toGuildChannel(args, event)
-        when (result) {
-            is EchoService.Result.Failure -> {
-                buildMessage(event.channel) {
-                    content {
-                        withContent(result.message)
-                    }
-                }
-            }
-            else -> {}
         }
     }
 }

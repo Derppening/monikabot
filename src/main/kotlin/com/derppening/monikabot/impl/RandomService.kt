@@ -35,6 +35,19 @@ object RandomService : ILogger {
         }
     }
 
+    private fun rollDie(): String {
+        return "You got a ${generateInt(1, 7)}!"
+    }
+
+    private fun flipCoin(): String {
+        return "You got ${if (generateInt(0, 2) == 0) "tails" else "heads"}!"
+    }
+
+    private fun randomList(args: List<String>): String {
+        return args.shuffled().firstOrNull()?.let { "You got $it!" }
+                ?: "Give me items to randomize!"
+    }
+
     private fun generate(p: List<String>): String {
         val args = p.toMutableList()
 
@@ -64,25 +77,6 @@ object RandomService : ILogger {
             val n = generateInt(min.toInt(), (max + 1).toInt())
             "You got a $n!"
         }
-    }
-
-    private fun randomList(args: List<String>): String {
-        return args.shuffled().firstOrNull()?.let { "You got $it!" }
-                ?: "Give me items to randomize!"
-    }
-
-    /**
-     * Rolls a dice.
-     */
-    private fun rollDie(): String {
-        return "You got a ${generateInt(1, 7)}!"
-    }
-
-    /**
-     * Flips a coin
-     */
-    private fun flipCoin(): String {
-        return "You got ${if (generateInt(0, 2) == 0) "tails" else "heads"}!"
     }
 
     private fun generateInt(min: Int, max: Int): Int = java.util.Random().nextInt(max - min) + min
