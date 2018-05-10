@@ -24,7 +24,11 @@ import java.io.File
 
 object ChangelogService {
     private val changes = run {
-        val contents = File(Thread.currentThread().contextClassLoader.getResource("lang/Changelog.md").toURI()).readLines()
+        val contents = File(Thread.currentThread()
+                .contextClassLoader
+                .getResource("lang/Changelog.md").toURI())
+                .bufferedReader()
+                .readLines()
 
         val logMap = mutableMapOf<String, MutableList<String>>()
         var ver = ""
