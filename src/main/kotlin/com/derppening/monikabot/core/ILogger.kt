@@ -23,7 +23,7 @@ package com.derppening.monikabot.core
 import com.derppening.monikabot.core.Core.getChannelName
 import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Persistence.debugChannel
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IChannel
@@ -32,6 +32,27 @@ import sx.blah.discord.handle.obj.IUser
 import java.awt.Color
 
 interface ILogger {
+    val logger: Logger
+        get() = LoggerFactory.getLogger(javaClass.name)!!
+
+    /**
+     * Logs a message to the debug channel.
+     *
+     * @param level Level of logging.
+     * @param message Message to log.
+     * @param action Actions to apply to the logger.
+     */
+    fun log(level: LogLevel, message: String, action: LogHelper.() -> Unit = {}) {
+        LogHelper(level, message, this.javaClass).apply(action).build()
+    }
+
+    /**
+     * Logs a "FIX" message to the console.
+     */
+    fun fix(fixtext: String, method: String, vararg args: String) {
+        logger.warn("FIXME in $method: $fixtext")
+    }
+
     enum class LogLevel {
         DEBUG,
         INFO,
@@ -46,61 +67,59 @@ interface ILogger {
         private var info: () -> String = { "" }
         private var stackTrace: () -> Array<StackTraceElement>? = { null }
 
-        fun message(action: () -> IMessage) { srcMessage = action }
-        fun author(action: () -> IUser) { srcAuthor = action }
-        fun channel(action: () -> IChannel) { srcChannel = action }
-        fun info(action: () -> String) { info = action }
-        fun stackTrace(action: () -> Array<StackTraceElement>) { stackTrace = action }
+        fun message(action: () -> IMessage) {
+            srcMessage = action
+        }
+
+        fun author(action: () -> IUser) {
+            srcAuthor = action
+        }
+
+        fun channel(action: () -> IChannel) {
+            srcChannel = action
+        }
+
+        fun info(action: () -> String) {
+            info = action
+        }
+
+        fun stackTrace(action: () -> Array<StackTraceElement>) {
+            stackTrace = action
+        }
 
         fun build() {
             buildEmbed(debugChannel) {
-                when (type) {
-                    LogLevel.DEBUG -> {
-                        withColor(Color.BLACK)
-                        withTitle("Debug")
+                fields {
+                    when (type) {
+                        LogLevel.DEBUG -> {
+                            withColor(Color.BLACK)
+                            withTitle("Debug")
+                        }
+                        LogLevel.INFO -> {
+                            withColor(Color.GRAY)
+                            withTitle("Info")
+                        }
+                        LogLevel.WARN -> {
+                            withColor(Color.YELLOW)
+                            withTitle("Warning")
+                        }
+                        LogLevel.ERROR -> {
+                            withColor(Color.RED)
+                            withTitle("Error")
+                        }
                     }
-                    LogLevel.INFO -> {
-                        withColor(Color.GRAY)
-                        withTitle("Info")
-                    }
-                    LogLevel.WARN -> {
-                        withColor(Color.YELLOW)
-                        withTitle("Warning")
-                    }
-                    LogLevel.ERROR -> {
-                        withColor(Color.RED)
-                        withTitle("Error")
-                    }
+
+                    withDesc(message)
+
+                    if (srcMessage() != null) appendField("Caused by", "`${srcMessage()?.content}`", false)
+                    if (srcAuthor() != null) appendField("From", srcAuthor()!!.getDiscordTag(), false)
+                    if (srcChannel() != null) appendField("In", srcChannel()!!.getChannelName(), false)
+                    if (info().isNotBlank()) appendField("Additional Info", info(), false)
+                    if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
+
+                    withFooterText("Package: ${clazz.name}")
                 }
-
-                withDesc(message)
-
-                if (srcMessage() != null) appendField("Caused by", "`${srcMessage()?.content}`", false)
-                if (srcAuthor() != null) appendField("From", srcAuthor()!!.getDiscordTag(), false)
-                if (srcChannel() != null) appendField("In", srcChannel()!!.getChannelName(), false)
-                if (info().isNotBlank()) appendField("Additional Info", info(), false)
-                if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
-
-                withFooterText("Package: ${clazz.name}")
             }
         }
     }
-
-    /**
-     * Logs a message to the debug channel.
-     *
-     * @param level Level of logging.
-     * @param message Message to log.
-     * @param action Actions to apply to the logger.
-     */
-    fun log(level: LogLevel, message: String, action: LogHelper.() -> Unit = {}) {
-        LogHelper(level, message, this.javaClass).apply(action).build()
-    }
-
-    fun fix(fixtext: String, method: String, vararg args: String) {
-        logger.warn("FIXME in $method: $fixtext")
-    }
-
-    val logger: Logger
-        get() = LoggerFactory.getLogger(javaClass.name)!!
 }

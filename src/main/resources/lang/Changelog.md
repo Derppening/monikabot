@@ -166,3 +166,8 @@
 [v1.2.0-beta.4]
 - Add `metar` command for displaying current weather
 - `rng`: Also display minimum attempts guaranteeing 99% success rate
+
+[v1.2.0-beta.5]
+- Add `toilet` command for shits and giggles
+- `warframe invasion`: Add progress for ongoing Fomorian/Razorback missions
+- `warframe alert`: Fix unable to filter alerts

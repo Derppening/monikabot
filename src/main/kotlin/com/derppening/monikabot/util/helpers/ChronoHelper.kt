@@ -18,7 +18,7 @@
  *
  */
 
-package com.derppening.monikabot.util
+package com.derppening.monikabot.util.helpers
 
 import java.time.Duration
 import java.time.ZoneId
@@ -35,13 +35,6 @@ object ChronoHelper {
                     (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
                     (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
                     "${seconds % 60}s"
-
-    /**
-     * Formats an integer into "00" format.
-     */
-    fun formatTimeElement(int: Int): String {
-        return int.toString().padStart(2, '0')
-    }
 
     /**
      * Rounds a duration to the smallest time unit, from Seconds to Days.
@@ -63,6 +56,13 @@ object ChronoHelper {
                 toDays() > 30 -> "${toDays() / 30} months"
                 else -> "${toDays()} days"
             }
+
+    /**
+     * Formats an integer into "00" format.
+     */
+    fun formatTimeElement(int: Int): String {
+        return int.toString().padStart(2, '0')
+    }
 
     /**
      * Formats a date.

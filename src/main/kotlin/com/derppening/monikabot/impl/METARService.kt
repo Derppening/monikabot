@@ -23,32 +23,64 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.METARModel
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import sx.blah.discord.handle.obj.IChannel
+import sx.blah.discord.api.internal.json.objects.EmbedObject
+import sx.blah.discord.util.EmbedBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 
 object METARService : ILogger {
-    fun toEmbed(icao: String, channel: IChannel) {
+    private val apiKey = Core.checkwxKey ?: run {
+        logger.warn("Cannot load CheckWX API key! METAR services will not be available")
+        ""
+    }
+
+    private fun getForICAO(icao: String): METARModel {
+        check(apiKey.isNotEmpty()) { "No CheckWX Key - METAR functionality is disabled" }
+
+        val url = URL("https://api.checkwx.com/metar/$icao/decoded")
+
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "POST"
+        connection.connectTimeout = 5000
+        connection.setRequestProperty("X-API-Key", apiKey)
+
+        val jsonResult = connection.inputStream.bufferedReader().readText()
+
+        check(connection.responseCode == 200) { "Server did not respond with OK - ${connection.responseMessage}" }
+
+        return jsonResult.let {
+            val mapper = jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            }
+            mapper.readTree(it).also {
+                val results = it.get("results").asInt()
+                check(results == 1) { "More than one aerodome found." }
+                check(!it.get("data").toString().contains("$icao Invalid Station ICAO", true)) { "No aerodomes with ICAO $icao found." }
+            }.let {
+                mapper.readValue<List<METARModel>>(it.get("data").toString())
+            }.first()
+        }
+    }
+
+    fun toEmbed(icao: String): EmbedObject {
         val metar = try {
             check(icao.length == 4) { "ICAO should consist of 4 characters." }
             getForICAO(icao)
         } catch (e: Exception) {
-            buildEmbed(channel) {
+            e.printStackTrace()
+            return EmbedBuilder().apply {
                 withTitle("METAR for ${icao.toUpperCase()}")
                 withDesc(e.message)
-            }
-
-            e.printStackTrace()
-            return
+            }.build()
         }
 
-        buildEmbed(channel) {
+        return EmbedBuilder().apply {
             withTitle("METAR for ${metar.name} (${icao.toUpperCase()})")
             withDesc("```${metar.rawText}```")
 
@@ -108,40 +140,6 @@ object METARService : ILogger {
 
             withFooterText("Last Observed")
             withTimestamp(metar.date)
-        }
-    }
-
-    private fun getForICAO(icao: String): METARModel {
-        check(apiKey.isNotEmpty()) { "No CheckWX Key - METAR functionality is disabled" }
-
-        val url = URL("https://api.checkwx.com/metar/$icao/decoded")
-
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.connectTimeout = 5000
-        connection.setRequestProperty("X-API-Key", apiKey)
-
-        val jsonResult = connection.inputStream.bufferedReader().readText()
-
-        check(connection.responseCode == 200) { "Server did not respond with OK - ${connection.responseMessage}" }
-
-        return jsonResult.let {
-            val mapper = jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }
-            mapper.readTree(it).also {
-                val results = it.get("results").asInt()
-                check(results == 1) { "More than one aerodome found." }
-                check(!it.get("data").toString().contains("$icao Invalid Station ICAO", true)) { "No aerodomes with ICAO $icao found." }
-            }.let {
-                mapper.readValue<List<METARModel>>(it.get("data").toString())
-            }.first()
-        }
-    }
-
-    private val apiKey = Core.checkwxKey ?: run {
-        logger.warn("Cannot load CheckWX API key! METAR services will not be available")
-        ""
+        }.build()
     }
 }

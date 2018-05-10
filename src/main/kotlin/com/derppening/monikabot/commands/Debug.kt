@@ -25,7 +25,7 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.DebugService.appendToMessage
 import com.derppening.monikabot.impl.DebugService.editMessage
 import com.derppening.monikabot.impl.DebugService.longOperation
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Debug : IBase, ILogger {
@@ -61,14 +61,18 @@ object Debug : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `debug`")
-            withDesc("Enables superuser debugging methods.")
+            fields {
+                withTitle("Help Text for `debug`")
+                withDesc("Enables superuser debugging methods.")
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

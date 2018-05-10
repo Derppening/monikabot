@@ -24,9 +24,9 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.ClearService
 import com.derppening.monikabot.impl.ClearService.clearChannel
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Clear : IBase, ILogger {
@@ -38,10 +38,13 @@ object Clear : IBase, ILogger {
         when (clearChannel(event.channel, allFlag)) {
             ClearService.Result.FAILURE_PRIVATE_CHANNEL -> {
                 buildMessage(event.channel) {
-                    withContent("I can't delete clear messages in private channels!")
+                    content {
+                        withContent("I can't delete clear messages in private channels!")
+                    }
                 }
             }
-            else -> {}
+            else -> {
+            }
         }
 
         return Parser.HandleState.HANDLED
@@ -49,19 +52,23 @@ object Clear : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `clear`")
-            withDesc("Clears all channel messages that are younger than 14 days.")
-            appendDesc("\nThis command does not work in private channels.")
-            insertSeparator()
-            appendField("Usage", "```clear [--all]```", false)
-            appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
-                    "are locally cached.", false)
+            fields {
+                withTitle("Help Text for `clear`")
+                withDesc("Clears all channel messages that are younger than 14 days.")
+                appendDesc("\nThis command does not work in private channels.")
+                insertSeparator()
+                appendField("Usage", "```clear [--all]```", false)
+                appendField("`--all`", "Retrieves all messages from the channel, not only ones which " +
+                        "are locally cached.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

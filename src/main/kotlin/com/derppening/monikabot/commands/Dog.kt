@@ -27,9 +27,9 @@ import com.derppening.monikabot.impl.DogService.getBreed
 import com.derppening.monikabot.impl.DogService.getRandomPic
 import com.derppening.monikabot.impl.DogService.getSubbreed
 import com.derppening.monikabot.impl.DogService.list
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Dog : IBase, ILogger {
@@ -39,7 +39,9 @@ object Dog : IBase, ILogger {
         when {
             args.isEmpty() -> {
                 buildEmbed(event.channel) {
-                    withImage(getRandomPic())
+                    fields {
+                        withImage(getRandomPic())
+                    }
                 }
             }
             args[0].matches(Regex("-{0,2}list")) -> list(args, event)
@@ -47,29 +49,6 @@ object Dog : IBase, ILogger {
         }
 
         return Parser.HandleState.HANDLED
-    }
-
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            withTitle("Help Text for `dog`")
-            withDesc("Displays a photo of a dog.")
-            insertSeparator()
-            appendField("Usage", "```dog [breed] [subbreed]```", false)
-            appendField("`[breed]", "If specified, only display images of the given breed.", false)
-            appendField("`[subbreed]`", "If specified, only display images of the given subbreed. This option must be used in conjunction with `[breed]`.", false)
-            insertSeparator()
-            appendField("Usage", "```dog --list [breed]```", false)
-            appendField("`--list`", "Lists all breeds of dogs that can be retrieved from this command.", false)
-            appendField("`[breed]", "If specified, lists all subbreeds of the given breed.", false)
-
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-            }
-        }
     }
 
     private fun list(args: List<String>, event: MessageReceivedEvent) {
@@ -80,7 +59,9 @@ object Dog : IBase, ILogger {
                 }
                 is DogService.ListResult.Failure -> {
                     buildMessage(event.channel) {
-                        withContent(it.message)
+                        content {
+                            withContent(it.message)
+                        }
                     }
                 }
             }
@@ -96,10 +77,10 @@ object Dog : IBase, ILogger {
             getBreed(args[0]).also {
                 when (it) {
                     is DogService.ShowResult.Success -> {
-                        buildEmbed(event.channel) { withImage(it.link) }
+                        buildEmbed(event.channel) { fields { withImage(it.link) } }
                     }
                     is DogService.ShowResult.Failure -> {
-                        buildMessage(event.channel) { withContent(it.message) }
+                        buildMessage(event.channel) { content { withContent(it.message) } }
                     }
                 }
             }
@@ -112,10 +93,37 @@ object Dog : IBase, ILogger {
         getSubbreed(args[0], args[1]).also {
             when (it) {
                 is DogService.ShowResult.Success -> {
-                    buildEmbed(event.channel) { withImage(it.link) }
+                    buildEmbed(event.channel) { fields { withImage(it.link) } }
                 }
                 is DogService.ShowResult.Failure -> {
-                    buildMessage(event.channel) { withContent(it.message) }
+                    buildMessage(event.channel) { content { withContent(it.message) } }
+                }
+            }
+        }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `dog`")
+                withDesc("Displays a photo of a dog.")
+                insertSeparator()
+                appendField("Usage", "```dog [breed] [subbreed]```", false)
+                appendField("`[breed]", "If specified, only display images of the given breed.", false)
+                appendField("`[subbreed]`", "If specified, only display images of the given subbreed. This option must be used in conjunction with `[breed]`.", false)
+                insertSeparator()
+                appendField("Usage", "```dog --list [breed]```", false)
+                appendField("`--list`", "Lists all breeds of dogs that can be retrieved from this command.", false)
+                appendField("`[breed]", "If specified, lists all subbreeds of the given breed.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

@@ -25,7 +25,7 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.Manifest
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.ChronoHelper.formatDuration
+import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration
@@ -34,12 +34,12 @@ import java.time.Instant
 object DarvoService : ILogger {
     fun isDarvoInWorldState(): Boolean = worldState.dailyDeals.isNotEmpty()
 
-    fun getDarvo(): WorldState.DailyDeal {
+    fun getDarvoEmbed(): EmbedObject {
         if (worldState.dailyDeals.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
 
-        return worldState.dailyDeals.first()
+        return worldState.dailyDeals.first().toEmbed()
     }
 
     fun WorldState.DailyDeal.toEmbed(): EmbedObject {

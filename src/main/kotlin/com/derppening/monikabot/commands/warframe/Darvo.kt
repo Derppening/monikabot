@@ -24,11 +24,11 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.DarvoService
-import com.derppening.monikabot.impl.warframe.DarvoService.getDarvo
-import com.derppening.monikabot.impl.warframe.DarvoService.toEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.impl.warframe.DarvoService.getDarvoEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Darvo : IBase, ILogger {
@@ -37,29 +37,35 @@ object Darvo : IBase, ILogger {
 
         if (!DarvoService.isDarvoInWorldState()) {
             buildMessage(event.channel) {
-                withContent("Darvo currently has no items on sale!")
+                content {
+                    withContent("Darvo currently has no items on sale!")
+                }
             }
 
             return Parser.HandleState.HANDLED
         }
 
-        event.channel.sendMessage(getDarvo().toEmbed())
+        sendEmbed(getDarvoEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-darvo`")
-            withDesc("Displays the ongoing Darvo sale.")
-            insertSeparator()
-            appendField("Usage", "```warframe darvo```", false)
+            fields {
+                withTitle("Help Text for `warframe-darvo`")
+                withDesc("Displays the ongoing Darvo sale.")
+                insertSeparator()
+                appendField("Usage", "```warframe darvo```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

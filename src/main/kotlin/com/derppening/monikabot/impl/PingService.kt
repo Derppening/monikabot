@@ -23,9 +23,21 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.ILogger
 
 object PingService : ILogger {
-    class EmbedFields (
-            val digitalOcean: String,
-            val dns: String
+    private val digitalOceanPings = mapOf(
+            "New Jersey" to "104.236.17.211",
+            "Singapore" to "128.199.105.91",
+            "Germany" to "165.227.164.4",
+            "Netherlands" to "188.166.23.150",
+            "California" to "192.184.13.42"
+    )
+
+    private val dnsPings = mapOf(
+            "Google" to "8.8.8.8",
+            "CloudFlare" to "1.1.1.1",
+            "Quad9" to "9.9.9.9",
+            "OpenDNS" to "208.67.222.222",
+            "Yandex DNS" to "77.88.8.7",
+            "Comodo DNS" to "8.26.56.26"
     )
 
     fun getEmbed(): EmbedFields {
@@ -62,20 +74,8 @@ object PingService : ILogger {
         return EmbedFields(digitalOceanString, dnsString)
     }
 
-    private val digitalOceanPings = mapOf(
-            "New Jersey" to "104.236.17.211",
-            "Singapore" to "128.199.105.91",
-            "Germany" to "165.227.164.4",
-            "Netherlands" to "188.166.23.150",
-            "California" to "192.184.13.42"
-    )
-
-    private val dnsPings = mapOf(
-            "Google" to "8.8.8.8",
-            "CloudFlare" to "1.1.1.1",
-            "Quad9" to "9.9.9.9",
-            "OpenDNS" to "208.67.222.222",
-            "Yandex DNS" to "77.88.8.7",
-            "Comodo DNS" to "8.26.56.26"
+    class EmbedFields(
+            val digitalOcean: String,
+            val dns: String
     )
 }

@@ -23,6 +23,27 @@ package com.derppening.monikabot.impl
 import java.io.File
 
 object ChangelogService {
+    private val changes = run {
+        val contents = File(Thread.currentThread()
+                .contextClassLoader
+                .getResource("lang/Changelog.md").toURI())
+                .bufferedReader()
+                .readLines()
+
+        val logMap = mutableMapOf<String, MutableList<String>>()
+        var ver = ""
+        for (line in contents) {
+            if (line.startsWith('[') && line.endsWith(']')) {
+                ver = line.substring(1, line.lastIndex)
+                logMap[ver] = mutableListOf()
+            } else if (ver.isNotBlank()) {
+                logMap[ver]?.add(line)
+            }
+        }
+
+        logMap.map { it.key to it.value.toList() }
+    }
+
     fun getAll(showRel: Boolean, entries: Int = 5): List<Pair<String, List<String>>> {
         return if (showRel) {
             changes.filterNot { (k, _) -> k.contains('-') }
@@ -42,22 +63,4 @@ object ChangelogService {
             null
         }
     }
-
-    private val changes = run {
-        val contents = File(Thread.currentThread().contextClassLoader.getResource("lang/Changelog.md").toURI()).readLines()
-
-        val logMap = mutableMapOf<String, MutableList<String>>()
-        var ver = ""
-        for (line in contents) {
-            if (line.startsWith('[') && line.endsWith(']')) {
-                ver = line.substring(1, line.lastIndex)
-                logMap[ver] = mutableListOf()
-            } else if (ver.isNotBlank()) {
-                logMap[ver]?.add(line)
-            }
-        }
-
-        logMap.map { it.key to it.value.toList() }
-    }
-
 }

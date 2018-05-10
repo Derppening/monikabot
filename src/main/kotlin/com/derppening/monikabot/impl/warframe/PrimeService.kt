@@ -20,42 +20,23 @@
 
 package com.derppening.monikabot.impl.warframe
 
-import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.prime.PrimeInfo
-import com.derppening.monikabot.util.ChronoHelper.toNearestChronoYear
-import sx.blah.discord.util.MessageBuilder
+import com.derppening.monikabot.util.helpers.ChronoHelper.toNearestChronoYear
 import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 object PrimeService : ILogger {
-    fun getReleasedPrimeMessage(size: Int): MessageBuilder {
-        return MessageBuilder(Client).apply {
-            appendContent("Released Primes: ")
+    private const val primeFilePath = "data/primes.csv"
 
-            appendContent(getReleasedPrimesStr(size).joinToString(""))
-        }
-    }
+    private val allInfo
+        get() = readFromFile().filterNot { it.name == "Excalibur" }
+    private val primes = allInfo.filter { it.primeDate != null }.sortedBy { it.primeDate?.epochSecond ?: 0 }
+    private val nonprimes = allInfo.filter { it.primeDate == null }.sortedBy { it.date?.epochSecond ?: 0 }
 
-    fun getCurrentPrimeMessage(): MessageBuilder {
-        return MessageBuilder(Client).apply {
-            appendContent("Current Primes:")
-
-            appendContent(getCurrentPrimesStr().joinToString(""))
-        }
-    }
-
-    fun getPredictedPrimeMessage(size: Int): MessageBuilder {
-        return MessageBuilder(Client).apply {
-            appendContent("**[PREDICTED]** Upcoming Primes:")
-
-            appendContent(getPredictedPrimesStr(size).joinToString(""))
-        }
-    }
-
-    private fun getReleasedPrimesStr(size: Int): List<String> {
+    fun getReleasedPrimesStr(size: Int): List<String> {
         val released = primes.takeLast(size)
 
         return released.mapIndexed { i, it ->
@@ -70,7 +51,11 @@ object PrimeService : ILogger {
         }
     }
 
-    private fun getCurrentPrimesStr(): List<String> {
+    private fun getReleasedPrimes(size: Int): List<PrimeInfo> {
+        return primes.takeLast(size)
+    }
+
+    fun getCurrentPrimesStr(): List<String> {
         val currentPrimes = getCurrentPrimes().filter { it.primeExpiry == null }
 
         return currentPrimes.mapIndexed { i, it ->
@@ -85,7 +70,11 @@ object PrimeService : ILogger {
         }
     }
 
-    private fun getPredictedPrimesStr(size: Int): List<String> {
+    private fun getCurrentPrimes(): List<PrimeInfo> {
+        return primes.filter { it.primeExpiry == null }
+    }
+
+    fun getPredictedPrimesStr(size: Int): List<String> {
         var time = getReleasedPrimes(size).last().primeDate ?: error("Primes should have a prime date.")
         val male = getPredictedPrimes(size).filter { it.gender.toUpperCase() == 'M' }.sortedBy {
             it.date?.epochSecond ?: 0
@@ -118,22 +107,9 @@ object PrimeService : ILogger {
         return predictedStr.toList()
     }
 
-    private fun getReleasedPrimes(size: Int): List<PrimeInfo> {
-        return primes.takeLast(size)
-    }
-
-    private fun getCurrentPrimes(): List<PrimeInfo> {
-        return primes.filter { it.primeExpiry == null }
-    }
-
     private fun getPredictedPrimes(size: Int): List<PrimeInfo> {
         return nonprimes.take(size)
     }
-
-    private val allInfo
-        get() = readFromFile().filterNot { it.name == "Excalibur" }
-    private val primes= allInfo.filter { it.primeDate != null }.sortedBy { it.primeDate?.epochSecond ?: 0 }
-    private val nonprimes = allInfo.filter { it.primeDate == null }.sortedBy { it.date?.epochSecond ?: 0 }
 
     private fun readFromFile(): List<PrimeInfo> {
         val lines = File(Thread.currentThread().contextClassLoader.getResource(primeFilePath).toURI()).readLines().drop(1)
@@ -148,6 +124,4 @@ object PrimeService : ILogger {
                     props[4].toLongOrNull() ?: 0)
         }
     }
-
-    private const val primeFilePath = "data/primes.csv"
 }

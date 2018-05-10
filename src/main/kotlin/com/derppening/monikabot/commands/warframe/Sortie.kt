@@ -25,10 +25,10 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.SortieService
 import com.derppening.monikabot.impl.warframe.SortieService.getSortie
-import com.derppening.monikabot.impl.warframe.SortieService.toEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Sortie : IBase, ILogger {
@@ -37,27 +37,33 @@ object Sortie : IBase, ILogger {
 
         if (!SortieService.isSortieInWorldState()) {
             buildMessage(event.channel) {
-                withContent("Unable to retrieve sortie information! Please try again later.")
+                content {
+                    withContent("Unable to retrieve sortie information! Please try again later.")
+                }
             }
         }
 
-        event.channel.sendMessage(getSortie().toEmbed())
+        sendEmbed(getSortie() to event.channel)
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-sortie`")
-            withDesc("Displays the current sorties.")
-            insertSeparator()
-            appendField("Usage", "```warframe sorties```", false)
+            fields {
+                withTitle("Help Text for `warframe-sortie`")
+                withDesc("Displays the current sorties.")
+                insertSeparator()
+                appendField("Usage", "```warframe sorties```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

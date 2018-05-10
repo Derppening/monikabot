@@ -26,9 +26,10 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.SyndicateService.findSyndicateFromTag
 import com.derppening.monikabot.impl.warframe.SyndicateService.toEmbed
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Syndicate : IBase, ILogger {
@@ -44,26 +45,7 @@ object Syndicate : IBase, ILogger {
             }
         }
 
-
         return Parser.HandleState.HANDLED
-    }
-
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-syndicate`")
-            withDesc("Displays missions of a given syndicate.")
-            insertSeparator()
-            appendField("Usage", "```warframe syndicate [syndicate]```", false)
-            appendField("`[syndicate]`", "The syndicate to show missions for.", false)
-
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-            }
-        }
     }
 
     /**
@@ -75,19 +57,45 @@ object Syndicate : IBase, ILogger {
         val syndicate = findSyndicateFromTag(args).also {
             if (it.size > 1) {
                 buildMessage(event.channel) {
-                    withContent("The given syndicate name matches more than one syndicate!")
-                    appendContent("\nYour provided syndicate name matches: \n" +
-                            it.joinToString("\n") { "- ${WorldState.getSyndicateName(it.tag)}" })
+                    content {
+                        withContent("The given syndicate name matches more than one syndicate!")
+                        appendContent("\nYour provided syndicate name matches: \n" +
+                                it.joinToString("\n") { "- ${WorldState.getSyndicateName(it.tag)}" })
+                    }
                 }
                 return
             } else if (it.isEmpty()) {
                 buildMessage(event.channel) {
-                    withContent("The given syndicate name doesn't match any syndicate!")
+                    content {
+                        withContent("The given syndicate name doesn't match any syndicate!")
+                    }
                 }
                 return
             }
         }.first()
 
-        event.channel.sendMessage(syndicate.toEmbed())
+        sendEmbed(syndicate.toEmbed() to event.channel)
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `warframe-syndicate`")
+                withDesc("Displays missions of a given syndicate.")
+                insertSeparator()
+                appendField("Usage", "```warframe syndicate [syndicate]```", false)
+                appendField("`[syndicate]`", "The syndicate to show missions for.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
+                }
+            }
+        }
     }
 }

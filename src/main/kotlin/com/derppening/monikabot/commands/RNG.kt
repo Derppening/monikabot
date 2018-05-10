@@ -24,9 +24,9 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.RNGService
 import com.derppening.monikabot.impl.RNGService.computeRNGStats
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object RNG : IBase {
@@ -37,13 +37,17 @@ object RNG : IBase {
         when (result) {
             is RNGService.Result.Failure -> {
                 buildMessage(event.channel) {
-                    withContent(result.message)
+                    content {
+                        withContent(result.message)
+                    }
                 }
             }
             is RNGService.Result.Success -> {
                 buildEmbed(event.channel) {
-                    withTitle("Probability Calculations")
-                    result.embeds(this)
+                    fields {
+                        withTitle("Probability Calculations")
+                        result.embeds(this)
+                    }
                 }
             }
         }
@@ -53,21 +57,25 @@ object RNG : IBase {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `rng`")
-            withDesc("Computes distribution statistics for drop tables.")
-            insertSeparator()
-            appendField("Usage", "```rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]```", false)
-            appendField("`[PROBABILITY]`", "Specifies item drop chance.", false)
-            appendField("`[n=ATTEMPTS]`", "Optional: Specifies number of attempts to get the item.", false)
-            appendField("`[k=SUCCESSFUL_TRIAL]`", "Optional: Specifies the number of trial which you got the item.", false)
-            appendField("`[r=ROUND]`", "Optional: Specifies rounding. You may use dp to signify decimal places and " +
-                    "sf to signify significant figures. \nDefaults to 3 decimal places.", false)
+            fields {
+                withTitle("Help Text for `rng`")
+                withDesc("Computes distribution statistics for drop tables.")
+                insertSeparator()
+                appendField("Usage", "```rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]```", false)
+                appendField("`[PROBABILITY]`", "Specifies item drop chance.", false)
+                appendField("`[n=ATTEMPTS]`", "Optional: Specifies number of attempts to get the item.", false)
+                appendField("`[k=SUCCESSFUL_TRIAL]`", "Optional: Specifies the number of trial which you got the item.", false)
+                appendField("`[r=ROUND]`", "Optional: Specifies rounding. You may use dp to signify decimal places and " +
+                        "sf to signify significant figures. \nDefaults to 3 decimal places.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

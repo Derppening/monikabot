@@ -25,9 +25,9 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.EchoService
 import com.derppening.monikabot.impl.EchoService.toGuildChannel
 import com.derppening.monikabot.impl.EchoService.toPrivateChannel
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Echo : IBase, ILogger {
@@ -45,7 +45,9 @@ object Echo : IBase, ILogger {
         if (args[0] == "-d" || args[0] == "--destination") {
             if (args.size == 1) {
                 buildMessage(event.channel) {
-                    withContent("Please specify a destination and a message!")
+                    content {
+                        withContent("Please specify a destination and a message!")
+                    }
                 }
 
                 return Parser.HandleState.HANDLED
@@ -62,15 +64,19 @@ object Echo : IBase, ILogger {
         val message = getArgumentList(event.message.content).joinToString(" ")
 
         buildMessage(event.channel) {
-            withContent(message)
+            content {
+                withContent(message)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot echo message \"$message\"!") {
-                    message { event.message }
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                    stackTrace { e.stackTrace }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot echo message \"$message\"!") {
+                        message { event.message }
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                        stackTrace { e.stackTrace }
+                    }
                 }
             }
         }
@@ -93,7 +99,9 @@ object Echo : IBase, ILogger {
             return when {
                 args.size == 1 -> {
                     buildMessage(event.channel) {
-                        withContent("Please specify a destination and a message!")
+                        content {
+                            withContent("Please specify a destination and a message!")
+                        }
                     }
                     Parser.HandleState.HANDLED
                 }
@@ -109,45 +117,18 @@ object Echo : IBase, ILogger {
         return Parser.HandleState.UNHANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            withTitle("Help Text for `echo`")
-            withDesc("Echo: Repeats a string.")
-            insertSeparator()
-            appendField("Usage", "```echo [string]```", false)
-            appendField("`[string]`", "String to repeat.", false)
-
-            insertSeparator()
-            appendField("Usage", "```echo -d [destination] [string]```", false)
-
-            val destinationText = "Destination of the string. Recognized formats include:" +
-                    "\n\t- `/channel`: Sends to `channel` in current server." +
-                    if (isSu) {
-                        "\n\t- `server/channel`: Sends to `channel` in `server`." +
-                                "\n\t- `username#discriminator`: Sends to user with this Discord Tag."
-                    } else ""
-            appendField("`[destination]`", destinationText, false)
-            appendField("`[string]`", "String to repeat.", false)
-
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-            }
-        }
-    }
-
     private fun messageToPrivateChannel(args: List<String>, event: MessageReceivedEvent) {
         val result = toPrivateChannel(args)
         when (result) {
             is EchoService.Result.Failure -> {
                 buildMessage(event.channel) {
-                    withContent(result.message)
+                    content {
+                        withContent(result.message)
+                    }
                 }
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -156,10 +137,47 @@ object Echo : IBase, ILogger {
         when (result) {
             is EchoService.Result.Failure -> {
                 buildMessage(event.channel) {
-                    withContent(result.message)
+                    content {
+                        withContent(result.message)
+                    }
                 }
             }
-            else -> {}
+            else -> {
+            }
+        }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `echo`")
+                withDesc("Echo: Repeats a string.")
+                insertSeparator()
+                appendField("Usage", "```echo [string]```", false)
+                appendField("`[string]`", "String to repeat.", false)
+
+                insertSeparator()
+                appendField("Usage", "```echo -d [destination] [string]```", false)
+
+                val destinationText = "Destination of the string. Recognized formats include:" +
+                        "\n\t- `/channel`: Sends to `channel` in current server." +
+                        if (isSu) {
+                            "\n\t- `server/channel`: Sends to `channel` in `server`." +
+                                    "\n\t- `username#discriminator`: Sends to user with this Discord Tag."
+                        } else ""
+                appendField("`[destination]`", destinationText, false)
+                appendField("`[string]`", "String to repeat.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
+                }
+            }
         }
     }
 }

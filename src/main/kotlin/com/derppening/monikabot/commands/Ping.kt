@@ -24,8 +24,8 @@ import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.PingService.getEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Instant
 
@@ -40,16 +40,18 @@ object Ping : IBase, ILogger {
 
         event.channel.typingStatus = true
         buildEmbed(event.channel) {
-            withTitle("Bot Latency Information")
+            fields {
+                withTitle("Bot Latency Information")
 
-            appendField("Discord Server", "${Client.shards.first().responseTime}ms", false)
+                appendField("Discord Server", "${Client.shards.first().responseTime}ms", false)
 
-            getEmbed().also {
-                appendField("DigitalOcean Servers", it.digitalOcean, false)
-                appendField("DNS Servers", it.dns, false)
+                getEmbed().also {
+                    appendField("DigitalOcean Servers", it.digitalOcean, false)
+                    appendField("DNS Servers", it.dns, false)
+                }
+
+                withTimestamp(Instant.now())
             }
-
-            withTimestamp(Instant.now())
         }
 
         return Parser.HandleState.HANDLED
@@ -57,16 +59,20 @@ object Ping : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `ping`")
-            withDesc("Displays the current latency of the bot to various servers.")
-            insertSeparator()
-            appendField("Usage", "```ping```", false)
+            fields {
+                withTitle("Help Text for `ping`")
+                withDesc("Displays the current latency of the bot to various servers.")
+                insertSeparator()
+                appendField("Usage", "```ping```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

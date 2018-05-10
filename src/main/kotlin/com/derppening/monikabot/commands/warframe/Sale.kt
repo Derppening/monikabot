@@ -24,8 +24,9 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.SaleService.getSaleEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Sale : IBase, ILogger {
@@ -33,23 +34,27 @@ object Sale : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1)
 
         event.channel.toggleTypingStatus()
-        event.channel.sendMessage(getSaleEmbed())
+        sendEmbed(getSaleEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-sale`")
-            withDesc("Displays the ongoing market sales.")
-            insertSeparator()
-            appendField("Usage", "```warframe sale```", false)
+            fields {
+                withTitle("Help Text for `warframe-sale`")
+                withDesc("Displays the ongoing market sales.")
+                insertSeparator()
+                appendField("Usage", "```warframe sale```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

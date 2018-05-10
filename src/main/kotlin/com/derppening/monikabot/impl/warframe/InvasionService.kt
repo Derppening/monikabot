@@ -20,12 +20,17 @@
 
 package com.derppening.monikabot.impl.warframe
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.WarframeService.worldState
+import com.derppening.monikabot.models.warframe.Manifest
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.NumericHelper.formatReal
+import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
+import com.derppening.monikabot.util.helpers.NumericHelper.clamp
+import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.EmbedBuilder
+import java.time.Duration
 import java.time.Instant
 
 object InvasionService : ILogger {
@@ -35,17 +40,6 @@ object InvasionService : ILogger {
         }.map {
             it.toEmbed()
         }
-    }
-
-    fun getInvasionTimerEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
-            withTitle("Invasions - Construction Status")
-
-            appendField("Grineer - Fomorian", formatReal(worldState.projectPct[0], isPercent = true), true)
-            appendField("Corpus - Razorback", formatReal(worldState.projectPct[1], isPercent = true), true)
-
-            withTimestamp(Instant.now())
-        }.build()
     }
 
     fun WorldState.Invasion.toEmbed(): EmbedObject {
@@ -77,6 +71,66 @@ object InvasionService : ILogger {
             if (defenderRewards.isNotBlank()) {
                 appendField("Defender Rewards", defenderRewards, true)
             }
+
+            withTimestamp(Instant.now())
+        }.build()
+    }
+
+    fun getInvasionAlertEmbed(): EmbedObject {
+        return worldState.goals.filter {
+            it.fomorian
+        }.also {
+            if (it.size > 1) {
+                fix("worldState[\"goals\"].filter { it.fomorian } has more than 1 entry!", Core.getMethodName())
+            }
+        }.map {
+            it.toEmbed()
+        }.first()
+    }
+
+    fun WorldState.Goal.toEmbed(): EmbedObject {
+        return EmbedBuilder().apply {
+            WorldState.getLanguageFromAsset(missionKeyName).let {
+                when {
+                    it.isNotBlank() -> it
+                    missionKeyName.isNotBlank() -> missionKeyName
+                    else -> ""
+                }
+            }.also { if (it.isNotBlank()) withDesc(it) }
+            when (faction) {
+                "FC_CORPUS" -> "Razorback Armada"
+                "FC_GRINEER" -> "Balor Fomorian"
+                else -> throw IllegalStateException("Unable to determine invasion boss")
+            }.also { withTitle(it) }
+
+            if (reward.items.isNotEmpty()) {
+                appendField("Item Rewards", reward.items.joinToString("\n") {
+                    if (WorldState.getLanguageFromAsset(it).isNotBlank()) {
+                        WorldState.getLanguageFromAsset(it)
+                    } else {
+                        it
+                    }
+                }, false)
+                if (reward.items.size == 1) {
+                    withImage(Manifest.getImageLinkFromAssetLocation(reward.items[0]))
+                }
+            }
+
+            appendField("Health", formatReal(healthPct, isPercent = true), true)
+            appendField("Time Remaining", Duration.between(Instant.now(), expiry.date.numberLong).formatDuration(), true)
+
+            withTimestamp(Instant.now())
+        }.build()
+    }
+
+    fun getInvasionTimerEmbed(): EmbedObject {
+        return EmbedBuilder().apply {
+            withTitle("Invasions - Construction Status")
+
+            val fomorianPercent = clamp(worldState.projectPct[0], 0.0, 100.0, compareBy { it })
+            val razorbackPercent = clamp(worldState.projectPct[1], 0.0, 100.0, compareBy { it })
+            appendField("Grineer - Fomorian", "${formatReal(fomorianPercent)}%", true)
+            appendField("Corpus - Razorback", "${formatReal(razorbackPercent)}%", true)
 
             withTimestamp(Instant.now())
         }.build()

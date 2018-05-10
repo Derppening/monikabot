@@ -23,8 +23,8 @@ package com.derppening.monikabot.impl.warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.market.MarketManifest
 import com.derppening.monikabot.models.warframe.market.MarketStats
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -35,6 +35,16 @@ import sx.blah.discord.util.EmbedBuilder
 import java.time.Instant
 
 object MarketService : ILogger {
+    /**
+     * Fixed link for warframe market images.
+     */
+    private const val imageLink = "https://warframe.market/static/assets/"
+
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
+
     fun getMarketItem(args: List<String>): Result {
         val manifestEntry = findItemInMarket(args).let {
             if (it.first.isNotBlank()) {
@@ -173,15 +183,5 @@ object MarketService : ILogger {
     sealed class Result {
         class Success(val embed: EmbedObject) : Result()
         class Failure(val message: String) : Result()
-    }
-
-    /**
-     * Fixed link for warframe market images.
-     */
-    private const val imageLink = "https://warframe.market/static/assets/"
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

@@ -23,32 +23,38 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.BuilderHelper
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Version : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         buildMessage(event.channel) {
-            withCode("", "MonikaBot v${Core.monikaVersion}")
+            content {
+                withCode("", "MonikaBot v${Core.monikaVersion}")
+            }
         }
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        BuilderHelper.buildEmbed(event.channel) {
-            withTitle("Help Text for `version`")
-            withDesc("Displays the version information.")
-            insertSeparator()
-            appendField("Usage", "```version```", false)
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `version`")
+                withDesc("Displays the version information.")
+                insertSeparator()
+                appendField("Usage", "```version```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

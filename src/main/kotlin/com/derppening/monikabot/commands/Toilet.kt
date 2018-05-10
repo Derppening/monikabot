@@ -18,22 +18,25 @@
  *
  */
 
-package com.derppening.monikabot.commands.warframe
+package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.warframe.NewsService.getNewsEmbed
+import com.derppening.monikabot.impl.ToiletService.toEmojiText
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
-import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object News : IBase {
+object Toilet : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).drop(1)
+        val args = getArgumentList(event.message.content)
 
-        sendEmbed(getNewsEmbed() to event.channel)
+        buildMessage(event.channel) {
+            content {
+                withContent(args.joinToString(" ").toEmojiText())
+            }
+        }
 
         return Parser.HandleState.HANDLED
     }
@@ -41,10 +44,11 @@ object News : IBase {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
             fields {
-                withTitle("Help Text for `warframe-news`")
-                withDesc("Displays the latest Warframe news.")
+                withTitle("Help Text for `toilet`")
+                withDesc("Reformats text to display using eomjis.")
                 insertSeparator()
-                appendField("Usage", "```warframe news```", false)
+                appendField("Usage", "```toilet [text]```", false)
+                appendField("`[text]`", "Text to reformat.", false)
             }
 
             onError {

@@ -22,8 +22,8 @@ package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.FuzzyMatcher
-import com.derppening.monikabot.util.URLHelper.openAndSetUserAgent
-import com.derppening.monikabot.util.URLHelper.readText
+import com.derppening.monikabot.util.helpers.URLHelper.openAndSetUserAgent
+import com.derppening.monikabot.util.helpers.URLHelper.readText
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -33,6 +33,16 @@ import sx.blah.discord.util.EmbedBuilder
 import java.net.URL
 
 object DogService : ILogger {
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
+
+    /**
+     * Returns a formatted list of all breeds.
+     *
+     * @param breed If specified, return list of subbreeds instead.
+     */
     fun list(breed: String = ""): ListResult {
         val list = getList()
 
@@ -73,6 +83,11 @@ object DogService : ILogger {
         }
     }
 
+    /**
+     * Finds breeds using the given [keyword].
+     *
+     * @return [ShowResult.Success] if only one match is found; Otherwise [ShowResult.Failure].
+     */
     fun getBreed(keyword: String): ShowResult {
         val breeds = findBreedFuzzy(keyword)
 
@@ -93,6 +108,38 @@ object DogService : ILogger {
         }
     }
 
+    /**
+     * @return List of all breeds supported by the API.
+     */
+    private fun getList(): List<String> {
+        val page = "https://dog.ceo/api/breeds/list"
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json)
+                .get("message")
+                .let {
+                    jsonMapper.readValue(it.toString())
+                }
+    }
+
+    /**
+     * Fuzzily matches all breeds using the given [keyword].
+     *
+     * @return A list of all matching breeds.
+     */
+    private fun findBreedFuzzy(keyword: String): List<String> {
+        val list = getList()
+
+        return FuzzyMatcher(keyword.split(' '), list) {
+            regex(RegexOption.IGNORE_CASE)
+        }.matches()
+    }
+
+    /**
+     * Finds subbreeds of [breed] using the given [keyword].
+     *
+     * @return [ShowResult.Success] if only one match is found; Otherwise [ShowResult.Failure].
+     */
     fun getSubbreed(breed: String, keyword: String): ShowResult {
         val breedActual = findBreedFuzzy(breed).also {
             if (it.size != 1) {
@@ -118,8 +165,52 @@ object DogService : ILogger {
         }
     }
 
+    /**
+     * Fuzzily matches all subbreeds of [breed] using the given [keyword].
+     *
+     * @return A list of all matching breeds.
+     */
+    private fun findSubbreedFuzzy(breed: String, keyword: String): List<String> {
+        val list = getBreedList(breed)
+
+        return FuzzyMatcher(keyword.split(' '), list) {
+            regex(RegexOption.IGNORE_CASE)
+        }.matches()
+    }
+
+    /**
+     * @return List of all subbreeds of [subbreed] supported by the API.
+     */
+    private fun getBreedList(subbreed: String): List<String> {
+        val page = "https://dog.ceo/api/breed/$subbreed/list"
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json)
+                .get("message")
+                .let {
+                    jsonMapper.readValue(it.toString())
+                }
+    }
+
+    /**
+     * @return URL to a random photo of a dog.
+     */
     fun getRandomPic(): String {
         val page = "https://dog.ceo/api/breeds/image/random"
+        val json = URL(page).openAndSetUserAgent().readText()
+
+        return jsonMapper.readTree(json).get("message").asText()
+    }
+
+    /**
+     * @return URL to a dog of [breed] (and [subbreed] if specified).
+     */
+    private fun getBreedPic(breed: String, subbreed: String = ""): String {
+        val page = if (subbreed.isBlank()) {
+            "https://dog.ceo/api/breed/$breed/images/random"
+        } else {
+            "https://dog.ceo/api/breed/$breed/$subbreed/images/random"
+        }
         val json = URL(page).openAndSetUserAgent().readText()
 
         return jsonMapper.readTree(json).get("message").asText()
@@ -133,59 +224,5 @@ object DogService : ILogger {
     sealed class ShowResult {
         class Success(val link: String) : ShowResult()
         class Failure(val message: String) : ShowResult()
-    }
-
-    private fun findBreedFuzzy(keyword: String): List<String> {
-        val list = getList()
-
-        return FuzzyMatcher(keyword.split(' '), list) {
-            regex(RegexOption.IGNORE_CASE)
-        }.matches()
-    }
-
-    private fun findSubbreedFuzzy(breed: String, keyword: String): List<String> {
-        val list = getBreedList(breed)
-
-        return FuzzyMatcher(keyword.split(' '), list) {
-            regex(RegexOption.IGNORE_CASE)
-        }.matches()
-    }
-
-    private fun getBreedPic(breed: String, subbreed: String = ""): String {
-        val page = if (subbreed.isBlank()) {
-            "https://dog.ceo/api/breed/$breed/images/random"
-        } else {
-            "https://dog.ceo/api/breed/$breed/$subbreed/images/random"
-        }
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json).get("message").asText()
-    }
-
-    private fun getList(): List<String> {
-        val page = "https://dog.ceo/api/breeds/list"
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json)
-                .get("message")
-                .let {
-                    jsonMapper.readValue(it.toString())
-                }
-    }
-
-    private fun getBreedList(subbreed: String): List<String> {
-        val page = "https://dog.ceo/api/breed/$subbreed/list"
-        val json = URL(page).openAndSetUserAgent().readText()
-
-        return jsonMapper.readTree(json)
-                .get("message")
-                .let {
-                    jsonMapper.readValue(it.toString())
-                }
-    }
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

@@ -25,9 +25,10 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.AlertService.getAlertEmbeds
 import com.derppening.monikabot.impl.warframe.AlertService.getGoalEmbeds
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Alert : IBase, ILogger {
@@ -40,15 +41,17 @@ object Alert : IBase, ILogger {
                     getGoals(event)
                     getAlerts(event)
                 }
-                "alert".startsWith(args[0]) -> getAlerts(event)
-                "special".startsWith(args[0]) -> getGoals(event, true)
+                args[0].endsWith("alert") -> getAlerts(event)
+                args[0].endsWith("special") -> getGoals(event, true)
                 else -> {
                     help(event, false)
                 }
             }
         } catch (e: Exception) {
             buildMessage(event.channel) {
-                withContent("Warframe is currently updating its information. Please be patient!")
+                content {
+                    withContent("Warframe is currently updating its information. Please be patient!")
+                }
             }
             e.printStackTrace()
 
@@ -58,52 +61,54 @@ object Alert : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-alert`")
-            withDesc("Displays all currently ongoing alerts.")
-            insertSeparator()
-            appendField("Usage", "```warframe alert [--alert|--special]```", false)
-            appendField("`--alert`", "Only show normal mission alerts.", false)
-            appendField("`--special`", "Only show special alerts.", false)
-
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-            }
-        }
-    }
-
-    /**
-     * Retrieves and outputs a list of alerts.
-     */
     private fun getAlerts(event: MessageReceivedEvent) {
         getAlertEmbeds().also {
             if (it.isEmpty()) {
                 buildMessage(event.channel) {
-                    withContent("There are currently no alerts!")
+                    content {
+                        withContent("There are currently no alerts!")
+                    }
                 }
             }
         }.forEach {
-            event.channel.sendMessage(it)
+            sendEmbed(it to event.channel)
         }
     }
 
-    /**
-     * Retrieves and outputs a list of special alerts ("goals").
-     */
     private fun getGoals(event: MessageReceivedEvent, isDirectlyInvoked: Boolean = false) {
         getGoalEmbeds().also {
             if (isDirectlyInvoked && it.isEmpty()) {
                 buildMessage(event.channel) {
-                    withContent("There are currently no special alerts!")
+                    content {
+                        withContent("There are currently no special alerts!")
+                    }
                 }
             }
         }.forEach {
-            event.channel.sendMessage(it)
+            sendEmbed(it to event.channel)
+        }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `warframe-alert`")
+                withDesc("Displays all currently ongoing alerts.")
+                insertSeparator()
+                appendField("Usage", "```warframe alert [--alert|--special]```", false)
+                appendField("`--alert`", "Only show normal mission alerts.", false)
+                appendField("`--special`", "Only show special alerts.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
+                }
+            }
         }
     }
 }

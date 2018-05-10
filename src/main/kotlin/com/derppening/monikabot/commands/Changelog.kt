@@ -24,9 +24,9 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.ChangelogService.getAll
 import com.derppening.monikabot.impl.ChangelogService.getLatest
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Changelog : IBase, ILogger {
@@ -45,57 +45,62 @@ object Changelog : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            withTitle("Help Text for `changelog`")
-            withDesc("Displays the changelog for the most recent build(s).")
-            insertSeparator()
-            appendField("Usage", "```changelog [release] [all]```", false)
-            appendField("`release`", "Only show changes for release builds.", false)
-            appendField("`all`", "Show 5 most recent builds instead of 1.", false)
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-            }
-        }
-    }
-
-    /**
-     * Displays the changes of the most recent 5 builds.
-     */
     private fun outputAllChanges(event: MessageReceivedEvent, showRel: Boolean) {
         val displayChanges = getAll(showRel)
 
         buildEmbed(event.channel) {
-            withTitle("Last 5 Changelogs")
-            if (displayChanges.isEmpty()) {
-                withDesc("There are no official releases (yet)!")
-            } else {
-                displayChanges.forEach { (ver, changetext) ->
-                    appendField(ver, changetext.joinToString("\n"), false)
+            fields {
+                withTitle("Last 5 Changelogs")
+                if (displayChanges.isEmpty()) {
+                    withDesc("There are no official releases (yet)!")
+                } else {
+                    displayChanges.forEach { (ver, changetext) ->
+                        appendField(ver, changetext.joinToString("\n"), false)
+                    }
                 }
             }
         }
     }
 
-    /**
-     * Displays the changes of the most recent build.
-     */
     private fun outputLatestChanges(event: MessageReceivedEvent, showRel: Boolean) {
         val displayChange = getLatest(showRel) ?: run {
             buildMessage(event.channel) {
-                withContent("There are no official releases (yet)!")
+                content {
+                    withContent("There are no official releases (yet)!")
+                }
             }
             return
         }
 
         buildEmbed(event.channel) {
-            withTitle("Changelog for ${displayChange.first}")
-            withDesc(displayChange.second.joinToString("\n"))
+            fields {
+                withTitle("Changelog for ${displayChange.first}")
+                withDesc(displayChange.second.joinToString("\n"))
+            }
+        }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `changelog`")
+                withDesc("Displays the changelog for the most recent build(s).")
+                insertSeparator()
+                appendField("Usage", "```changelog [release] [all]```", false)
+                appendField("`release`", "Only show changes for release builds.", false)
+                appendField("`all`", "Show 5 most recent builds instead of 1.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
+                }
+            }
         }
     }
 }

@@ -37,12 +37,6 @@ object ConfigService : ILogger {
     var ownerModeEchoForSu = true
         private set
 
-    enum class Result {
-        GET,
-        SET,
-        HELP
-    }
-
     fun configureExperimentalFlag(args: List<String>): Result {
         if (args.size == 1) {
             return Result.GET
@@ -73,5 +67,11 @@ object ConfigService : ILogger {
         }
 
         return Result.SET
+    }
+
+    enum class Result {
+        GET,
+        SET,
+        HELP
     }
 }

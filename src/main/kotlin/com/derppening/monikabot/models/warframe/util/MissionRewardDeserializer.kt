@@ -29,15 +29,16 @@ import com.fasterxml.jackson.module.kotlin.readValue
 class MissionRewardDeserializer : JsonDeserializer<List<WorldState.MissionReward>>() {
     override fun deserialize(parser: JsonParser, context: DeserializationContext?): List<WorldState.MissionReward> {
         return if (parser.currentToken == JsonToken.START_OBJECT) {
-            val mapper = ObjectMapper().apply {
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue<WorldState.MissionReward>(parser.readValueAsTree<JsonNode>().toString())
-
-            listOf(mapper)
+            val reward = mapper.readValue<WorldState.MissionReward>(parser.readValueAsTree<JsonNode>().toString())
+            listOf(reward)
         } else {
-            ObjectMapper().apply {
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(parser.readValueAsTree<JsonNode>().toString())
+            mapper.readValue(parser.readValueAsTree<JsonNode>().toString())
+        }
+    }
+
+    companion object {
+        val mapper = ObjectMapper().apply {
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }
     }
 }

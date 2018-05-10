@@ -23,11 +23,13 @@ package com.derppening.monikabot.commands.warframe
 import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionAlertEmbed
 import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionEmbeds
 import com.derppening.monikabot.impl.warframe.InvasionService.getInvasionTimerEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Invasion : IBase, ILogger {
@@ -43,43 +45,44 @@ object Invasion : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-invasion`")
-            withDesc("Displays the invasion progress in Warframe.")
-            insertSeparator()
-            appendField("Usage", "```warframe invasion [timer]```", false)
-            appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
-
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
-                }
-            }
-        }
-    }
-
-    /**
-     * Retrieves and outputs the list of current invasions.
-     */
     private fun getInvasionData(event: MessageReceivedEvent) {
         getInvasionEmbeds().also {
             if (it.isEmpty()) {
                 buildMessage(event.channel) {
-                    withContent("There are currently no invasions!")
+                    content {
+                        withContent("There are currently no invasions!")
+                    }
                 }
             }
         }.forEach {
-            event.channel.sendMessage(it)
+            sendEmbed(it to event.channel)
         }
     }
 
-    /**
-     * Outputs the current build progress of Balor Fomorian/Razorback.
-     */
     private fun getInvasionTimer(event: MessageReceivedEvent) {
-        event.channel.sendMessage(getInvasionTimerEmbed())
+        sendEmbed(getInvasionTimerEmbed() to event.channel)
+        sendEmbed(getInvasionAlertEmbed() to event.channel)
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `warframe-invasion`")
+                withDesc("Displays the invasion progress in Warframe.")
+                insertSeparator()
+                appendField("Usage", "```warframe invasion [timer]```", false)
+                appendField("`timer`", "If appended, show the construction progress for Balor Fomorian and Razorback.", false)
+            }
+
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
+                }
+            }
+        }
     }
 }

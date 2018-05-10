@@ -35,13 +35,27 @@ class Manifest {
     }
 
     companion object {
-        internal fun getImageLinkFromAssetLocation(uniqueName: String): String {
+        private val jsonMapper = jacksonObjectMapper().apply {
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+        }
+
+        /**
+         * @param uniqueName Lotus path for the resource.
+         *
+         * @return URL to the image of the game resource if found; Otherwise empty string.
+         */
+        fun getImageLinkFromAssetLocation(uniqueName: String): String {
             val textureLocation = parseManifest().manifest.find { it.uniqueName == uniqueName }?.textureLocation ?: ""
             if (textureLocation.isBlank()) { return "" }
             return "http://content.warframe.com/MobileExport${textureLocation.replace("\\", "/")}"
         }
 
-        internal fun findImageByRegex(nameRegex: Regex): String {
+        /**
+         * @param nameRegex Regex for resource to look for.
+         *
+         * @return URL to image if there is a unique match; Otherwise empty string.
+         */
+        fun findImageByRegex(nameRegex: Regex): String {
             val matches = parseManifest().manifest.filter { it.uniqueName.contains(nameRegex) }
             return if (matches.size != 1) {
                 ""
@@ -52,10 +66,6 @@ class Manifest {
 
         private fun parseManifest(): Manifest {
             return jsonMapper.readValue(URL("http://content.warframe.com/MobileExport/Manifest/ExportManifest.json"))
-        }
-
-        private val jsonMapper = jacksonObjectMapper().apply {
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }
     }
 }

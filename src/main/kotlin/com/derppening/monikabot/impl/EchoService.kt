@@ -23,16 +23,11 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.BuilderHelper
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
 
 object EchoService : ILogger {
-    sealed class Result {
-        class Success : Result()
-        class Failure(val message: String) : Result()
-    }
-
     fun toPrivateChannel(args: List<String>): Result {
         val username = args[1].dropLastWhile { it != '#' }.dropLastWhile { it == '#' }
         val discriminator = args[1].dropWhile { it != '#' }.dropWhile { it == '#' }
@@ -48,9 +43,11 @@ object EchoService : ILogger {
                     ?: error("Cannot find user!")
 
             val message = args.drop(2).joinToString(" ")
-            BuilderHelper.MessageHelper(channel).apply {
-                withContent(message)
-            }.send()
+            buildMessage(channel) {
+                content {
+                    withContent(message)
+                }
+            }
         } catch (de: DiscordException) {
             de.printStackTrace()
             return Result.Failure("I can't deliver the message! Reason: ${de.errorMessage}")
@@ -85,8 +82,10 @@ object EchoService : ILogger {
             }
 
             val message = args.drop(2).joinToString(" ")
-            BuilderHelper.MessageHelper(channel).apply {
-                withContent(message)
+            buildMessage(channel) {
+                content {
+                    withContent(message)
+                }
             }
         } catch (de: DiscordException) {
             de.printStackTrace()
@@ -97,5 +96,10 @@ object EchoService : ILogger {
         }
 
         return Result.Success()
+    }
+
+    sealed class Result {
+        class Success : Result()
+        class Failure(val message: String) : Result()
     }
 }

@@ -24,7 +24,8 @@ import com.derppening.monikabot.commands.Trivia
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.BuilderHelper
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
@@ -35,6 +36,13 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import java.net.URL
 
 object TriviaService : ILogger {
+    private val jsonMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+    }
+
+    val users = mutableListOf<Long>()
+
     fun startTrivia(args: List<String>, event: MessageReceivedEvent) {
         val questions = args.firstOrNull()?.toIntOrNull() ?: 5
         val difficulty = args.find { it.matches(Regex("(easy|medium|hard|any)")) } ?: "easy"
@@ -43,11 +51,13 @@ object TriviaService : ILogger {
         val triviaData = getTriviaQuestions(questions, difficulty)
 
         if (triviaData.responseCode != 0) {
-            BuilderHelper.buildMessage(channel) {
-                if (triviaData.responseCode == 1) {
-                    withContent("I could only ask a maximum of 50 questions at a time!")
-                } else {
-                    withContent("I don't have questions to ask you... Let's play later! =3")
+            buildMessage(channel) {
+                content {
+                    if (triviaData.responseCode == 1) {
+                        withContent("I could only ask a maximum of 50 questions at a time!")
+                    } else {
+                        withContent("I don't have questions to ask you... Let's play later! =3")
+                    }
                 }
             }
 
@@ -55,9 +65,11 @@ object TriviaService : ILogger {
         }
 
         Trivia.logger.info("Starting Trivia for ${event.author.getDiscordTag()}")
-        BuilderHelper.buildMessage(channel) {
-            withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
-            appendContent("\nType \"exit\" to quit any time!")
+        buildMessage(channel) {
+            content {
+                withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
+                appendContent("\nType \"exit\" to quit any time!")
+            }
         }
 
         users.add(event.author.longID)
@@ -74,13 +86,15 @@ object TriviaService : ILogger {
             }
             Trivia.logger.debug("Shuffled Answers:$answerDebugStr")
 
-            BuilderHelper.buildEmbed(channel) {
-                withAuthorName("Difficulty: ${trivia.difficulty.capitalize()}")
-                withTitle("Category: ${trivia.category}")
-                withDesc(StringEscapeUtils.unescapeHtml4(trivia.question))
+            buildEmbed(channel) {
+                fields {
+                    withAuthorName("Difficulty: ${trivia.difficulty.capitalize()}")
+                    withTitle("Category: ${trivia.category}")
+                    withDesc(StringEscapeUtils.unescapeHtml4(trivia.question))
 
-                answers.forEachIndexed { i, answer ->
-                    appendField((i + 65).toChar().toString(), StringEscapeUtils.unescapeHtml4(answer), true)
+                    answers.forEachIndexed { i, answer ->
+                        appendField((i + 65).toChar().toString(), StringEscapeUtils.unescapeHtml4(answer), true)
+                    }
                 }
             }
 
@@ -117,8 +131,10 @@ object TriviaService : ILogger {
             val ans = try {
                 channel.messageHistory.latestMessage.content ?: throw Exception("Latest message is a NullPointer")
             } catch (e: Exception) {
-                BuilderHelper.buildMessage(event.channel) {
-                    withContent("Monika hit a hiccup and needs to take a break :(")
+                buildMessage(event.channel) {
+                    content {
+                        withContent("Monika hit a hiccup and needs to take a break :(")
+                    }
                 }
 
                 e.printStackTrace()
@@ -130,14 +146,18 @@ object TriviaService : ILogger {
                     when {
                         ans.toBoolean() == trivia.correctAnswer.toBoolean() ||
                                 ans.length == 1 && (ans[0].toUpperCase().toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
-                            BuilderHelper.buildMessage(channel) {
-                                withContent("You are correct! =D")
+                            buildMessage(channel) {
+                                content {
+                                    withContent("You are correct! =D")
+                                }
                             }
                             ++correctAnswers
                         }
                         else -> {
-                            BuilderHelper.buildMessage(channel) {
-                                withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}.")
+                            buildMessage(channel) {
+                                content {
+                                    withContent("You're incorrect... :(\nThe correct answer is ${trivia.correctAnswer}.")
+                                }
                             }
                         }
                     }
@@ -146,14 +166,18 @@ object TriviaService : ILogger {
                     when {
                         ans.equals(trivia.correctAnswer.trim(), true) ||
                                 ans.length == 1 && (ans[0].toUpperCase().toInt() - 65) == answers.indexOfFirst { it == trivia.correctAnswer } -> {
-                            BuilderHelper.buildMessage(channel) {
-                                withContent("You are correct! =D")
+                            buildMessage(channel) {
+                                content {
+                                    withContent("You are correct! =D")
+                                }
                             }
                             ++correctAnswers
                         }
                         else -> {
-                            BuilderHelper.buildMessage(channel) {
-                                withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}.")
+                            buildMessage(channel) {
+                                content {
+                                    withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}.")
+                                }
                             }
                         }
                     }
@@ -163,12 +187,18 @@ object TriviaService : ILogger {
             ++totalAnswers
         }
 
-        BuilderHelper.buildMessage(channel) {
-            withContent("Thanks for playing trivia with me! You got $correctAnswers out of $totalAnswers correct!")
+        buildMessage(channel) {
+            content {
+                withContent("Thanks for playing trivia with me! You got $correctAnswers out of $totalAnswers correct!")
+            }
         }
 
         users.remove(event.author.longID)
         Trivia.logger.info("Ending Trivia for ${event.author.getDiscordTag()}")
+    }
+
+    private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
+        return jsonMapper.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
     }
 
     /**
@@ -177,8 +207,10 @@ object TriviaService : ILogger {
     fun checkUserTriviaStatus(event: MessageReceivedEvent): Boolean {
         if (users.any { it == event.author.longID }) {
             if (!event.channel.isPrivate) {
-                BuilderHelper.buildMessage(event.channel) {
-                    withContent("It looks like you're still in a trivia game... Type \"exit\" in my private chat to quit it!")
+                buildMessage(event.channel) {
+                    content {
+                        withContent("It looks like you're still in a trivia game... Type \"exit\" in my private chat to quit it!")
+                    }
                 }
             }
             return true
@@ -190,17 +222,12 @@ object TriviaService : ILogger {
     fun gracefulShutdown() {
         users.forEach {
             val channel = Client.getUserByID(it)!!.orCreatePMChannel
-            BuilderHelper.buildMessage(channel) {
-                withContent("Friendly Reminder: I will be going down for maintenance in one minute!")
+            buildMessage(channel) {
+                content {
+                    withContent("Friendly Reminder: I will be going down for maintenance in one minute!")
+                }
             }
         }
-    }
-
-    var users = mutableListOf<Long>()
-        private set
-
-    private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
-        return jsonMapper.readValue(URL("https://opentdb.com/api.php?amount=$questions${if (difficulty != "any") "&difficulty=$difficulty" else ""}"))
     }
 
     class TriviaData {
@@ -218,10 +245,5 @@ object TriviaService : ILogger {
             @JsonProperty("incorrect_answers")
             val incorrectAnswers = listOf<String>()
         }
-    }
-
-    private val jsonMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
     }
 }

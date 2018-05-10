@@ -29,9 +29,6 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.DiscordException
 import kotlin.system.exitProcess
 
-/**
- * Singleton housing all persistent objects.
- */
 object Persistence : ILogger {
     /**
      * Core IDiscordClient object.

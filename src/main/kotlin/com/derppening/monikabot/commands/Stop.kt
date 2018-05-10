@@ -26,8 +26,8 @@ import com.derppening.monikabot.core.Core.isOwnerLocationValid
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.StopService.cleanup
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Stop : IBase, ILogger {
@@ -56,18 +56,22 @@ object Stop : IBase, ILogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         if (isSu) {
             buildEmbed(event.channel) {
-                withTitle("Help Text for `stop`")
-                withDesc("Stops the execution of the bot.")
-                insertSeparator()
-                appendField("Usage", "```stop [--force] [stable|development]```", false)
-                appendField("`--force", "If appended, forcefully shuts down the server without any buffer time.", false)
-                appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
+                fields {
+                    withTitle("Help Text for `stop`")
+                    withDesc("Stops the execution of the bot.")
+                    insertSeparator()
+                    appendField("Usage", "```stop [--force] [stable|development]```", false)
+                    appendField("`--force", "If appended, forcefully shuts down the server without any buffer time.", false)
+                    appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
+                }
 
-                onDiscordError { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
+                onError {
+                    discordException { e ->
+                        log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                            author { event.author }
+                            channel { event.channel }
+                            info { e.errorMessage }
+                        }
                     }
                 }
             }

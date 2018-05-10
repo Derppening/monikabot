@@ -21,7 +21,7 @@
 package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.obj.IChannel
 
 /**
@@ -45,27 +45,37 @@ class FuzzyMatcher(private val matchExpr: List<String>, private val matchers: Li
     /**
      * Action to execute when there is no match.
      */
-    fun onEmptyMatch(action: () -> Unit) { emptyMatchHandler = action }
+    fun onEmptyMatch(action: () -> Unit) {
+        emptyMatchHandler = action
+    }
 
     /**
      * Message to display when there is no match.
      */
-    fun emptyMatchMessage(action: () -> Pair<String, IChannel?>) { emptyMatchMessage = action }
+    fun emptyMatchMessage(action: () -> Pair<String, IChannel?>) {
+        emptyMatchMessage = action
+    }
 
     /**
      * Action to execute when there are multiple matches.
      */
-    fun onMultipleMatch(action: () -> Unit) { multipleMatchHandler = action }
+    fun onMultipleMatch(action: () -> Unit) {
+        multipleMatchHandler = action
+    }
 
     /**
      * Message to display when there are multiple matches.
      */
-    fun multipleMatchMessage(action: () -> Pair<String, IChannel?>) { multipleMatchMessage = action }
+    fun multipleMatchMessage(action: () -> Pair<String, IChannel?>) {
+        multipleMatchMessage = action
+    }
 
     /**
      * Sets additional regex options.
      */
-    fun regex(vararg options: RegexOption) { regexOptions += options }
+    fun regex(vararg options: RegexOption) {
+        regexOptions += options
+    }
 
     /**
      * Attempts to match [matchExpr] with one of the entries in [matchers].
@@ -88,7 +98,9 @@ class FuzzyMatcher(private val matchExpr: List<String>, private val matchers: Li
 
                 if (channel != null) {
                     buildMessage(channel) {
-                        withContent(message)
+                        content {
+                            withContent(message)
+                        }
                     }
                 }
 
@@ -110,7 +122,9 @@ class FuzzyMatcher(private val matchExpr: List<String>, private val matchers: Li
 
                 if (channel != null) {
                     buildMessage(channel) {
-                        withContent(message)
+                        content {
+                            withContent(message)
+                        }
                     }
                 }
 

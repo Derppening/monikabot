@@ -39,7 +39,7 @@ buildscript {
 }
 
 setGroup("com.derppening")
-setVersion("1.2.0-beta.4")
+setVersion("1.2.0-beta.5")
 
 apply plugin: 'application'
 apply plugin: 'java'

@@ -29,20 +29,45 @@ import com.derppening.monikabot.core.Core.isOwnerLocationValid
 import com.derppening.monikabot.core.Core.popLeadingMention
 import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.TriviaService
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.io.File
 import kotlin.concurrent.thread
 
 object Parser : ILogger {
-    enum class HandleState {
-        HANDLED,
-        UNHANDLED,
-        PERMISSION_DENIED,
-        MULTIPLE_MATCHES,
-        NOT_FOUND
-    }
+    private var nullResponses = loadNullResponses()
+
+    private const val NULL_RESPONSE_PATH = "lang/NullResponse.txt"
+
+    private val commands: Map<String, IBase> = mapOf(
+            "changelog" to Changelog,
+            "clear" to Clear,
+            "config" to Config,
+            "debug" to Debug,
+            "dog" to Dog,
+            "echo" to Echo,
+            "help" to Help,
+            "issue" to Issue,
+            "metar" to METAR,
+            "ping" to Ping,
+            "random" to Random,
+            "reload" to Reload,
+            "reminder" to Reminder,
+            "rng" to RNG,
+            "status" to Status,
+            "stop" to Stop,
+            "timer" to Reminder,
+            "toilet" to Toilet,
+            "trivia" to Trivia,
+            "version" to Version,
+            "warframe" to Warframe,
+
+            // aliases
+            "bugreport" to Issue
+    )
+
+    private val experimentalCommands: Map<String, IBase> = emptyMap()
 
     /**
      * Command delegator for all messages.
@@ -92,7 +117,9 @@ object Parser : ILogger {
             if (cmd.isBlank()) {
                 logger.debug("Message ${event.messageID} has no command")
                 buildMessage(event.channel) {
-                    withContent(getRandomNullResponse())
+                    content {
+                        withContent(getRandomNullResponse())
+                    }
                 }
                 logger.debug("Joining thread")
                 return@thread
@@ -104,10 +131,12 @@ object Parser : ILogger {
             } else {
                 if (runExperimental) {
                     buildMessage(event.channel) {
-                        if (event.isFromSuperuser()) {
-                            withContent("It seems like you're trying to invoke an experimental command without it being on...")
-                        } else {
-                            withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
+                        content {
+                            if (event.isFromSuperuser()) {
+                                withContent("It seems like you're trying to invoke an experimental command without it being on...")
+                            } else {
+                                withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
+                            }
                         }
                     }
                 }
@@ -121,7 +150,9 @@ object Parser : ILogger {
                     1 -> {
                         if (cmd != cmdMatches.entries.first().key) {
                             buildMessage(event.channel) {
-                                withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                content {
+                                    withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                }
                             }
                         }
                         cmdMatches.entries.first().value.delegateCommand(event)
@@ -129,7 +160,9 @@ object Parser : ILogger {
                     else -> {
                         if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
                             buildMessage(event.channel) {
-                                withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                content {
+                                    withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                }
                             }
                             cmdMatches.entries.first().value.delegateCommand(event)
                         } else {
@@ -142,19 +175,25 @@ object Parser : ILogger {
             when (retval) {
                 HandleState.NOT_FOUND -> {
                     buildMessage(event.channel) {
-                        withContent("I don't know how to do that! >.<")
+                        content {
+                            withContent("I don't know how to do that! >.<")
+                        }
                     }
                 }
                 HandleState.PERMISSION_DENIED -> {
                     buildMessage(event.channel) {
-                        withContent("You're not allow to do this! x(")
+                        content {
+                            withContent("You're not allow to do this! x(")
+                        }
                     }
                 }
                 HandleState.MULTIPLE_MATCHES -> {
                     buildMessage(event.channel) {
-                        withContent("Your message matches multiple commands!")
-                        appendContent("\n\nYour provided command matches:\n")
-                        appendContent(commands.filter { it.key.startsWith(cmd) }.entries.distinctBy { it.value }.joinToString("\n") { "- ${it.key}" })
+                        content {
+                            withContent("Your message matches multiple commands!")
+                            appendContent("\n\nYour provided command matches:\n")
+                            appendContent(commands.filter { it.key.startsWith(cmd) }.entries.distinctBy { it.value }.joinToString("\n") { "- ${it.key}" })
+                        }
                     }
                 }
                 else -> {
@@ -165,6 +204,19 @@ object Parser : ILogger {
     }
 
     /**
+     * Returns true if the invocation is valid, i.e.:
+     *  - In a private channel, or
+     *  - Message starts with a mention of the bot.
+     */
+    private fun isInvocationValid(event: MessageReceivedEvent) =
+            event.channel.isPrivate || event.message.isMentionMe()
+
+    /**
+     * Returns a random message from nullResponses.
+     */
+    private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
+
+    /**
      * Reloads responses when bot is invoked but no command is given.
      */
     fun loadNullResponses(): List<String> {
@@ -173,60 +225,22 @@ object Parser : ILogger {
     }
 
     /**
+     * Returns the command from a string.
+     */
+    private fun getCommand(message: String): String = message.split(' ')[0]
+
+    /**
      * Parses commands with "--experimental" flag given.
      */
     private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
         return experimentalCommands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
     }
 
-    /**
-     * Returns true if the invocation is valid, i.e.:
-     *  - In a private channel, or
-     *  - Message starts with a mention of the bot.
-     */
-    private fun isInvocationValid(event: MessageReceivedEvent) =
-            event.channel.isPrivate || event.message.isMentionMe()
-
-
-    /**
-     * Returns the command from a string.
-     */
-    private fun getCommand(message: String): String = message.split(' ')[0]
-
-    /**
-     * Returns a random message from nullResponses.
-     */
-    private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
-
-    private var nullResponses = loadNullResponses()
-
-    private const val NULL_RESPONSE_PATH = "lang/NullResponse.txt"
-
-    private val commands: Map<String, IBase> = mapOf(
-            "changelog" to Changelog,
-            "clear" to Clear,
-            "config" to Config,
-            "debug" to Debug,
-            "dog" to Dog,
-            "echo" to Echo,
-            "help" to Help,
-            "issue" to Issue,
-            "metar" to METAR,
-            "ping" to Ping,
-            "random" to Random,
-            "reload" to Reload,
-            "reminder" to Reminder,
-            "rng" to RNG,
-            "status" to Status,
-            "stop" to Stop,
-            "timer" to Reminder,
-            "trivia" to Trivia,
-            "version" to Version,
-            "warframe" to Warframe,
-
-            // aliases
-            "bugreport" to Issue
-    )
-
-    private val experimentalCommands: Map<String, IBase> = emptyMap()
+    enum class HandleState {
+        HANDLED,
+        UNHANDLED,
+        PERMISSION_DENIED,
+        MULTIPLE_MATCHES,
+        NOT_FOUND
+    }
 }

@@ -24,9 +24,6 @@ import java.time.Instant
 
 class PrimeInfo(val name: String, val gender: Char, longDate: Long, longPrimeDate: Long, longPrimeExpiryDate: Long) {
     private val _date: Instant = Instant.ofEpochSecond(longDate)
-    private val _primeDate: Instant = Instant.ofEpochSecond(longPrimeDate)
-    private val _primeExpiryDate: Instant = Instant.ofEpochSecond(longPrimeExpiryDate)
-
     val date: Instant?
         get() = if (_date == Instant.EPOCH) {
             null
@@ -34,6 +31,7 @@ class PrimeInfo(val name: String, val gender: Char, longDate: Long, longPrimeDat
             _date
         }
 
+    private val _primeDate: Instant = Instant.ofEpochSecond(longPrimeDate)
     val primeDate: Instant?
         get() = if (_primeDate == Instant.EPOCH) {
             null
@@ -41,6 +39,7 @@ class PrimeInfo(val name: String, val gender: Char, longDate: Long, longPrimeDat
             _primeDate
         }
 
+    private val _primeExpiryDate: Instant = Instant.ofEpochSecond(longPrimeExpiryDate)
     val primeExpiry: Instant?
         get() = if (_primeExpiryDate == Instant.EPOCH) {
             null

@@ -30,17 +30,18 @@ import com.fasterxml.jackson.module.kotlin.readValue
 class DropRewardDeserializer : JsonDeserializer<DropTable.MissionDropInfo.Rewards>() {
     override fun deserialize(parser: JsonParser, context: DeserializationContext?): DropTable.MissionDropInfo.Rewards {
         return if (parser.currentToken == JsonToken.START_ARRAY) {
-            val mapper = ObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue<List<BaseDrop.RewardDrop>>(parser.readValueAsTree<JsonNode>().toString())
+            val drops = mapper.readValue<List<BaseDrop.RewardDrop>>(parser.readValueAsTree<JsonNode>().toString())
 
-            DropTable.MissionDropInfo.Rewards(a = mapper)
+            DropTable.MissionDropInfo.Rewards(a = drops)
         } else {
-            ObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-            }.readValue(parser.readValueAsTree<JsonNode>().toString())
+            mapper.readValue(parser.readValueAsTree<JsonNode>().toString())
+        }
+    }
+
+    companion object {
+        val mapper = ObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
         }
     }
 }

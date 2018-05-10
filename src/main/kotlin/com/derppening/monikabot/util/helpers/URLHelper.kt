@@ -18,32 +18,24 @@
  *
  */
 
-package com.derppening.monikabot.impl
+package com.derppening.monikabot.util.helpers
 
 import com.derppening.monikabot.core.ILogger
-import sx.blah.discord.handle.obj.IChannel
-import sx.blah.discord.util.DiscordException
+import java.net.URL
+import java.net.URLConnection
 
-object ClearService : ILogger {
-    fun clearChannel(channel: IChannel, isClearAll: Boolean): Result {
-        if (channel.isPrivate) {
-            return Result.FAILURE_PRIVATE_CHANNEL
-        }
+object URLHelper : ILogger {
+    private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"
 
-        try {
-            val messages = if (isClearAll) channel.fullMessageHistory else channel.messageHistory
-            channel.bulkDelete(messages)
-        } catch (de: DiscordException) {
-            de.printStackTrace()
-            return Result.FAILURE_OTHER
-        }
-
-        return Result.SUCCESS
+    fun URL.openAndSetUserAgent(userAgent: String = USER_AGENT): URLConnection = openConnection().also {
+        it.setRequestProperty("User-Agent", userAgent)
     }
 
-    enum class Result {
-        SUCCESS,
-        FAILURE_PRIVATE_CHANNEL,
-        FAILURE_OTHER
+    fun URLConnection.setUserAgent(userAgent: String = USER_AGENT): URLConnection = also {
+        setRequestProperty("User-Agent", userAgent)
     }
+
+    fun URLConnection.readText(): String = getInputStream().bufferedReader().readText()
+
+    fun URLConnection.readLines(): List<String> = getInputStream().bufferedReader().readLines()
 }

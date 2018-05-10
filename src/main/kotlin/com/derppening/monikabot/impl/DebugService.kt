@@ -21,7 +21,7 @@
 package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.BuilderHelper.toEmbedObject
+import com.derppening.monikabot.util.helpers.EmbedHelper.toEmbedObject
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.util.DiscordException
 
@@ -72,10 +72,10 @@ object DebugService : ILogger {
 
         try {
             client.getMessageByID(id)?.edit(editText)
-                ?: run {
-                    log(ILogger.LogLevel.ERROR, "Cannot find message with ID $id")
-                    return false
-                }
+                    ?: run {
+                        log(ILogger.LogLevel.ERROR, "Cannot find message with ID $id")
+                        return false
+                    }
         } catch (e: DiscordException) {
             log(ILogger.LogLevel.ERROR, "Unable to edit message") {
                 stackTrace { e.stackTrace }

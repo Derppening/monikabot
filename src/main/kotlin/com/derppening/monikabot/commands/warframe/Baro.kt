@@ -24,11 +24,11 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.BaroService
-import com.derppening.monikabot.impl.warframe.BaroService.getBaro
-import com.derppening.monikabot.impl.warframe.BaroService.toEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.impl.warframe.BaroService.getBaroEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Baro : IBase, ILogger {
@@ -37,30 +37,36 @@ object Baro : IBase, ILogger {
 
         if (!BaroService.isBaroInWorldState()) {
             buildMessage(event.channel) {
-                withContent("Unable to retrieve Baro Ki'Teer information! Please try again later.")
+                content {
+                    withContent("Unable to retrieve Baro Ki'Teer information! Please try again later.")
+                }
             }
 
             return Parser.HandleState.HANDLED
         }
 
         event.channel.toggleTypingStatus()
-        event.channel.sendMessage(getBaro().toEmbed())
+        sendEmbed(getBaroEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-baro`")
-            withDesc("Displays information about Baro Ki'Teer.")
-            insertSeparator()
-            appendField("Usage", "```warframe baro```", false)
+            fields {
+                withTitle("Help Text for `warframe-baro`")
+                withDesc("Displays information about Baro Ki'Teer.")
+                insertSeparator()
+                appendField("Usage", "```warframe baro```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }
