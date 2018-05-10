@@ -22,8 +22,8 @@ package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.FuzzyMatcher
-import com.derppening.monikabot.util.URLHelper.openAndSetUserAgent
-import com.derppening.monikabot.util.URLHelper.readText
+import com.derppening.monikabot.util.helpers.URLHelper.openAndSetUserAgent
+import com.derppening.monikabot.util.helpers.URLHelper.readText
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

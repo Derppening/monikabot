@@ -25,7 +25,7 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.EmoticonService
 import com.derppening.monikabot.impl.EmoticonService.findEmoticon
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Emoticon : IBase, ILogger {
@@ -36,14 +36,18 @@ object Emoticon : IBase, ILogger {
             when (it) {
                 is EmoticonService.Result.Success -> {
                     buildMessage(event.channel) {
-                        withContent(it.emote)
+                        content {
+                            withContent(it.emote)
+                        }
                     }
                     Parser.HandleState.HANDLED
                 }
                 is EmoticonService.Result.Failure -> {
                     if (it.message.isNotBlank()) {
                         buildMessage(event.author.orCreatePMChannel) {
-                            withContent(it.message)
+                            content {
+                                withContent(it.message)
+                            }
                         }
                     }
                     it.state

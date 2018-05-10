@@ -24,9 +24,9 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.WikiService.convertToLink
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Wiki : IBase, ILogger {
@@ -34,7 +34,9 @@ object Wiki : IBase, ILogger {
         val args = getArgumentList(event.message.content).drop(1)
 
         buildMessage(event.channel) {
-            withContent("http://warframe.wikia.com/wiki/${convertToLink(args)}")
+            content {
+                withContent("http://warframe.wikia.com/wiki/${convertToLink(args)}")
+            }
         }
 
         return Parser.HandleState.HANDLED
@@ -42,17 +44,21 @@ object Wiki : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-wiki`")
-            withDesc("Creates a direct link to a page in the Warframe Wikia.")
-            insertSeparator()
-            appendField("Usage", "```warframe wiki [item]```", false)
-            appendField("`[item]`", "Item to lookup.", false)
+            fields {
+                withTitle("Help Text for `warframe-wiki`")
+                withDesc("Creates a direct link to a page in the Warframe Wikia.")
+                insertSeparator()
+                appendField("Usage", "```warframe wiki [item]```", false)
+                appendField("`[item]`", "Item to lookup.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

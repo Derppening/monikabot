@@ -18,7 +18,7 @@
  *
  */
 
-package com.derppening.monikabot.util
+package com.derppening.monikabot.util.helpers
 
 import com.derppening.monikabot.core.ILogger
 import java.net.URL

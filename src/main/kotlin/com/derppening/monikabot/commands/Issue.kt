@@ -22,34 +22,39 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Issue : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         buildMessage(event.channel) {
-            withContent("Have a bug report or feature request you would like to submit? Follow this link:")
-            appendContent("\n\nhttps://github.com/Derppening/MonikaBot/issues")
+            content {
+                withContent("Have a bug report or feature request you would like to submit? Follow this link:")
+                appendContent("\n\nhttps://github.com/Derppening/MonikaBot/issues")
+            }
         }
-
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `issue`")
-            withDesc("Shortcut to submitting a bug report or feature request.")
-            insertSeparator()
-            appendField("Usage", "```issue```", false)
+            fields {
+                withTitle("Help Text for `issue`")
+                withDesc("Shortcut to submitting a bug report or feature request.")
+                insertSeparator()
+                appendField("Usage", "```issue```", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

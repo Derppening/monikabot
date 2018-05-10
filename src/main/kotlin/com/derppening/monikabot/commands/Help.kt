@@ -22,29 +22,34 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 
 object Help : IBase {
     override fun delegateCommand(event: MessageReceivedEvent, args: List<String>): Parser.HandleState {
         buildEmbed(event.channel) {
-            withAuthorName("Github")
-            withAuthorUrl("https://github.com/Derppening/MonikaBot")
-            withTitle("Help Text for MonikaBot")
-            withDesc("MonikaBot is a command-based bot, supporting a wide range of features. Written by " +
-                    "Derppening#9062.\nUse `[command] --help` to get help text for any command listed below.")
-            appendDesc("\nCommands listed as *experimental* can be accessed by appending `--experimental` to the " +
-                    "command itself, but note that these commands are subject to change and may not be stable.")
-            apply {
-                listFunctions(this)
-                if (event.isFromSuperuser()) {
-                    listSuFunctions(this)
+            val builder = fields {
+                withAuthorName("Github")
+                withAuthorUrl("https://github.com/Derppening/MonikaBot")
+                withTitle("Help Text for MonikaBot")
+                withDesc("MonikaBot is a command-based bot, supporting a wide range of features. Written by " +
+                        "Derppening#9062.\nUse `[command] --help` to get help text for any command listed below.")
+                appendDesc("\nCommands listed as *experimental* can be accessed by appending `--experimental` to the " +
+                        "command itself, but note that these commands are subject to change and may not be stable.")
+                apply {
+                    listFunctions(this)
+                    if (event.isFromSuperuser()) {
+                        listSuFunctions(this)
+                    }
                 }
             }
 
-            onDiscordError {
-                event.author.orCreatePMChannel.sendMessage(this.data())
+            onError {
+                discordException {
+                    sendEmbed(event.author.orCreatePMChannel, builder)
+                }
             }
         }
 

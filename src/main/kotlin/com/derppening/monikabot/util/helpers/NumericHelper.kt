@@ -18,7 +18,7 @@
  *
  */
 
-package com.derppening.monikabot.util
+package com.derppening.monikabot.util.helpers
 
 import java.math.BigDecimal
 import java.math.MathContext
@@ -27,6 +27,24 @@ object NumericHelper {
     enum class Rounding {
         DECIMAL_PLACES,
         SIGNIFICANT_FIGURES
+    }
+
+    fun <T> clamp(v: T, lo: T, hi: T, comp: Comparator<T>): T {
+        require(comp.compare(lo, hi) < 0)
+        return when {
+            comp.compare(v, lo) < 0 -> lo
+            comp.compare(hi, v) < 0 -> hi
+            else -> v
+        }
+    }
+
+    fun <T> clamp(v: T, lo: T, hi: T, comp: (T, T) -> Boolean): T {
+        require(!comp(hi, lo))
+        return when {
+            comp(v, lo) -> lo
+            comp(hi, v) -> hi
+            else -> v
+        }
     }
 
     /**

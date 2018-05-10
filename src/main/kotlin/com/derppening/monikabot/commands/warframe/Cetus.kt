@@ -27,9 +27,9 @@ import com.derppening.monikabot.impl.warframe.CetusService.getBountyEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getGhoulEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getPlagueStarEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getTimeEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Cetus : IBase, ILogger {
@@ -47,7 +47,9 @@ object Cetus : IBase, ILogger {
             }
         } catch (e: Exception) {
             buildMessage(event.channel) {
-                withContent("Warframe is currently updating its information. Please be patient!")
+                content {
+                    withContent("Warframe is currently updating its information. Please be patient!")
+                }
             }
 
             log(ILogger.LogLevel.ERROR, e.message ?: "Unknown Exception")
@@ -58,21 +60,25 @@ object Cetus : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-cetus`")
-            withDesc("Displays Cetus-related information.")
-            insertSeparator()
-            appendField("Usage", "```warframe cetus [ghoul|plaguestar]```", false)
-            appendField("`ghoul`", "If appended, shows ongoing Ghoul bounties.", false)
-            appendField("`plaguestar`", "If appended, shows ongoing Operation: Plague Star information.", false)
-            insertSeparator()
-            appendField("Usage", "```warframe cetus time```", false)
-            appendField("`time`", "Show the current time in Cetus/Plains.", false)
+            fields {
+                withTitle("Help Text for `warframe-cetus`")
+                withDesc("Displays Cetus-related information.")
+                insertSeparator()
+                appendField("Usage", "```warframe cetus [ghoul|plaguestar]```", false)
+                appendField("`ghoul`", "If appended, shows ongoing Ghoul bounties.", false)
+                appendField("`plaguestar`", "If appended, shows ongoing Operation: Plague Star information.", false)
+                insertSeparator()
+                appendField("Usage", "```warframe cetus time```", false)
+                appendField("`time`", "Show the current time in Cetus/Plains.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }
@@ -98,7 +104,9 @@ object Cetus : IBase, ILogger {
         getGhoulEmbeds().also {
             if (it.isEmpty() && isDirectlyInvoked) {
                 buildMessage(event.channel) {
-                    withContent("There are currently no Ghoul Bounties!")
+                    content {
+                        withContent("There are currently no Ghoul Bounties!")
+                    }
                 }
             }
         }.forEach {
@@ -110,7 +118,9 @@ object Cetus : IBase, ILogger {
         getPlagueStarEmbeds().also {
             if (it.isEmpty() && isDirectlyInvoked) {
                 buildMessage(event.channel) {
-                    withContent("Operation: Plague Star is not active!")
+                    content {
+                        withContent("Operation: Plague Star is not active!")
+                    }
                 }
             }
         }.forEach {

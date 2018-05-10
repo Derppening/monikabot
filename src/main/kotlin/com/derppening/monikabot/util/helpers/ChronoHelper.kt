@@ -18,7 +18,7 @@
  *
  */
 
-package com.derppening.monikabot.util
+package com.derppening.monikabot.util.helpers
 
 import java.time.Duration
 import java.time.ZoneId

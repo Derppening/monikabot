@@ -27,9 +27,9 @@ import com.derppening.monikabot.impl.ReminderService.clear
 import com.derppening.monikabot.impl.ReminderService.list
 import com.derppening.monikabot.impl.ReminderService.remove
 import com.derppening.monikabot.impl.ReminderService.schedule
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Instant
 
@@ -52,30 +52,34 @@ object Reminder : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `reminder`")
-            withDesc("Sets a reminder for yourself.")
-            appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks. When this bot goes" +
-                    "into maintenance, all timer tasks will be paused until the bot restarts. This will likely cause" +
-                    "reminder delays!")
-            insertSeparator()
-            appendField("Usage", "```reminder for [--lazy] [duration] [name]```", false)
-            appendField("`--lazy`", "If specified, only check if the time is in the future.", false)
-            appendField("`[duration]`", "Any duration, in the format of `[days]d [hours]h [minutes]m [seconds]s`." +
-                    "\nAny part of the duration can be truncated.", false)
-            appendField("`[name]`", "Name of the timer. All timers must have unique names.", false)
-            insertSeparator()
-            appendField("Usage", "```reminder remove [name]```", false)
-            appendField("`[name]`", "Name of the timer to remove.", false)
-            insertSeparator()
-            appendField("Usage", "```reminder [list|clear]```", false)
-            appendField("`list`", "Lists all ongoing reminders.", false)
-            appendField("`clear`", "Clears all ongoing reminders.", false)
+            fields {
+                withTitle("Help Text for `reminder`")
+                withDesc("Sets a reminder for yourself.")
+                appendDesc("\n**WARNING**: Do not use this timer for any mission-critical tasks. When this bot goes" +
+                        "into maintenance, all timer tasks will be paused until the bot restarts. This will likely cause" +
+                        "reminder delays!")
+                insertSeparator()
+                appendField("Usage", "```reminder for [--lazy] [duration] [name]```", false)
+                appendField("`--lazy`", "If specified, only check if the time is in the future.", false)
+                appendField("`[duration]`", "Any duration, in the format of `[days]d [hours]h [minutes]m [seconds]s`." +
+                        "\nAny part of the duration can be truncated.", false)
+                appendField("`[name]`", "Name of the timer. All timers must have unique names.", false)
+                insertSeparator()
+                appendField("Usage", "```reminder remove [name]```", false)
+                appendField("`[name]`", "Name of the timer to remove.", false)
+                insertSeparator()
+                appendField("Usage", "```reminder [list|clear]```", false)
+                appendField("`list`", "Lists all ongoing reminders.", false)
+                appendField("`clear`", "Clears all ongoing reminders.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }
@@ -87,13 +91,17 @@ object Reminder : IBase, ILogger {
                 .apply { removeIf { it.matches(Regex("(for|-{0,2}add)")) } }
 
         buildMessage(event.channel) {
-            withContent(schedule(args, event.author))
+            content {
+                withContent(schedule(args, event.author))
+            }
         }
     }
 
     private fun clearTimers(event: MessageReceivedEvent) {
         buildMessage(event.author.orCreatePMChannel) {
-            withContent(clear(event.author))
+            content {
+                withContent(clear(event.author))
+            }
         }
     }
 
@@ -102,16 +110,20 @@ object Reminder : IBase, ILogger {
         when (result) {
             is ReminderService.Result.Message -> {
                 buildMessage(event.author.orCreatePMChannel) {
-                    withContent(result.message)
+                    content {
+                        withContent(result.message)
+                    }
                 }
             }
             is ReminderService.Result.Embed -> {
                 buildEmbed(event.author.orCreatePMChannel) {
-                    withTitle("Your Reminders")
+                    fields {
+                        withTitle("Your Reminders")
 
-                    result.embeds(this)
+                        result.embeds(this)
 
-                    withTimestamp(Instant.now())
+                        withTimestamp(Instant.now())
+                    }
                 }
             }
         }
@@ -124,7 +136,9 @@ object Reminder : IBase, ILogger {
                 .joinToString(" ")
 
         buildMessage(event.channel) {
-            withContent(remove(timerName, event.author))
+            content {
+                withContent(remove(timerName, event.author))
+            }
         }
     }
 }

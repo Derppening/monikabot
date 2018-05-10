@@ -23,8 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.METARService.toEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object METAR : IBase, ILogger {
@@ -32,7 +32,7 @@ object METAR : IBase, ILogger {
         val args = getArgumentList(event.message.content)
 
         if (args.size == 1) {
-            toEmbed(args[0].toUpperCase(), event.channel)
+            event.channel.sendMessage(toEmbed(args[0].toUpperCase()))
         } else {
             help(event, false)
         }
@@ -42,17 +42,21 @@ object METAR : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `METAR`")
-            withDesc("Displays the Meteorological Terminal Air Report (METAR) of a given airfield.")
-            insertSeparator()
-            appendField("Usage", "```metar [icao]```", false)
-            appendField("`[icao]`", "The ICAO code of the airfield to display meteorological information.", false)
+            fields {
+                withTitle("Help Text for `METAR`")
+                withDesc("Displays the Meteorological Terminal Air Report (METAR) of a given airfield.")
+                insertSeparator()
+                appendField("Usage", "```metar [icao]```", false)
+                appendField("`[icao]`", "The ICAO code of the airfield to display meteorological information.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

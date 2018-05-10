@@ -23,9 +23,9 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.commands.warframe.*
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Warframe : IBase, ILogger {
@@ -46,7 +46,9 @@ object Warframe : IBase, ILogger {
             1 -> {
                 if (args[0] != cmdMatches.entries.first().key) {
                     buildMessage(event.channel) {
-                        withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                        content {
+                            withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                        }
                     }
                 }
                 cmdMatches.entries.first().value.delegateCommand(event, args)
@@ -55,17 +57,21 @@ object Warframe : IBase, ILogger {
                 if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
                     if (args[0] != cmdMatches.entries.first().key) {
                         buildMessage(event.channel) {
-                            withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                            content {
+                                withContent(":information_source: Assuming you meant warframe-${cmdMatches.entries.first().key}...")
+                            }
                         }
                     }
                     cmdMatches.entries.first().value.delegateCommand(event, args)
                 } else {
                     buildMessage(event.channel) {
-                        withContent("Your message matches multiple commands!")
-                        appendContent("\n\nYour provided command matches:\n")
-                        appendContent(cmdMatches.entries.distinctBy { it.value }.joinToString("\n") {
-                            "- warframe ${it.key}"
-                        })
+                        content {
+                            withContent("Your message matches multiple commands!")
+                            appendContent("\n\nYour provided command matches:\n")
+                            appendContent(cmdMatches.entries.distinctBy { it.value }.joinToString("\n") {
+                                "- warframe ${it.key}"
+                            })
+                        }
                     }
                 }
 
@@ -76,30 +82,34 @@ object Warframe : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe`")
-            withDesc("Wrapper for Warframe-related commands.")
-            insertSeparator()
-            appendField("Usage", "```warframe [subcommand] [args]```", false)
-            appendField("Subcommand: `alerts`", "Displays ongoing alerts.", false)
-            appendField("Subcommand: `baro`", "Displays Baro Ki'Teer information.", false)
-            appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
-            appendField("Subcommand: `darvo`", "Displays ongoing Darvo sale.", false)
-            appendField("Subcommand: `fissures`", "Displays ongoing fissure missions.", false)
-            appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
-            appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
-            appendField("Subcommand: `market`", "Displays market information about an item.", false)
-            appendField("Subcommand: `ping`", "Displays latency information to the Warframe servers.", false)
-            appendField("Subcommand: `primes`", "Displays the most recently released primes, as well as predicts the next few primes.", false)
-            appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
-            appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
-            appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)
-            appendField("Subcommand: `wiki`", "Directly links an item to its Warframe Wikia page.", false)
+            fields {
+                withTitle("Help Text for `warframe`")
+                withDesc("Wrapper for Warframe-related commands.")
+                insertSeparator()
+                appendField("Usage", "```warframe [subcommand] [args]```", false)
+                appendField("Subcommand: `alerts`", "Displays ongoing alerts.", false)
+                appendField("Subcommand: `baro`", "Displays Baro Ki'Teer information.", false)
+                appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
+                appendField("Subcommand: `darvo`", "Displays ongoing Darvo sale.", false)
+                appendField("Subcommand: `fissures`", "Displays ongoing fissure missions.", false)
+                appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
+                appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
+                appendField("Subcommand: `market`", "Displays market information about an item.", false)
+                appendField("Subcommand: `ping`", "Displays latency information to the Warframe servers.", false)
+                appendField("Subcommand: `primes`", "Displays the most recently released primes, as well as predicts the next few primes.", false)
+                appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
+                appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
+                appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)
+                appendField("Subcommand: `wiki`", "Directly links an item to its Warframe Wikia page.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

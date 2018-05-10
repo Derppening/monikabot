@@ -21,7 +21,7 @@
 package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.obj.IChannel
 
 /**
@@ -88,7 +88,9 @@ class FuzzyMatcher(private val matchExpr: List<String>, private val matchers: Li
 
                 if (channel != null) {
                     buildMessage(channel) {
-                        withContent(message)
+                        content {
+                            withContent(message)
+                        }
                     }
                 }
 
@@ -110,7 +112,9 @@ class FuzzyMatcher(private val matchExpr: List<String>, private val matchers: Li
 
                 if (channel != null) {
                     buildMessage(channel) {
-                        withContent(message)
+                        content {
+                            withContent(message)
+                        }
                     }
                 }
 

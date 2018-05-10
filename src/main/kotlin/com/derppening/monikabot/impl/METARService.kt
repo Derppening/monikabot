@@ -23,32 +23,30 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.METARModel
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import sx.blah.discord.handle.obj.IChannel
+import sx.blah.discord.api.internal.json.objects.EmbedObject
+import sx.blah.discord.util.EmbedBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 
 object METARService : ILogger {
-    fun toEmbed(icao: String, channel: IChannel) {
+    fun toEmbed(icao: String): EmbedObject {
         val metar = try {
             check(icao.length == 4) { "ICAO should consist of 4 characters." }
             getForICAO(icao)
         } catch (e: Exception) {
-            buildEmbed(channel) {
+            e.printStackTrace()
+            return EmbedBuilder().apply {
                 withTitle("METAR for ${icao.toUpperCase()}")
                 withDesc(e.message)
-            }
-
-            e.printStackTrace()
-            return
+            }.build()
         }
 
-        buildEmbed(channel) {
+        return EmbedBuilder().apply {
             withTitle("METAR for ${metar.name} (${icao.toUpperCase()})")
             withDesc("```${metar.rawText}```")
 
@@ -108,7 +106,7 @@ object METARService : ILogger {
 
             withFooterText("Last Observed")
             withTimestamp(metar.date)
-        }
+        }.build()
     }
 
     private fun getForICAO(icao: String): METARModel {

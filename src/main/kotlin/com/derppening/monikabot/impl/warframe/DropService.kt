@@ -25,8 +25,8 @@ import com.derppening.monikabot.impl.WarframeService.dropTables
 import com.derppening.monikabot.models.warframe.drop.DropInfo
 import com.derppening.monikabot.models.warframe.droptable.BaseDrop
 import com.derppening.monikabot.models.warframe.droptable.BaseEnemy
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
 import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.EmbedBuilder
 import java.text.DecimalFormat

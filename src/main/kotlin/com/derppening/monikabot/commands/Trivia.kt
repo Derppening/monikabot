@@ -23,8 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.TriviaService.startTrivia
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Trivia : IBase, ILogger {
@@ -38,18 +38,22 @@ object Trivia : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildEmbed(event.channel) {
-            withTitle("Help Text for `trivia`")
-            withDesc("Starts a trivia game with Monika.")
-            insertSeparator()
-            appendField("Usage", "```trivia [questions] [difficulty]```", false)
-            appendField("`[questions]`", "Number of questions to ask.\nDefaults to 5", false)
-            appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)
+            fields {
+                withTitle("Help Text for `trivia`")
+                withDesc("Starts a trivia game with Monika.")
+                insertSeparator()
+                appendField("Usage", "```trivia [questions] [difficulty]```", false)
+                appendField("`[questions]`", "Number of questions to ask.\nDefaults to 5", false)
+                appendField("`[difficulty]`", "Difficulty of the questions. Can be easy, medium, hard, or any.\nDefaults to easy.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }

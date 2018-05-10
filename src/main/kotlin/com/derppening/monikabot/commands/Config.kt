@@ -27,10 +27,9 @@ import com.derppening.monikabot.impl.ConfigService.configureExperimentalFlag
 import com.derppening.monikabot.impl.ConfigService.configureOwnerEchoFlag
 import com.derppening.monikabot.impl.ConfigService.enableExperimentalFeatures
 import com.derppening.monikabot.impl.ConfigService.ownerModeEchoForSu
-import com.derppening.monikabot.util.BuilderHelper
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Config : IBase, ILogger {
@@ -55,18 +54,22 @@ object Config : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        BuilderHelper.buildEmbed(event.channel) {
-            withTitle("Help Text for `config`")
-            withDesc("Core configurations for MonikaBot.")
-            insertSeparator()
-            appendField("Usage", "```config [configuration] [options...]```", false)
-            appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `config`")
+                withDesc("Core configurations for MonikaBot.")
+                insertSeparator()
+                appendField("Usage", "```config [configuration] [options...]```", false)
+                appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }
@@ -82,21 +85,27 @@ object Config : IBase, ILogger {
         when (configureExperimentalFlag(args)) {
             ConfigService.Result.GET -> {
                 buildMessage(event.channel) {
-                    withContent("Experimental Features: ${if (enableExperimentalFeatures) "Enabled" else "Disabled"}.")
+                    content {
+                        withContent("Experimental Features: ${if (enableExperimentalFeatures) "Enabled" else "Disabled"}.")
+                    }
                 }
             }
             ConfigService.Result.SET -> {
                 buildMessage(event.channel) {
-                    withContent("Experimental Features are now ${if (enableExperimentalFeatures) "enabled" else "disabled"}.")
+                    content {
+                        withContent("Experimental Features are now ${if (enableExperimentalFeatures) "enabled" else "disabled"}.")
+                    }
                 }
             }
             ConfigService.Result.HELP -> {
                 buildEmbed(event.channel) {
-                    withTitle("Help Text for config-experimental`")
-                    withDesc("Whether to enable experimental features.")
-                    insertSeparator()
-                    appendField("Usage", "```config experimental [enable|disable]```", false)
-                    appendField("`[enable|disable]`", "Enables/Disables experimental features.", false)
+                    fields {
+                        withTitle("Help Text for config-experimental`")
+                        withDesc("Whether to enable experimental features.")
+                        insertSeparator()
+                        appendField("Usage", "```config experimental [enable|disable]```", false)
+                        appendField("`[enable|disable]`", "Enables/Disables experimental features.", false)
+                    }
                 }
             }
         }
@@ -112,21 +121,27 @@ object Config : IBase, ILogger {
         when (configureOwnerEchoFlag(args)) {
             ConfigService.Result.GET -> {
                 buildMessage(event.channel) {
-                    withContent("Owner Mode Echo for Superusers: ${if (ownerModeEchoForSu) "Allow" else "Deny"}.")
+                    content {
+                        withContent("Owner Mode Echo for Superusers: ${if (ownerModeEchoForSu) "Allow" else "Deny"}.")
+                    }
                 }
             }
             ConfigService.Result.SET -> {
                 buildMessage(event.channel) {
-                    withContent("Experimental Features are now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
+                    content {
+                        withContent("Experimental Features are now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
+                    }
                 }
             }
             ConfigService.Result.HELP -> {
                 buildEmbed(event.channel) {
-                    withTitle("Help Text for config-owner_echo_for_su`")
-                    withDesc("Whether to allow superusers access to owner mode `echo`.")
-                    insertSeparator()
-                    appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
-                    appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+                    fields {
+                        withTitle("Help Text for config-owner_echo_for_su`")
+                        withDesc("Whether to allow superusers access to owner mode `echo`.")
+                        insertSeparator()
+                        appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
+                        appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+                    }
                 }
             }
         }

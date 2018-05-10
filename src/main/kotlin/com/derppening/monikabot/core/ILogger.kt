@@ -23,7 +23,7 @@ package com.derppening.monikabot.core
 import com.derppening.monikabot.core.Core.getChannelName
 import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Persistence.debugChannel
-import com.derppening.monikabot.util.BuilderHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IChannel
@@ -54,34 +54,36 @@ interface ILogger {
 
         fun build() {
             buildEmbed(debugChannel) {
-                when (type) {
-                    LogLevel.DEBUG -> {
-                        withColor(Color.BLACK)
-                        withTitle("Debug")
+                fields {
+                    when (type) {
+                        LogLevel.DEBUG -> {
+                            withColor(Color.BLACK)
+                            withTitle("Debug")
+                        }
+                        LogLevel.INFO -> {
+                            withColor(Color.GRAY)
+                            withTitle("Info")
+                        }
+                        LogLevel.WARN -> {
+                            withColor(Color.YELLOW)
+                            withTitle("Warning")
+                        }
+                        LogLevel.ERROR -> {
+                            withColor(Color.RED)
+                            withTitle("Error")
+                        }
                     }
-                    LogLevel.INFO -> {
-                        withColor(Color.GRAY)
-                        withTitle("Info")
-                    }
-                    LogLevel.WARN -> {
-                        withColor(Color.YELLOW)
-                        withTitle("Warning")
-                    }
-                    LogLevel.ERROR -> {
-                        withColor(Color.RED)
-                        withTitle("Error")
-                    }
+
+                    withDesc(message)
+
+                    if (srcMessage() != null) appendField("Caused by", "`${srcMessage()?.content}`", false)
+                    if (srcAuthor() != null) appendField("From", srcAuthor()!!.getDiscordTag(), false)
+                    if (srcChannel() != null) appendField("In", srcChannel()!!.getChannelName(), false)
+                    if (info().isNotBlank()) appendField("Additional Info", info(), false)
+                    if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
+
+                    withFooterText("Package: ${clazz.name}")
                 }
-
-                withDesc(message)
-
-                if (srcMessage() != null) appendField("Caused by", "`${srcMessage()?.content}`", false)
-                if (srcAuthor() != null) appendField("From", srcAuthor()!!.getDiscordTag(), false)
-                if (srcChannel() != null) appendField("In", srcChannel()!!.getChannelName(), false)
-                if (info().isNotBlank()) appendField("Additional Info", info(), false)
-                if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
-
-                withFooterText("Package: ${clazz.name}")
             }
         }
     }

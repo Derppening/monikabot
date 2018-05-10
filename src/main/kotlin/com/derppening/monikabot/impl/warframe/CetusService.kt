@@ -22,10 +22,10 @@ package com.derppening.monikabot.impl.warframe
 
 import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.ChronoHelper.dateTimeFormatter
-import com.derppening.monikabot.util.ChronoHelper.formatDuration
-import com.derppening.monikabot.util.ChronoHelper.formatTimeElement
-import com.derppening.monikabot.util.NumericHelper.formatReal
+import com.derppening.monikabot.util.helpers.ChronoHelper.dateTimeFormatter
+import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
+import com.derppening.monikabot.util.helpers.ChronoHelper.formatTimeElement
+import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration

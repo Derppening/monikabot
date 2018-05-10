@@ -20,18 +20,15 @@
 
 package com.derppening.monikabot.commands.warframe
 
-//import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimeEmbed
-//import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimeEmbed
-//import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimeEmbed
 import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimeMessage
 import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimeMessage
 import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimeMessage
-import com.derppening.monikabot.util.BuilderHelper
-import com.derppening.monikabot.util.BuilderHelper.buildMessage
-import com.derppening.monikabot.util.BuilderHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Prime : IBase, ILogger {
@@ -49,18 +46,22 @@ object Prime : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        BuilderHelper.buildEmbed(event.channel) {
-            withTitle("Help Text for `warframe-prime`")
-            withDesc("Displays the most recently released primes, as well as predicts the next few primes.")
-            insertSeparator()
-            appendField("Usage", "```warframe primes [num_to_show]```", false)
-            appendField("`[num_to_show]", "Number of released/predicted primes to show.", false)
+        buildEmbed(event.channel) {
+            fields {
+                withTitle("Help Text for `warframe-prime`")
+                withDesc("Displays the most recently released primes, as well as predicts the next few primes.")
+                insertSeparator()
+                appendField("Usage", "```warframe primes [num_to_show]```", false)
+                appendField("`[num_to_show]", "Number of released/predicted primes to show.", false)
+            }
 
-            onDiscordError { e ->
-                log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                    author { event.author }
-                    channel { event.channel }
-                    info { e.errorMessage }
+            onError {
+                discordException { e ->
+                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        author { event.author }
+                        channel { event.channel }
+                        info { e.errorMessage }
+                    }
                 }
             }
         }
@@ -72,7 +73,9 @@ object Prime : IBase, ILogger {
                 args[0].toInt()
             } catch (e: NumberFormatException) {
                 buildMessage(event.channel) {
-                    withContent("The number of primes to show is not an integer!")
+                    content {
+                        withContent("The number of primes to show is not an integer!")
+                    }
                 }
                 return
             }

@@ -23,7 +23,7 @@ package com.derppening.monikabot.impl.warframe
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.prime.PrimeInfo
-import com.derppening.monikabot.util.ChronoHelper.toNearestChronoYear
+import com.derppening.monikabot.util.helpers.ChronoHelper.toNearestChronoYear
 import sx.blah.discord.util.MessageBuilder
 import java.io.File
 import java.time.Duration
