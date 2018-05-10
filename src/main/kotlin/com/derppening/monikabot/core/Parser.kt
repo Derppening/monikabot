@@ -58,6 +58,7 @@ object Parser : ILogger {
             "status" to Status,
             "stop" to Stop,
             "timer" to Reminder,
+            "toilet" to Toilet,
             "trivia" to Trivia,
             "version" to Version,
             "warframe" to Warframe,

@@ -68,6 +68,7 @@ object Help : IBase {
             appendField("`random`", "Randomly generates numbers.", false)
             appendField("`reminder`", "Adds a reminder for yourself.", false)
             appendField("`rng`", "Computes statistics for drop tables.", false)
+            appendField("`toilet`", "Reformats text to display using emojis.", false)
             appendField("`trivia`", "Starts a game of trivia.", false)
             appendField("`version`", "Displays the current version of MonikaBot.", false)
             appendField("`warframe`", "Warframe-related commands.", false)
