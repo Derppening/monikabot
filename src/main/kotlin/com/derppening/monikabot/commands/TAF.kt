@@ -18,34 +18,40 @@
  *
  */
 
-package com.derppening.monikabot.commands.warframe
+package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.impl.warframe.SaleService.getSaleEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.impl.TAFService.toEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Sale : IBase, ILogger {
+object TAF : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
-        val args = getArgumentList(event.message.content).drop(1)
+        val args = getArgumentList(event.message.content)
 
-        event.channel.typingStatus = true
-        sendEmbed(getSaleEmbed() to event.channel)
+        if (args.size == 1) {
+            event.channel.typingStatus = true
+            toEmbed(args[0].toUpperCase()).forEach {
+                sendEmbed(it to event.channel)
+            }
+        } else {
+            help(event, false)
+        }
 
         return Parser.HandleState.HANDLED
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
+        EmbedHelper.buildEmbed(event.channel) {
             fields {
-                withTitle("Help Text for `warframe-sale`")
-                withDesc("Displays the ongoing market sales.")
+                withTitle("Help Text for `TAF`")
+                withDesc("Displays the Terminal Aerodome Forecast (TAF) of a given airfield.")
                 insertSeparator()
-                appendField("Usage", "```warframe sale```", false)
+                appendField("Usage", "```taf [icao]```", false)
+                appendField("`[icao]`", "The ICAO code of the airfield to display meteorological predictions.", false)
             }
 
             onError {

@@ -21,14 +21,16 @@
 package com.derppening.monikabot.core
 
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
-import sx.blah.discord.handle.obj.*
+import sx.blah.discord.handle.obj.IChannel
+import sx.blah.discord.handle.obj.IPrivateChannel
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.util.*
+import kotlin.properties.Delegates
 import kotlin.system.exitProcess
 
-object Core {
+object Core : ILogger {
     /**
      * Filename of source.properties.
      */
@@ -41,53 +43,72 @@ object Core {
     /**
      * API Key for CheckWX.
      */
-    val checkwxKey: String? = getProperties(SOURCE_PROP).getProperty("checkwxKey")
+    val checkwxKey: String?
     /**
      * Bot private key.
      */
-    val privateKey = getProperties(SOURCE_PROP).getProperty("privateKey")!!
+    val privateKey: String
 
     /**
      * PM Channel of bot admin.
      */
     val ownerPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(ownerId).orCreatePMChannel }
     /**
+     * ID of bot admin.
+     */
+    private val ownerId: Long
+
+    /**
      * Debug channel.
      */
     val serverDebugChannel: IChannel? by lazy { Client.getChannelByID(serverDebugChannelId) }
-
-    /**
-     * ID of bot admin.
-     */
-    private val ownerId = getProperties(SOURCE_PROP).getProperty("adminId").toLong()
-    /**
-     * IDs for bot superusers.
-     */
-    private var suIds = loadSuIds()
     /**
      * ID of Debug channel.
      */
-    private val serverDebugChannelId = getProperties(SOURCE_PROP).getProperty("debugChannelId").toLong()
+    private val serverDebugChannelId: Long
+
+    /**
+     * IDs for bot superusers.
+     */
+    private var suIds by Delegates.notNull<Set<Long>>()
 
     /**
      * SemVer version of the bot.
      */
-    var monikaSemVersion = loadSemVersion()
-        private set
+    private var monikaSemVersion = ""
+        private set(ver) {
+            field = ver
+            monikaVersion = getVersion()
+        }
     /**
      * The git branch of this bot.
      */
-    val monikaVersionBranch = getProperties(VERSION_PROP).getProperty("gitbranch")!!
+    val monikaVersionBranch: String
     /**
      * Version of the bot.
      */
-    var monikaVersion = loadVersion()
+    var monikaVersion by Delegates.notNull<String>()
         private set
 
-    /**
-     * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
-     */
-    fun MessageEvent.isOwnerLocationValid() = channel == serverDebugChannel || channel == ownerPrivateChannel
+    init {
+        logger.info("${getMethodName()} - Initializing from *.properties...")
+
+        val sourceProp = getProperties(SOURCE_PROP)
+
+        privateKey = sourceProp.getProperty("privateKey")
+        checkwxKey = sourceProp.getProperty("checkwxKey")
+        ownerId = sourceProp.getProperty("adminId").toLong()
+        serverDebugChannelId = sourceProp.getProperty("debugChannelId").toLong()
+
+        loadFromSource()
+
+        val versionProp = getProperties(VERSION_PROP)
+        monikaVersionBranch = versionProp.getProperty("gitbranch")
+
+        loadFromVersion()
+
+        logger.info("${getMethodName()} - Done")
+    }
 
     /**
      * @return Whether event is from the bot owner.
@@ -97,102 +118,13 @@ object Core {
     /**
      * @return Whether event is from a superuser.
      */
-    fun MessageEvent.isFromSuperuser() = suIds.any { it == author.longID }
-
-    /**
-     * Returns true if given message mentions the bot as the first token.
-     */
-    fun IMessage.isMentionMe(): Boolean =
-            content.startsWith(Client.ourUser.mention()) || content.startsWith(Client.ourUser.mention(false))
-
-    /**
-     * Removes the leading MonikaBot mention from a message.
-     *
-     * @param message Original message.
-     * @param guild Guild where the message is sent, if any.
-     *
-     * @return Message without a leading mention.
-     */
-    fun popLeadingMention(message: String, guild: IGuild? = null): String {
-        return when {
-            message.startsWith(Client.ourUser.mention()) ||
-                    message.startsWith(Client.ourUser.mention(false)) ||
-                    message.startsWith("@${Client.ourUser.name}") -> {
-                message.popFirstWord()
-            }
-            guild != null && message.startsWith("@${Client.ourUser.getNicknameForGuild(guild)}") -> {
-                message.popFirstWord()
-            }
-            else -> {
-                message
-            }
-        }
-    }
-
-    /**
-     * @return Discord tag.
-     */
-    fun IUser.getDiscordTag(): String = "$name#$discriminator"
-
-    /**
-     * @return Channel name in "Server/Channel" format.
-     */
-    fun IChannel.getChannelName(): String = "${if (this is IPrivateChannel) "[Private]" else guild.name}/$name"
-
-    /**
-     * @param username User name portion of the Discord Tag.
-     * @param discriminator Discriminator portion of the Discord Tag.
-     *
-     * @return IUser matching "[username]#[discriminator]"
-     */
-    fun getUserByTag(username: String, discriminator: Int): IUser? {
-        return Client.getUsersByName(username).find { it.discriminator == discriminator.toString() }
-    }
-
-    /**
-     * @param name Name of the guild.
-     *
-     * @return IGuild matching the guild name.
-     */
-    fun getGuildByName(name: String): IGuild? {
-        return Client.guilds.find { it.name == name }
-    }
-
-    /**
-     * @param name Name of channel.
-     * @param guild Guild.
-     *
-     * @return IChannel matching the channel name within the guild.
-     */
-    fun getChannelByName(name: String, guild: IGuild): IChannel? {
-        return guild.channels.find { it.name == name }
-    }
-
-    /**
-     * Remove quotes from a word.
-     */
-    fun String.removeQuotes(): String = dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
-
-    /**
-     * Pops the first word in a string.
-     */
-    private fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }
+    fun MessageEvent.isFromSuperuser() = Core.suIds.any { it == author.longID }
 
     /**
      * Gets the method name which invoked this method.
      */
     fun getMethodName(vararg args: String): String {
         return Thread.currentThread().stackTrace[2].methodName + "(${args.joinToString(", ")})"
-    }
-
-    /**
-     * Performs a full reload of the bot.
-     */
-    fun reload() {
-        loadVersion()
-        loadSuIds()
-
-        PersistentMessage.modify("Misc", "Version", monikaVersion, true)
     }
 
     /**
@@ -217,30 +149,45 @@ object Core {
     }
 
     /**
-     * Loads the bot's version and returns itself.
+     * Loads all mutable data members from source.properties.
      */
-    private fun loadVersion(): String {
-        monikaVersion = "${loadSemVersion()}+${monikaVersionBranch}"
-        return monikaVersion
+    private fun loadFromSource() {
+        val prop = getProperties(SOURCE_PROP)
+
+        suIds = loadSuIds(prop)
     }
 
     /**
-     * Loads the bot's SemVer portion of version and returns itself.
+     * Loads and formats superuser IDs.
      */
-    private fun loadSemVersion(): String {
-        monikaSemVersion = getProperties(VERSION_PROP).getProperty("version")!!
-        return monikaSemVersion
-    }
-
-    /**
-     * Loads superuser IDs and returns itself.
-     */
-    private fun loadSuIds(): Set<Long> {
-        suIds = getProperties(SOURCE_PROP)
-                .getProperty("suId")
+    private fun loadSuIds(prop: Properties): Set<Long> {
+        return prop.getProperty("suId")
                 .split(',')
                 .map { it.toLong() }
                 .union(listOf(ownerId))
-        return suIds
+    }
+
+    /**
+     * Loads all mutable data members from version.properties.
+     */
+    private fun loadFromVersion() {
+        val prop = getProperties(VERSION_PROP)
+
+        monikaSemVersion = prop.getProperty("version")
+    }
+
+    /**
+     * Formats the bot's version.
+     */
+    private fun getVersion(): String = "$monikaSemVersion+$monikaVersionBranch"
+
+    /**
+     * Performs a full reload of the bot.
+     */
+    fun reload() {
+        loadFromSource()
+        loadFromVersion()
+
+        PersistentMessage.modify("Misc", "Version", monikaVersion, true)
     }
 }

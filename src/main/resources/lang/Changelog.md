@@ -171,3 +171,6 @@
 - Add `toilet` command for shits and giggles
 - `warframe invasion`: Add progress for ongoing Fomorian/Razorback missions
 - `warframe alert`: Fix unable to filter alerts
+
+[v1.2.0-beta.6]
+- Add `taf` command for displaying forecasted weather

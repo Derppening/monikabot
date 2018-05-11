@@ -21,14 +21,14 @@
 package com.derppening.monikabot.core
 
 import com.derppening.monikabot.commands.*
-import com.derppening.monikabot.core.Core.getChannelName
-import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Core.isFromSuperuser
-import com.derppening.monikabot.core.Core.isMentionMe
-import com.derppening.monikabot.core.Core.isOwnerLocationValid
-import com.derppening.monikabot.core.Core.popLeadingMention
 import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.TriviaService
+import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
+import com.derppening.monikabot.util.LocationUtils.getChannelName
+import com.derppening.monikabot.util.LocationUtils.getDiscordTag
+import com.derppening.monikabot.util.MessageUtils.isMentionMe
+import com.derppening.monikabot.util.MessageUtils.popLeadingMention
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -57,6 +57,7 @@ object Parser : ILogger {
             "rng" to RNG,
             "status" to Status,
             "stop" to Stop,
+            "taf" to TAF,
             "timer" to Reminder,
             "toilet" to Toilet,
             "trivia" to Trivia,
@@ -76,29 +77,29 @@ object Parser : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        thread(name = "Delegator Thread (${event.messageID} from ${event.author.getDiscordTag()})") {
+        thread(name = "Delegator Thread (${event.messageID})") {
             logger.debug("Thread detached")
-            logger.debug("Message \"${event.message.content}\" " +
+            logger.debug("Handling message \"${event.message.content}\" " +
                     "from ${event.author.getDiscordTag()} " +
-                    "in ${event.channel.getChannelName()} " +
-                    "has ID ${event.messageID}")
+                    "in ${event.channel.getChannelName()} ")
 
             if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
-                logger.debug("Message ${event.messageID} ignored")
+                logger.debug("Message ignored: Not invoking bot")
                 logger.debug("Joining thread")
                 return@thread
             }
 
             if (TriviaService.checkUserTriviaStatus(event)) {
-                logger.debug("Message ${event.messageID} ignored: User in Trivia session")
+                logger.debug("Message ignored: User in Trivia session")
                 logger.debug("Joining thread")
                 return@thread
             }
 
             val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
                 when {
+                    it.isBlank() -> it
                     it.last() == '!' && Core.monikaVersionBranch != "development" -> {
-                        logger.debug("Message ${event.messageID} ignored: Development version requested")
+                        logger.debug("Message ignored: Development version requested")
                         logger.debug("Joining thread")
                         return@thread
                     }
@@ -106,7 +107,7 @@ object Parser : ILogger {
                         it.dropLast(1)
                     }
                     Core.monikaVersionBranch == "development" -> {
-                        logger.debug("Message ${event.messageID} ignored: Stable version requested")
+                        logger.debug("Message ignored: Stable version requested")
                         logger.debug("Joining thread")
                         return@thread
                     }
@@ -115,7 +116,7 @@ object Parser : ILogger {
             }
 
             if (cmd.isBlank()) {
-                logger.debug("Message ${event.messageID} has no command")
+                logger.debug("Message has no command: Getting random response")
                 buildMessage(event.channel) {
                     content {
                         withContent(getRandomNullResponse())

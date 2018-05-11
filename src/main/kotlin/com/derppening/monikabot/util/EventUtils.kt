@@ -18,24 +18,15 @@
  *
  */
 
-package com.derppening.monikabot.util.helpers
+package com.derppening.monikabot.util
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
-import java.net.URL
-import java.net.URLConnection
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 
-object URLHelper : ILogger {
-    private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36"
-
-    fun URL.openAndSetUserAgent(userAgent: String = USER_AGENT): URLConnection = openConnection().also {
-        it.setRequestProperty("User-Agent", userAgent)
-    }
-
-    fun URLConnection.setUserAgent(userAgent: String = USER_AGENT): URLConnection = also {
-        setRequestProperty("User-Agent", userAgent)
-    }
-
-    fun URLConnection.readText(): String = getInputStream().bufferedReader().readText()
-
-    fun URLConnection.readLines(): List<String> = getInputStream().bufferedReader().readLines()
+object EventUtils : ILogger {
+    /**
+     * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
+     */
+    fun MessageEvent.isOwnerLocationValid() = channel == Core.serverDebugChannel || channel == Core.ownerPrivateChannel
 }

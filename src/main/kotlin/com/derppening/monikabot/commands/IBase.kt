@@ -20,10 +20,10 @@
 
 package com.derppening.monikabot.commands
 
-import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
+import com.derppening.monikabot.util.MessageUtils.popLeadingMention
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IGuild
@@ -103,7 +103,7 @@ interface IBase : ILogger {
      * @return List of arguments.
      */
     fun getArgumentList(str: String, guild: IGuild? = null): List<String> {
-        val cmdStr = Core.popLeadingMention(str, guild)
+        val cmdStr = popLeadingMention(str, guild)
         val tokens = cmdStr.split(" ").drop(1).joinToString(" ")
         val list = mutableListOf<String>()
 

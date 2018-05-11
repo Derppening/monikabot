@@ -45,7 +45,7 @@ object Baro : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        event.channel.toggleTypingStatus()
+        event.channel.typingStatus = true
         sendEmbed(getBaroEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED

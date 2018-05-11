@@ -47,6 +47,25 @@ object Debug : IBase, ILogger {
             "longop" -> {
                 longOperation()
             }
+            "mem" -> {
+                val runtime = Runtime.getRuntime()
+                val byteToMiB = { byte: Long ->
+                    byte / 1024 / 1024
+                }
+                val used = (runtime.totalMemory() - runtime.freeMemory()) to runtime.totalMemory()
+                val allocated = runtime.maxMemory()
+                val usedPercent = (used.first.toDouble() / used.second.toDouble() * 100).toInt()
+                val allocatedPercent = (used.second.toDouble() / allocated.toDouble() * 100).toInt()
+
+                buildEmbed(event.channel) {
+                    fields {
+                        withTitle("Memory Usage")
+
+                        appendField("Used", "${byteToMiB(used.first)}/${byteToMiB(used.second)} MiB ($usedPercent%)", false)
+                        appendField("Allocated", "${byteToMiB(allocated)} MiB ($allocatedPercent%)", false)
+                    }
+                }
+            }
             else -> {
                 log(ILogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
                     message { event.message }
