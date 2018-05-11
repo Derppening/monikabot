@@ -55,10 +55,7 @@ object WarframeService : ILogger {
      * Function to update drop tables.
      */
     private fun updateDropTables() {
-        val info = jacksonObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-        }.readValue<DropTable.Info>(URL("$DROPTABLE_DATA_URL/info.json"))
+        val info = jsonMapper.readValue<DropTable.Info>(URL("$DROPTABLE_DATA_URL/info.json"))
 
         if (info.hash == dropTableInfo.hash && info.timestamp == dropTableInfo.timestamp) {
             return
