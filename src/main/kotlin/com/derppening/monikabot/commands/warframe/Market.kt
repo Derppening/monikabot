@@ -45,7 +45,7 @@ object Market : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        event.channel.toggleTypingStatus()
+        event.channel.typingStatus = true
         getMarketItem(args).also {
             when (it) {
                 is MarketService.Result.Failure -> {

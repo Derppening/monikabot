@@ -33,7 +33,7 @@ object Sale : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
-        event.channel.toggleTypingStatus()
+        event.channel.typingStatus = true
         sendEmbed(getSaleEmbed() to event.channel)
 
         return Parser.HandleState.HANDLED

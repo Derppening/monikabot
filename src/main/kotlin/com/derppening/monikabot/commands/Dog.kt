@@ -69,7 +69,7 @@ object Dog : IBase, ILogger {
     }
 
     private fun showBreed(args: List<String>, event: MessageReceivedEvent) {
-        event.channel.toggleTypingStatus()
+        event.channel.typingStatus = true
 
         if (args.size != 1) {
             showSubbreed(args, event)
@@ -88,7 +88,7 @@ object Dog : IBase, ILogger {
     }
 
     private fun showSubbreed(args: List<String>, event: MessageReceivedEvent) {
-        event.channel.toggleTypingStatus()
+        event.channel.typingStatus = true
 
         getSubbreed(args[0], args[1]).also {
             when (it) {

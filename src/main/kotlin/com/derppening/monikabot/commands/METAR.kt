@@ -33,6 +33,7 @@ object METAR : IBase, ILogger {
         val args = getArgumentList(event.message.content)
 
         if (args.size == 1) {
+            event.channel.typingStatus = true
             sendEmbed(toEmbed(args[0].toUpperCase()) to event.channel)
         } else {
             help(event, false)

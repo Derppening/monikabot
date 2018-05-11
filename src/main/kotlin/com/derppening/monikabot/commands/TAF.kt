@@ -33,6 +33,7 @@ object TAF : IBase, ILogger {
         val args = getArgumentList(event.message.content)
 
         if (args.size == 1) {
+            event.channel.typingStatus = true
             toEmbed(args[0].toUpperCase()).forEach {
                 sendEmbed(it to event.channel)
             }
