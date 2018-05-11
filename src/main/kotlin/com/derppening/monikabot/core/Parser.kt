@@ -57,6 +57,7 @@ object Parser : ILogger {
             "rng" to RNG,
             "status" to Status,
             "stop" to Stop,
+            "taf" to TAF,
             "timer" to Reminder,
             "toilet" to Toilet,
             "trivia" to Trivia,
