@@ -98,6 +98,7 @@ object Parser : ILogger {
 
             val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
                 when {
+                    it.isBlank() -> it
                     it.last() == '!' && Core.monikaVersionBranch != "development" -> {
                         logger.debug("Message ${event.messageID} ignored: Development version requested")
                         logger.debug("Joining thread")
