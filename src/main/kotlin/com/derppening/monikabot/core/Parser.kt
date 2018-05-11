@@ -21,14 +21,14 @@
 package com.derppening.monikabot.core
 
 import com.derppening.monikabot.commands.*
-import com.derppening.monikabot.core.Core.getChannelName
-import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Core.isFromSuperuser
-import com.derppening.monikabot.core.Core.isMentionMe
-import com.derppening.monikabot.core.Core.isOwnerLocationValid
-import com.derppening.monikabot.core.Core.popLeadingMention
 import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.TriviaService
+import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
+import com.derppening.monikabot.util.LocationUtils.getChannelName
+import com.derppening.monikabot.util.LocationUtils.getDiscordTag
+import com.derppening.monikabot.util.MessageUtils.isMentionMe
+import com.derppening.monikabot.util.MessageUtils.popLeadingMention
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent

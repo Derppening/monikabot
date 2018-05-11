@@ -20,9 +20,11 @@
 
 package com.derppening.monikabot.impl
 
-import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.LocationUtils.getChannelByName
+import com.derppening.monikabot.util.LocationUtils.getGuildByName
+import com.derppening.monikabot.util.LocationUtils.getUserByTag
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -39,7 +41,7 @@ object EchoService : ILogger {
         }
 
         try {
-            val channel = Core.getUserByTag(username, discriminator.toInt())?.orCreatePMChannel
+            val channel = getUserByTag(username, discriminator.toInt())?.orCreatePMChannel
                     ?: error("Cannot find user!")
 
             val message = args.drop(2).joinToString(" ")
@@ -74,8 +76,8 @@ object EchoService : ILogger {
         }
 
         try {
-            val guild = Core.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
-            val channel = Core.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
+            val guild = getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
+            val channel = getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
 
             if (!event.isFromSuperuser() && !guild.users.contains(event.author)) {
                 error("You can only send messages to guilds which you are in!")

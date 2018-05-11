@@ -22,10 +22,10 @@ package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.Core.isFromOwner
-import com.derppening.monikabot.core.Core.isOwnerLocationValid
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.StopService.cleanup
+import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent

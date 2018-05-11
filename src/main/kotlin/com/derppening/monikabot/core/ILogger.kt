@@ -20,9 +20,9 @@
 
 package com.derppening.monikabot.core
 
-import com.derppening.monikabot.core.Core.getChannelName
-import com.derppening.monikabot.core.Core.getDiscordTag
 import com.derppening.monikabot.core.Persistence.debugChannel
+import com.derppening.monikabot.util.LocationUtils.getChannelName
+import com.derppening.monikabot.util.LocationUtils.getDiscordTag
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
