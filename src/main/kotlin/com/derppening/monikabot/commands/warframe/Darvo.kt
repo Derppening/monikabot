@@ -27,6 +27,7 @@ import com.derppening.monikabot.impl.warframe.DarvoService
 import com.derppening.monikabot.impl.warframe.DarvoService.getDarvoEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -68,6 +69,12 @@ object Darvo : IBase, ILogger {
                     }
                 }
             }
+        }
+
+        buildHelpText("warframe-darvo", event) {
+            description { "Displays the ongoing Darvo sale." }
+
+            usage("warframe darvo")
         }
     }
 }

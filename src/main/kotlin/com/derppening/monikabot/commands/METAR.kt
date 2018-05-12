@@ -23,9 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.METARService.toEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
-import com.derppening.monikabot.util.helpers.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object METAR : IBase, ILogger {
@@ -43,23 +42,11 @@ object METAR : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `METAR`")
-                withDesc("Displays the Meteorological Terminal Air Report (METAR) of a given airfield.")
-                insertSeparator()
-                appendField("Usage", "```metar [icao]```", false)
-                appendField("`[icao]`", "The ICAO code of the airfield to display meteorological information.", false)
-            }
+        buildHelpText("METAR", event) {
+            description { "Displays the Meteorological Terminal Air Report (METAR) of a given airfield." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("metar [icao]") {
+                def("[icao]") { "The ICAO code of the airfield to display meteorological information." }
             }
         }
     }

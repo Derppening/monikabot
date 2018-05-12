@@ -26,10 +26,11 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.NewsService.getNewsEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object News : IBase {
+object News : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 
@@ -56,6 +57,12 @@ object News : IBase {
                     }
                 }
             }
+        }
+
+        buildHelpText("warframe-news", event) {
+            description { "Displays the latest Warframe news." }
+
+            usage("warframe news")
         }
     }
 }

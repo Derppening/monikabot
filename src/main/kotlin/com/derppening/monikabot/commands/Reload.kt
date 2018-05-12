@@ -23,8 +23,7 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.ReloadService.commitReload
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Reload : IBase, ILogger {
@@ -39,23 +38,10 @@ object Reload : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `reload`")
-                withDesc("Reloads essential bot properties from their respective files.")
-                insertSeparator()
-                appendField("Usage", "```reload```", false)
-            }
+        buildHelpText("reload", event) {
+            description { "Reloads essential bot properties from their respective files." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
+            usage("reload")
         }
     }
 }

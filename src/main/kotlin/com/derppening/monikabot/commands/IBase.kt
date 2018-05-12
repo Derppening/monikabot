@@ -23,7 +23,6 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.popLeadingMention
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IGuild
@@ -61,25 +60,7 @@ interface IBase : ILogger {
      * @param event: The event leading to the invocation of the this function.
      * @param isSu: Whether user invoking this function is a superuser.
      */
-    fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text")
-                withDesc("No help text is available for this command.")
-            }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
+    fun help(event: MessageReceivedEvent, isSu: Boolean)
 
     /**
      * Handles [event] for all users.

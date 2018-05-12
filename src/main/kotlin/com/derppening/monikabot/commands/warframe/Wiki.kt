@@ -24,9 +24,8 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.WikiService.convertToLink
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Wiki : IBase, ILogger {
@@ -43,23 +42,11 @@ object Wiki : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-wiki`")
-                withDesc("Creates a direct link to a page in the Warframe Wikia.")
-                insertSeparator()
-                appendField("Usage", "```warframe wiki [item]```", false)
-                appendField("`[item]`", "Item to lookup.", false)
-            }
+        buildHelpText("warframe-wiki", event) {
+            description { "Creates a direct link to a page in the Warframe Wikia." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("warframe wiki [item]") {
+                def("[item]") { "Item to lookup." }
             }
         }
     }

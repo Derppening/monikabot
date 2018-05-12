@@ -25,11 +25,11 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.RNGService
 import com.derppening.monikabot.impl.RNGService.computeRNGStats
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object RNG : IBase {
+object RNG : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 
@@ -56,29 +56,19 @@ object RNG : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `rng`")
-                withDesc("Computes distribution statistics for drop tables.")
-                insertSeparator()
-                appendField("Usage", "```rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]```", false)
-                appendField("`[PROBABILITY]`", "Specifies item drop chance.", false)
-                appendField("`[n=ATTEMPTS]`", "Optional: Specifies number of attempts to get the item.", false)
-                appendField("`[k=SUCCESSFUL_TRIAL]`", "Optional: Specifies the number of trial which you got the item.", false)
-                appendField("`[r=ROUND]`", "Optional: Specifies rounding. You may use dp to signify decimal places and " +
-                        "sf to signify significant figures. \nDefaults to 3 decimal places.", false)
-            }
+        buildHelpText("rng", event) {
+            description { "Computes distribution statistics for drop tables." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
+            usage("rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]") {
+                def("[PROBABILITY]") { "Specifies item drop chance." }
+                def("[n=ATTEMPTS]") { "Optional: Specifies number of attempts to get the item." }
+                def("[k=SUCCESSFUL_TRIAL]") { "Optional: Specifies the number of trial which you got the item." }
+                def("[r=ROUND]") {
+                    "Optional: Specifies rounding. You may use dp to signify decimal places and sf to signify " +
+                            "significant figures." +
+                            "\nDefaults to 3 decimal places."
                 }
             }
         }
-
     }
 }

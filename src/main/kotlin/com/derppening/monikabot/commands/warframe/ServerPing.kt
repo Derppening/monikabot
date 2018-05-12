@@ -24,9 +24,8 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.ServerPingService.getPingEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
-import com.derppening.monikabot.util.helpers.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object ServerPing : IBase, ILogger {
@@ -40,26 +39,14 @@ object ServerPing : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-ping`")
-                withDesc("Displays the current latency of the bot to various Warframe servers.")
-                insertSeparator()
-                appendField("Usage", "```warframe ping```", false)
-                appendField("Internal API", "The servers responsible for loading and updating player progress.", false)
-                appendField("Content Server", "The servers responsible for hosting updates and world information.", false)
-                appendField("Forums", "The Warframe Forums.", false)
-                appendField("Web Server", "Warframe's website, including drop tables.", false)
-            }
+        buildHelpText("warframe-ping", event) {
+            description { "Displays the current latency of the bot to various Warframe servers." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("warframe ping") {
+                field("Internal API") { "The servers responsible for loading and updating player progress." }
+                field("Content Server") { "The servers responsible for hosting updates and world information." }
+                field("Forums") { "The Warframe Forums." }
+                field("Web Server") { "Warframe's website, including drop tables." }
             }
         }
     }

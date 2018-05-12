@@ -24,9 +24,8 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.FissureService.getFissureEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
-import com.derppening.monikabot.util.helpers.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Fissure : IBase, ILogger {
@@ -40,23 +39,10 @@ object Fissure : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-fissure`")
-                withDesc("Displays ongoing fissure missions.")
-                insertSeparator()
-                appendField("Usage", "```warframe fissures```", false)
-            }
+        buildHelpText("warframe-fissure", event) {
+            description { "Displays ongoing fissure missions." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
+            usage("warframe fissures")
         }
     }
 }

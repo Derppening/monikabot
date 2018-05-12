@@ -26,6 +26,7 @@ import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.ConfigService.configureOwnerEchoFlag
 import com.derppening.monikabot.impl.ConfigService.ownerModeEchoForSu
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -71,13 +72,11 @@ object Config : IBase, ILogger {
                 }
             }
             ConfigService.Result.HELP -> {
-                buildEmbed(event.channel) {
-                    fields {
-                        withTitle("Help Text for config-owner_echo_for_su`")
-                        withDesc("Whether to allow superusers access to owner mode `echo`.")
-                        insertSeparator()
-                        appendField("Usage", "```config owner_echo_for_su [allow|deny]```", false)
-                        appendField("`[allow|deny]`", "Allows or denies owner mode echo for superusers.", false)
+                buildHelpText("config-owner_echo_for_su", event) {
+                    description { "Whether to allow superusers access to owner mode `echo`." }
+
+                    usage("config owner_echo_for_su [allow|deny]") {
+                        def("[allow|deny]") { "Allows or denies owner mode echo for superusers." }
                     }
                 }
             }

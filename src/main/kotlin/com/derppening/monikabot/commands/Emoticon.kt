@@ -55,4 +55,8 @@ object Emoticon : IBase, ILogger {
             }
         }
     }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        throw IllegalStateException("Emoticon should not be able to invoke help()")
+    }
 }

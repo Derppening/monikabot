@@ -27,6 +27,7 @@ import com.derppening.monikabot.impl.DebugService.displayMemoryUsage
 import com.derppening.monikabot.impl.DebugService.editMessage
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Debug : IBase, ILogger {
@@ -75,6 +76,14 @@ object Debug : IBase, ILogger {
                         info { e.errorMessage }
                     }
                 }
+            }
+        }
+
+        buildHelpText("debug", event) {
+            description { "Enables superuser debugging methods." }
+
+            usage("debug [option] [args]") {
+                field("Option: `mem`") { "Displays current memory usage." }
             }
         }
     }

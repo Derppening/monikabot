@@ -28,8 +28,8 @@ import com.derppening.monikabot.impl.DogService.getRandomPic
 import com.derppening.monikabot.impl.DogService.getSubbreed
 import com.derppening.monikabot.impl.DogService.list
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Dog : IBase, ILogger {
@@ -103,28 +103,16 @@ object Dog : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `dog`")
-                withDesc("Displays a photo of a dog.")
-                insertSeparator()
-                appendField("Usage", "```dog [breed] [subbreed]```", false)
-                appendField("`[breed]", "If specified, only display images of the given breed.", false)
-                appendField("`[subbreed]`", "If specified, only display images of the given subbreed. This option must be used in conjunction with `[breed]`.", false)
-                insertSeparator()
-                appendField("Usage", "```dog --list [breed]```", false)
-                appendField("`--list`", "Lists all breeds of dogs that can be retrieved from this command.", false)
-                appendField("`[breed]", "If specified, lists all subbreeds of the given breed.", false)
-            }
+       buildHelpText("dog", event) {
+            description { "Displays a photo of a dog." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("dog [breed] [subbreed]") {
+                def("[breed]") { "If specified, only display images of the given breed." }
+                def("[subbreed]") { "If specified, only display images of the given subbreed. This option must be used in conjunction with `[breed]`." }
+            }
+            usage("dog --list [breed]") {
+                def("--list") { "Lists all breeds of dogs that can be retrieved from this command." }
+                def("[breed]") { "If specified, lists all subbreeds of the given breed." }
             }
         }
     }

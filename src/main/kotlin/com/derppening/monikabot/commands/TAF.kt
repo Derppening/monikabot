@@ -23,9 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.TAFService.toEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
-import com.derppening.monikabot.util.helpers.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object TAF : IBase, ILogger {
@@ -45,23 +44,11 @@ object TAF : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        EmbedHelper.buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `TAF`")
-                withDesc("Displays the Terminal Aerodome Forecast (TAF) of a given airfield.")
-                insertSeparator()
-                appendField("Usage", "```taf [icao]```", false)
-                appendField("`[icao]`", "The ICAO code of the airfield to display meteorological predictions.", false)
-            }
+        buildHelpText("TAF", event) {
+            description { "Displays the Terminal Aerodome Forecast (TAF) of a given airfield." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("taf [icao]") {
+                def("[icao]") { "The ICAO code of the airfield to display meteorological predictions." }
             }
         }
     }

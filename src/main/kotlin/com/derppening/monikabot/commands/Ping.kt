@@ -25,6 +25,7 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.PingService.getEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Instant
@@ -75,6 +76,12 @@ object Ping : IBase, ILogger {
                     }
                 }
             }
+        }
+
+        buildHelpText("ping", event) {
+            description { "Displays the current latency of the bot to various servers." }
+
+            usage("ping")
         }
     }
 }

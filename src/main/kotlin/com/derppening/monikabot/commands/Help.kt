@@ -21,13 +21,14 @@
 package com.derppening.monikabot.commands
 
 import com.derppening.monikabot.core.Core.isFromSuperuser
+import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 
-object Help : IBase {
+object Help : IBase, ILogger {
     override fun delegateCommand(event: MessageReceivedEvent, args: List<String>): Parser.HandleState {
         buildEmbed(event.channel) {
             val builder = fields {
@@ -85,5 +86,9 @@ object Help : IBase {
             appendField("Owner: `status`", "Changes the status of the bot.", false)
             appendField("Owner: `stop`", "Terminates the bot.", false)
         }
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        throw IllegalStateException("Help should not be able to invoke help()")
     }
 }

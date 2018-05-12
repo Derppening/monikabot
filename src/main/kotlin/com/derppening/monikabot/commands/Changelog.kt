@@ -25,8 +25,8 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.ChangelogService.getAll
 import com.derppening.monikabot.impl.ChangelogService.getLatest
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Changelog : IBase, ILogger {
@@ -82,24 +82,11 @@ object Changelog : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `changelog`")
-                withDesc("Displays the changelog for the most recent build(s).")
-                insertSeparator()
-                appendField("Usage", "```changelog [release] [all]```", false)
-                appendField("`release`", "Only show changes for release builds.", false)
-                appendField("`all`", "Show 5 most recent builds instead of 1.", false)
-            }
+        buildHelpText("changelog", event) {
+            description { "Displays the changelog for the most recent build(s)." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("changelog [release] [all]") {
+                def("release") { "Only show changes for release builds" }
             }
         }
     }

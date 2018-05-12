@@ -23,9 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.commands.warframe.*
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Warframe : IBase, ILogger {
@@ -109,36 +108,24 @@ object Warframe : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe`")
-                withDesc("Wrapper for Warframe-related commands.")
-                insertSeparator()
-                appendField("Usage", "```warframe [subcommand] [args]```", false)
-                appendField("Subcommand: `alerts`", "Displays ongoing alerts.", false)
-                appendField("Subcommand: `baro`", "Displays Baro Ki'Teer information.", false)
-                appendField("Subcommand: `cetus`", "Displays Cetus-related information", false)
-                appendField("Subcommand: `darvo`", "Displays ongoing Darvo sale.", false)
-                appendField("Subcommand: `fissures`", "Displays ongoing fissure missions.", false)
-                appendField("Subcommand: `invasion`", "Displays ongoing invasions, as well as construction status of mini-bosses.", false)
-                appendField("Subcommand: `news`", "Displays the latest Warframe news, same as the news segment in the orbiter.", false)
-                appendField("Subcommand: `market`", "Displays market information about an item.", false)
-                appendField("Subcommand: `ping`", "Displays latency information to the Warframe servers.", false)
-                appendField("Subcommand: `primes`", "Displays the most recently released primes, as well as predicts the next few primes.", false)
-                appendField("Subcommand: `sale`", "Displays currently onoing item sales.", false)
-                appendField("Subcommand: `sortie`", "Displays information about the current sorties.", false)
-                appendField("Subcommand: `syndicate`", "Displays missions of a syndicate.", false)
-                appendField("Subcommand: `wiki`", "Directly links an item to its Warframe Wikia page.", false)
-            }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+        buildHelpText("warframe", event) {
+            description { "Wrapper for Warframe-related commands." }
+            
+            usage("warframe [subcommand] [args]") {
+                field("Subcommand: `alerts`") { "Displays ongoing alerts." }
+                field("Subcommand: `baro`") { "Displays Baro Ki'Teer information." }
+                field("Subcommand: `cetus`") { "Displays Cetus-related information" }
+                field("Subcommand: `darvo`") { "Displays ongoing Darvo sale." }
+                field("Subcommand: `fissures`") { "Displays ongoing fissure missions." }
+                field("Subcommand: `invasion`") { "Displays ongoing invasions, as well as construction status of mini-bosses." }
+                field("Subcommand: `news`") { "Displays the latest Warframe news, same as the news segment in the orbiter." }
+                field("Subcommand: `market`") { "Displays market information about an item." }
+                field("Subcommand: `ping`") { "Displays latency information to the Warframe servers." }
+                field("Subcommand: `primes`") { "Displays the most recently released primes, as well as predicts the next few primes." }
+                field("Subcommand: `sale`") { "Displays currently onoing item sales." }
+                field("Subcommand: `sortie`") { "Displays information about the current sorties." }
+                field("Subcommand: `syndicate`") { "Displays missions of a syndicate." }
+                field("Subcommand: `wiki`") { "Directly links an item to its Warframe Wikia page." }
             }
         }
     }
