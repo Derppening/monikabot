@@ -23,13 +23,13 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.METARModel
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -74,13 +74,13 @@ object METARService : ILogger {
             getForICAO(icao)
         } catch (e: Exception) {
             e.printStackTrace()
-            return EmbedBuilder().apply {
+            return buildEmbed {
                 withTitle("METAR for ${icao.toUpperCase()}")
                 withDesc(e.message)
             }.build()
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("METAR for ${metar.name} (${icao.toUpperCase()})")
             withDesc("```${metar.rawText}```")
 

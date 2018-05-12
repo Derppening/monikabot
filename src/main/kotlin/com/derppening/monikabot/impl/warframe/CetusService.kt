@@ -24,10 +24,10 @@ import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.helpers.ChronoHelper.dateTimeFormatter
 import com.derppening.monikabot.util.helpers.ChronoHelper.formatTimeElement
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
 import com.derppening.monikabot.util.helpers.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -43,7 +43,7 @@ object CetusService {
         val bounties = cetusInfo.jobs
 
         return bounties.mapIndexed { i, v ->
-            EmbedBuilder().apply {
+            buildEmbed {
                 withAuthorName("Cetus Bounties - Tier ${i + 1}")
                 withTitle(WorldState.getLanguageFromAsset(v.jobType))
 
@@ -70,7 +70,7 @@ object CetusService {
         val ghoulTooltip = ghoulBounties.tooltip
 
         return ghoulBounties.jobs.mapIndexed { i, v ->
-            EmbedBuilder().apply {
+            buildEmbed {
                 withAuthorName("${WorldState.getLanguageFromAsset(ghoulDesc)} - Tier ${i + 1}")
                 withTitle(WorldState.getLanguageFromAsset(v.jobType))
                 withDesc(WorldState.getLanguageFromAsset(ghoulTooltip))
@@ -98,7 +98,7 @@ object CetusService {
         val tooltip = plaugestar.tooltip
 
         return plaugestar.jobs.map {
-            EmbedBuilder().apply {
+            buildEmbed {
                 withAuthorName(WorldState.getLanguageFromAsset(desc))
                 withTitle(WorldState.getLanguageFromAsset(it.jobType))
                 withDesc(WorldState.getLanguageFromAsset(tooltip))
@@ -118,7 +118,7 @@ object CetusService {
             CetusTime(it.activation.date.numberLong, it.expiry.date.numberLong)
         } ?: throw Exception("Cannot find Cetus information")
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("Cetus Time")
 
             timeContainer.timeLeft.also {

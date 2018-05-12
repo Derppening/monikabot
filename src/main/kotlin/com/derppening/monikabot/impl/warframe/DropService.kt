@@ -26,9 +26,9 @@ import com.derppening.monikabot.models.warframe.drop.DropInfo
 import com.derppening.monikabot.models.warframe.droptable.BaseDrop
 import com.derppening.monikabot.models.warframe.droptable.BaseEnemy
 import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.text.DecimalFormat
 import kotlin.system.measureTimeMillis
 
@@ -62,7 +62,7 @@ object DropService : ILogger {
             allDrops.first { name == it.name }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(drop.name)
 
             val displayLocs = drop.locs.sortedByDescending { it.chance }
@@ -90,7 +90,7 @@ object DropService : ILogger {
             dropTables.blueprintLocations.first { modName == it.blueprintName }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(mod.blueprintName)
 
             rarity.forEach { rarity ->
@@ -122,7 +122,7 @@ object DropService : ILogger {
                     dropTables.enemyBlueprintTables.firstOrNull { it.enemyName == enemyName }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(modTable?.enemyName ?: bpTable?.enemyName)
 
             if (modTable != null) {
@@ -173,7 +173,7 @@ object DropService : ILogger {
             dropTables.keyRewards.first { keyName == it.keyName }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(key.keyName)
 
             val fmt: (List<BaseDrop.RewardDrop>) -> String = {
@@ -208,7 +208,7 @@ object DropService : ILogger {
             }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(mission.first)
 
             val fmt: (List<BaseDrop.RewardDrop>) -> String = {
@@ -240,7 +240,7 @@ object DropService : ILogger {
             dropTables.modLocations.first { modName == it.modName }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(mod.modName)
 
             rarity.forEach { rarity ->
@@ -269,7 +269,7 @@ object DropService : ILogger {
             dropTables.transientRewards.first { it.objectiveName == opName }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(op.objectiveName)
 
             rarity.forEach { rarity ->
@@ -307,7 +307,7 @@ object DropService : ILogger {
                     .filter { it.rewards.any { it.itemName == itemName } }
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle(item)
 
             if (relics.isEmpty()) {
@@ -337,7 +337,7 @@ object DropService : ILogger {
             return FindResult.Failure(emptyList())
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("${relic.tier} ${relic.relicName} Relic")
 
             val common = relic.rewards.filter { it.chance == 20.0 }
@@ -353,7 +353,7 @@ object DropService : ILogger {
     fun sortie(args: List<String> = emptyList()): FindResult {
         val sortieDropTable = dropTables.sortieRewards
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("Sorties Drop Table")
 
             rarity.forEach { rarity ->

@@ -22,6 +22,7 @@ package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.openAndSetUserAgent
 import com.derppening.monikabot.util.helpers.readText
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -29,7 +30,6 @@ import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.net.URL
 
 object DogService : ILogger {
@@ -54,7 +54,7 @@ object DogService : ILogger {
                 }
                 1 -> {
                     val subbreedList = getBreedList(breeds.first())
-                    EmbedBuilder().apply {
+                    buildEmbed {
                         withTitle("List of Subbreeds of ${breeds.first().capitalize()}")
                         withDesc(subbreedList.joinToString("\n") { it.capitalize() })
 
@@ -74,7 +74,7 @@ object DogService : ILogger {
                 }
             }
         } else {
-            EmbedBuilder().apply {
+            buildEmbed {
                 withTitle("List of Breeds")
                 withDesc(list.joinToString("\n") { it.capitalize() })
 

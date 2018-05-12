@@ -21,15 +21,15 @@
 package com.derppening.monikabot.impl.warframe
 
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.system.measureTimeMillis
 
 object ServerPingService : ILogger {
     fun getPingEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("Warframe Latency Information")
 
             PingDestination.values().forEach { (server, url, expectedResponse) ->
