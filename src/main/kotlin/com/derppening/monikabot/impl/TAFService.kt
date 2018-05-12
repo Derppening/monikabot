@@ -86,7 +86,7 @@ object TAFService : ILogger {
                 withDesc("Forecast Period: ${it.timestamp.forecastTime.first} to ${it.timestamp.forecastTime.second}")
 
                 it.wind?.format()?.also {
-                    it.degrees.also { appendField("Wind Direction", "$it\u00B0", true) }
+                    it.degrees.also { appendField("Wind Direction", "$it°", true) }
                     it.speedKts.also { appendField("Wind Spped", "$it kts", true) }
                     it.gustKts?.also { appendField("Gusts Speed", "$it kts", true) }
                 }

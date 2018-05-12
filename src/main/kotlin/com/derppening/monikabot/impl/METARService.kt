@@ -85,7 +85,7 @@ object METARService : ILogger {
             withDesc("```${metar.rawText}```")
 
             metar.wind?.format()?.also {
-                it.degrees?.also { appendField("Wind Direction", "$it\u00B0", true) }
+                it.degrees?.also { appendField("Wind Direction", "$it°", true) }
                 it.speedKts?.also { appendField("Wind Spped", "$it kts", true) }
                 it.gustKts?.also { appendField("Gusts Speed", "$it kts", true) }
             }
@@ -109,11 +109,11 @@ object METARService : ILogger {
             }
 
             metar.temperature?.format()?.also {
-                appendField("Temperature", "${it.celsius}\u00B0C", false)
+                appendField("Temperature", "${it.celsius}°C", false)
             }
 
             metar.dewpoint?.format()?.also {
-                appendField("Dew Point", "${it.celsius}\u00B0C", false)
+                appendField("Dew Point", "${it.celsius}°C", false)
             }
 
             metar.barometer?.format()?.also {
