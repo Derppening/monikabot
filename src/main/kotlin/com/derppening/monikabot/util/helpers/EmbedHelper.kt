@@ -27,10 +27,32 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.EmbedBuilder
 
 object EmbedHelper {
+    /**
+     * Kotlin extension function for EmbedBuilder.
+     */
+    fun buildEmbed(action: EmbedBuilder.() -> Unit): EmbedBuilder {
+        return EmbedBuilder().apply(action)
+    }
+
+    /**
+     * Builds an EmbedObject and sends it to [channel].
+     *
+     * @param action Actions to apply to the EmbedBuilder.
+     *
+     * @return [IMessage] object if embed is sent; Otherwise null.
+     */
     fun buildEmbed(channel: IChannel, action: EmbedHelper.() -> Unit): IMessage? {
         return EmbedHelper(channel, action).send()
     }
 
+    /**
+     * Sends an EmbedObject to a channel.
+     *
+     * @param delivery Pair of the EmbedObject and the channel.
+     * @param action Handlers for errors.
+     *
+     * @return [IMessage] object if embed is sent; Otherwise null.
+     */
     fun sendEmbed(delivery: Pair<EmbedObject, IChannel>, action: EmbedSender.() -> Unit = {}): IMessage? {
         return EmbedSender(delivery.second, delivery.first, action).send()
     }

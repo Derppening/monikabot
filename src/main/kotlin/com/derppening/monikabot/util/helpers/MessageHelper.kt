@@ -26,6 +26,20 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.MessageBuilder
 
 object MessageHelper {
+    /**
+     * Kotlin extension function for MessageBuilder.
+     */
+    fun buildMessage(action: MessageBuilder.() -> Unit): MessageBuilder {
+        return MessageBuilder(Client).apply(action)
+    }
+
+    /**
+     * Builds a message and sends it to [channel].
+     *
+     * @param action Actions to apply to the MessageBuilder.
+     *
+     * @return [IMessage] object if message is sent; Otherwise null.
+     */
     fun buildMessage(channel: IChannel, action: MessageHelper.() -> Unit): IMessage? {
         return MessageHelper(channel, action).send()
     }
