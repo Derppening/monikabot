@@ -23,9 +23,10 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.DebugService.appendToMessage
+import com.derppening.monikabot.impl.DebugService.displayMemoryUsage
 import com.derppening.monikabot.impl.DebugService.editMessage
-import com.derppening.monikabot.impl.DebugService.longOperation
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Debug : IBase, ILogger {
@@ -44,27 +45,8 @@ object Debug : IBase, ILogger {
             "edit" -> {
                 editMessage(args.drop(1), event.client)
             }
-            "longop" -> {
-                longOperation()
-            }
             "mem" -> {
-                val runtime = Runtime.getRuntime()
-                val byteToMiB = { byte: Long ->
-                    byte / 1024 / 1024
-                }
-                val used = (runtime.totalMemory() - runtime.freeMemory()) to runtime.totalMemory()
-                val allocated = runtime.maxMemory()
-                val usedPercent = (used.first.toDouble() / used.second.toDouble() * 100).toInt()
-                val allocatedPercent = (used.second.toDouble() / allocated.toDouble() * 100).toInt()
-
-                buildEmbed(event.channel) {
-                    fields {
-                        withTitle("Memory Usage")
-
-                        appendField("Used", "${byteToMiB(used.first)}/${byteToMiB(used.second)} MiB ($usedPercent%)", false)
-                        appendField("Allocated", "${byteToMiB(allocated)} MiB ($allocatedPercent%)", false)
-                    }
-                }
+                sendEmbed(displayMemoryUsage() to event.channel)
             }
             else -> {
                 log(ILogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {

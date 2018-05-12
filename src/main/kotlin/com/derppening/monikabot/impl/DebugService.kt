@@ -21,8 +21,10 @@
 package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.toEmbedObject
 import sx.blah.discord.api.IDiscordClient
+import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.DiscordException
 
 object DebugService : ILogger {
@@ -86,9 +88,20 @@ object DebugService : ILogger {
         return true
     }
 
-    fun longOperation(duration: Long = 10000L) {
-        logger.debug("longop started")
-        Thread.sleep(duration)
-        logger.debug("longop ended")
+    fun displayMemoryUsage(): EmbedObject {
+        val runtime = Runtime.getRuntime()
+        val used = (runtime.totalMemory() - runtime.freeMemory()) to runtime.totalMemory()
+        val allocated = runtime.maxMemory()
+        val usedPercent = (used.first.toDouble() / used.second.toDouble() * 100).toInt()
+        val allocatedPercent = (used.second.toDouble() / allocated.toDouble() * 100).toInt()
+
+        return buildEmbed {
+            withTitle("Memory Usage")
+
+            appendField("Used", "${byteToMiB(used.first)}/${byteToMiB(used.second)} MiB ($usedPercent%)", false)
+            appendField("Allocated", "${byteToMiB(allocated)} MiB ($allocatedPercent%)", false)
+        }.build()
     }
+
+    private fun byteToMiB(byte: Long) = byte / 1024 / 1024
 }
