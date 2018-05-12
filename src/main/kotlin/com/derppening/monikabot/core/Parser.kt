@@ -122,32 +122,41 @@ object Parser : ILogger {
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
             val retval = run {
                 val cmdMatches = commands.filter { it.key.startsWith(cmd) }
-                when (cmdMatches.size) {
-                    0 -> {
-                        logger.info("Command not found in primary set. Trying to match emoticons...")
-                        Emoticon.handler(event)
-                    }
-                    1 -> {
-                        if (cmd != cmdMatches.entries.first().key) {
-                            buildMessage(event.channel) {
-                                content {
-                                    withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
-                                }
-                            }
+
+                catchAllEx(event.channel) {
+                    when (cmdMatches.size) {
+                        0 -> {
+                            logger.info("Command not found in primary set. Trying to match emoticons...")
+                            Emoticon.handler(event)
                         }
-                        cmdMatches.entries.first().value.delegateCommand(event)
-                    }
-                    else -> {
-                        if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
-                            buildMessage(event.channel) {
-                                content {
-                                    withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                        1 -> {
+                            if (cmd != cmdMatches.entries.first().key) {
+                                buildMessage(event.channel) {
+                                    content {
+                                        withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                    }
                                 }
                             }
                             cmdMatches.entries.first().value.delegateCommand(event)
-                        } else {
-                            HandleState.MULTIPLE_MATCHES
                         }
+                        else -> {
+                            if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                                buildMessage(event.channel) {
+                                    content {
+                                        withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                    }
+                                }
+                                cmdMatches.entries.first().value.delegateCommand(event)
+                            } else {
+                                HandleState.MULTIPLE_MATCHES
+                            }
+                        }
+                    }
+                }.also {
+                    if (it == null) {
+                        logger.debug("Caught unhandled exception! Bailing...")
+                        logger.debug("Joining thread")
+                        return@thread
                     }
                 }
             }

@@ -23,6 +23,7 @@ package com.derppening.monikabot.core
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IPrivateChannel
+import sx.blah.discord.handle.obj.IUser
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -50,9 +51,13 @@ object Core : ILogger {
     val privateKey: String
 
     /**
+     * IUser object of bot admin.
+     */
+    val ownerUser: IUser by lazy { Client.fetchUser(ownerId) }
+    /**
      * PM Channel of bot admin.
      */
-    val ownerPrivateChannel: IPrivateChannel by lazy { Client.fetchUser(ownerId).orCreatePMChannel }
+    val ownerPrivateChannel: IPrivateChannel by lazy { ownerUser.orCreatePMChannel }
     /**
      * ID of bot admin.
      */
