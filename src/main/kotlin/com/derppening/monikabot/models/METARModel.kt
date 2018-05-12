@@ -157,7 +157,7 @@ data class METARModel(
                 speedMPS != null -> (speedMPS * 1.852).roundToInt()
                 else -> null
             }
-            
+
             val gust = when {
                 gustKts != null -> gustKts
                 gustMPH != null -> (gustMPH * 0.868976).roundToInt()

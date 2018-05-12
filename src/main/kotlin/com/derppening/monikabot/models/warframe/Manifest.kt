@@ -46,7 +46,9 @@ class Manifest {
          */
         fun getImageLinkFromAssetLocation(uniqueName: String): String {
             val textureLocation = parseManifest().manifest.find { it.uniqueName == uniqueName }?.textureLocation ?: ""
-            if (textureLocation.isBlank()) { return "" }
+            if (textureLocation.isBlank()) {
+                return ""
+            }
             return "http://content.warframe.com/MobileExport${textureLocation.replace("\\", "/")}"
         }
 
