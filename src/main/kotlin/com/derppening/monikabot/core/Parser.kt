@@ -21,10 +21,9 @@
 package com.derppening.monikabot.core
 
 import com.derppening.monikabot.commands.*
-import com.derppening.monikabot.core.Core.isFromSuperuser
-import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.TriviaService
 import com.derppening.monikabot.util.*
+import com.derppening.monikabot.util.ExceptionDisplayer.catchAllEx
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -63,8 +62,6 @@ object Parser : ILogger {
             // aliases
             "bugreport" to Issue
     )
-
-    private val experimentalCommands: Map<String, IBase> = emptyMap()
 
     /**
      * Command delegator for all messages.
@@ -123,21 +120,7 @@ object Parser : ILogger {
             }
 
             val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
-            val retval = if (runExperimental && ConfigService.enableExperimentalFeatures) {
-                parseExperimental(event, cmd)
-            } else {
-                if (runExperimental) {
-                    buildMessage(event.channel) {
-                        content {
-                            if (event.isFromSuperuser()) {
-                                withContent("It seems like you're trying to invoke an experimental command without it being on...")
-                            } else {
-                                withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
-                            }
-                        }
-                    }
-                }
-
+            val retval = run {
                 val cmdMatches = commands.filter { it.key.startsWith(cmd) }
                 when (cmdMatches.size) {
                     0 -> {
@@ -225,13 +208,6 @@ object Parser : ILogger {
      * Returns the command from a string.
      */
     private fun getCommand(message: String): String = message.split(' ')[0]
-
-    /**
-     * Parses commands with "--experimental" flag given.
-     */
-    private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
-        return experimentalCommands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
-    }
 
     enum class HandleState {
         HANDLED,

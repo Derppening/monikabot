@@ -23,9 +23,7 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.ConfigService
-import com.derppening.monikabot.impl.ConfigService.configureExperimentalFlag
 import com.derppening.monikabot.impl.ConfigService.configureOwnerEchoFlag
-import com.derppening.monikabot.impl.ConfigService.enableExperimentalFeatures
 import com.derppening.monikabot.impl.ConfigService.ownerModeEchoForSu
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
@@ -42,51 +40,12 @@ object Config : IBase, ILogger {
         }
 
         when (args[0]) {
-            "experimental" -> {
-                experimentalHandler(args, event)
-            }
             "owner_echo_for_su" -> {
                 ownerModeEchoHandler(args, event)
             }
         }
 
         return Parser.HandleState.HANDLED
-    }
-
-    /**
-     * Handler for "config experimental" commands.
-     *
-     * @param args List of arguments.
-     * @param event Event of the original message.
-     */
-    private fun experimentalHandler(args: List<String>, event: MessageReceivedEvent) {
-        when (configureExperimentalFlag(args)) {
-            ConfigService.Result.GET -> {
-                buildMessage(event.channel) {
-                    content {
-                        withContent("Experimental Features: ${if (enableExperimentalFeatures) "Enabled" else "Disabled"}.")
-                    }
-                }
-            }
-            ConfigService.Result.SET -> {
-                buildMessage(event.channel) {
-                    content {
-                        withContent("Experimental Features are now ${if (enableExperimentalFeatures) "enabled" else "disabled"}.")
-                    }
-                }
-            }
-            ConfigService.Result.HELP -> {
-                buildEmbed(event.channel) {
-                    fields {
-                        withTitle("Help Text for config-experimental`")
-                        withDesc("Whether to enable experimental features.")
-                        insertSeparator()
-                        appendField("Usage", "```config experimental [enable|disable]```", false)
-                        appendField("`[enable|disable]`", "Enables/Disables experimental features.", false)
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -107,7 +66,7 @@ object Config : IBase, ILogger {
             ConfigService.Result.SET -> {
                 buildMessage(event.channel) {
                     content {
-                        withContent("Experimental Features are now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
+                        withContent("Owner Mode Echo for Superusers now ${if (ownerModeEchoForSu) "allowed" else "denied"}.")
                     }
                 }
             }
@@ -132,7 +91,9 @@ object Config : IBase, ILogger {
                 withDesc("Core configurations for MonikaBot.")
                 insertSeparator()
                 appendField("Usage", "```config [configuration] [options...]```", false)
-                appendField("Configuration: `experimental`", "Whether to enable experimental features", false)
+                appendField("Configuration: `owner_echo_for_su`",
+                        "Whether to allow superusers to access owner mode echo, i.e. allowing echoing to any channel.",
+                        false)
             }
 
             onError {
