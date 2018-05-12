@@ -66,7 +66,6 @@ object Client : ILogger, IDiscordClient by client {
             event.client.changeUsername(defaultUserName)
             changePresence(defaultState, defaultActivity, defaultText)
 
-            PersistentMessage.modify("Config", "Experimental Features", ConfigService.enableExperimentalFeatures.toString())
             PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", ConfigService.ownerModeEchoForSu.toString())
             PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 

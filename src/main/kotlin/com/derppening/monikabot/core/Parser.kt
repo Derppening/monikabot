@@ -119,7 +119,6 @@ object Parser : ILogger {
                 return@thread
             }
 
-            val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
             val retval = run {
                 val cmdMatches = commands.filter { it.key.startsWith(cmd) }
 
