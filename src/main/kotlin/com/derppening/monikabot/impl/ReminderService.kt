@@ -25,8 +25,8 @@ import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.util.ReminderDeserializer
 import com.derppening.monikabot.util.helpers.ChronoHelper.dateTimeFormatter
-import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.formatDuration
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

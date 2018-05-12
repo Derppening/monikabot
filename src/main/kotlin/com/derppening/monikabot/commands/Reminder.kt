@@ -28,8 +28,8 @@ import com.derppening.monikabot.impl.ReminderService.list
 import com.derppening.monikabot.impl.ReminderService.remove
 import com.derppening.monikabot.impl.ReminderService.schedule
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Instant
 

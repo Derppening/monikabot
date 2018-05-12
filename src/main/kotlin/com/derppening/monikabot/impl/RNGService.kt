@@ -21,9 +21,9 @@
 package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.NumericHelper
 import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.util.EmbedBuilder
 import kotlin.math.pow
 

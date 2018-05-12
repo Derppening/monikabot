@@ -24,7 +24,7 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.market.MarketManifest
 import com.derppening.monikabot.models.warframe.market.MarketStats
 import com.derppening.monikabot.util.FuzzyMatcher
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

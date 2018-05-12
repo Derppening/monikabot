@@ -21,7 +21,7 @@
 package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.helpers.EmbedHelper.toEmbedObject
+import com.derppening.monikabot.util.helpers.toEmbedObject
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.util.DiscordException
 

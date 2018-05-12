@@ -21,12 +21,11 @@
 package com.derppening.monikabot.util.helpers
 
 import com.derppening.monikabot.core.Client
-import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.MessageBuilder
 
-object MessageHelper : ILogger {
+object MessageHelper {
     fun buildMessage(channel: IChannel, action: MessageHelper.() -> Unit): IMessage? {
         return MessageHelper(channel, action).send()
     }

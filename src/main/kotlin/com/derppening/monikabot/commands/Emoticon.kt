@@ -24,8 +24,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.EmoticonService
 import com.derppening.monikabot.impl.EmoticonService.findEmoticon
-import com.derppening.monikabot.util.MessageUtils.popLeadingMention
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.popLeadingMention
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Emoticon : IBase, ILogger {

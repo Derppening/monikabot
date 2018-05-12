@@ -26,8 +26,8 @@ import com.derppening.monikabot.impl.EchoService
 import com.derppening.monikabot.impl.EchoService.toGuildChannel
 import com.derppening.monikabot.impl.EchoService.toPrivateChannel
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Echo : IBase, ILogger {

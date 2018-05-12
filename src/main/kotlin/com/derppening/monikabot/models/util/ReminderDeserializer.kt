@@ -21,7 +21,7 @@
 package com.derppening.monikabot.models.util
 
 import com.derppening.monikabot.impl.ReminderService
-import com.derppening.monikabot.util.MessageUtils.removeQuotes
+import com.derppening.monikabot.util.removeQuotes
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.readValue

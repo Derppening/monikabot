@@ -27,9 +27,9 @@ import com.derppening.monikabot.impl.warframe.SyndicateService.findSyndicateFrom
 import com.derppening.monikabot.impl.warframe.SyndicateService.toEmbed
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Syndicate : IBase, ILogger {

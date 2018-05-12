@@ -28,8 +28,8 @@ import com.derppening.monikabot.impl.ConfigService.configureOwnerEchoFlag
 import com.derppening.monikabot.impl.ConfigService.enableExperimentalFeatures
 import com.derppening.monikabot.impl.ConfigService.ownerModeEchoForSu
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Config : IBase, ILogger {

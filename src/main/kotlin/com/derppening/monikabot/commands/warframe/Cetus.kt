@@ -28,9 +28,9 @@ import com.derppening.monikabot.impl.warframe.CetusService.getGhoulEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getPlagueStarEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getTimeEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Cetus : IBase, ILogger {

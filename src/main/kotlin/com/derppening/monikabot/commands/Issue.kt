@@ -23,8 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Issue : IBase, ILogger {

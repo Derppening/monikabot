@@ -21,12 +21,9 @@
 package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.Core
-import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageEvent
 
-object EventUtils : ILogger {
-    /**
-     * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
-     */
-    fun MessageEvent.isOwnerLocationValid() = channel == Core.serverDebugChannel || channel == Core.ownerPrivateChannel
-}
+/**
+ * Whether action is performed in a superuser channel (currently only in PM or MonikaBot/debug)
+ */
+fun MessageEvent.isOwnerLocationValid() = channel == Core.serverDebugChannel || channel == Core.ownerPrivateChannel

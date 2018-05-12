@@ -28,8 +28,8 @@ import com.derppening.monikabot.impl.DogService.getRandomPic
 import com.derppening.monikabot.impl.DogService.getSubbreed
 import com.derppening.monikabot.impl.DogService.list
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Dog : IBase, ILogger {

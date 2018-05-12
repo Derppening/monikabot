@@ -23,8 +23,8 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
-import com.derppening.monikabot.util.MessageUtils.popLeadingMention
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.popLeadingMention
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IGuild
 

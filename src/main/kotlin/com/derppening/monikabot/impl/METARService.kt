@@ -23,7 +23,7 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.METARModel
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

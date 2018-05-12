@@ -20,14 +20,13 @@
 
 package com.derppening.monikabot.util.helpers
 
-import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IEmbed
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.EmbedBuilder
 
-object EmbedHelper : ILogger {
+object EmbedHelper {
     fun buildEmbed(channel: IChannel, action: EmbedHelper.() -> Unit): IMessage? {
         return EmbedHelper(channel, action).send()
     }
@@ -35,40 +34,6 @@ object EmbedHelper : ILogger {
     fun sendEmbed(delivery: Pair<EmbedObject, IChannel>, action: EmbedSender.() -> Unit = {}): IMessage? {
         return EmbedSender(delivery.second, delivery.first, action).send()
     }
-
-    /**
-     * Converts into an EmbedObjecet, copying all impl from the original.
-     *
-     * @param action Fields
-     */
-    fun IEmbed.toEmbedObject(action: EmbedBuilder.() -> Unit): EmbedObject {
-        return EmbedBuilder().apply {
-            author?.name?.also { withAuthorName(it) }
-            author?.iconUrl?.also { withAuthorIcon(it) }
-            author?.url?.also { withAuthorUrl(it) }
-            title?.also { withTitle(it) }
-            description?.also { withDesc(it) }
-
-            embedFields?.forEach {
-                appendField(it)
-            }
-
-            url?.also { withUrl(it) }
-            footer?.text?.also { withFooterText(it) }
-            footer?.iconUrl?.also { withFooterIcon(it) }
-            timestamp?.also { withTimestamp(it) }
-
-            image?.url?.also { withImage(it) }
-            thumbnail?.url?.also { withThumbnail(it) }
-
-            color.also { withColor(it) }
-        }.apply { action() }.build()
-    }
-
-    /**
-     * Inserts an empty key-value field as a separator.
-     */
-    fun EmbedBuilder.insertSeparator(): EmbedBuilder = this.appendField("\u200B", "\u200B", false)
 
     /**
      * Helper class for sending embeds from builders.
@@ -109,4 +74,38 @@ object EmbedHelper : ILogger {
 
         override fun data(): EmbedObject = embed
     }
+}
+
+/**
+ * Inserts an empty key-value field as a separator.
+ */
+fun EmbedBuilder.insertSeparator(): EmbedBuilder = this.appendField("\u200B", "\u200B", false)
+
+/**
+ * Converts into an EmbedObjecet, copying all impl from the original.
+ *
+ * @param action Fields
+ */
+fun IEmbed.toEmbedObject(action: EmbedBuilder.() -> Unit): EmbedObject {
+    return EmbedBuilder().apply {
+        author?.name?.also { withAuthorName(it) }
+        author?.iconUrl?.also { withAuthorIcon(it) }
+        author?.url?.also { withAuthorUrl(it) }
+        title?.also { withTitle(it) }
+        description?.also { withDesc(it) }
+
+        embedFields?.forEach {
+            appendField(it)
+        }
+
+        url?.also { withUrl(it) }
+        footer?.text?.also { withFooterText(it) }
+        footer?.iconUrl?.also { withFooterIcon(it) }
+        timestamp?.also { withTimestamp(it) }
+
+        image?.url?.also { withImage(it) }
+        thumbnail?.url?.also { withThumbnail(it) }
+
+        color.also { withColor(it) }
+    }.apply { action() }.build()
 }

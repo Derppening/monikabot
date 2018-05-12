@@ -24,11 +24,7 @@ import com.derppening.monikabot.commands.*
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.TriviaService
-import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
-import com.derppening.monikabot.util.LocationUtils.getChannelName
-import com.derppening.monikabot.util.LocationUtils.getDiscordTag
-import com.derppening.monikabot.util.MessageUtils.isMentionMe
-import com.derppening.monikabot.util.MessageUtils.popLeadingMention
+import com.derppening.monikabot.util.*
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -80,8 +76,8 @@ object Parser : ILogger {
         thread(name = "Delegator Thread (${event.messageID})") {
             logger.debug("Thread detached")
             logger.debug("Handling message \"${event.message.content}\" " +
-                    "from ${event.author.getDiscordTag()} " +
-                    "in ${event.channel.getChannelName()} ")
+                    "from ${event.author.discordTag()} " +
+                    "in ${event.channel.channelName()} ")
 
             if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
                 logger.debug("Message ignored: Not invoking bot")

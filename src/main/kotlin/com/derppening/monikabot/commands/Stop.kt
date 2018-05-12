@@ -25,9 +25,9 @@ import com.derppening.monikabot.core.Core.isFromOwner
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.StopService.cleanup
-import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.insertSeparator
+import com.derppening.monikabot.util.isOwnerLocationValid
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Stop : IBase, ILogger {

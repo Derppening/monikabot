@@ -27,8 +27,8 @@ import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimesStr
 import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimesStr
 import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimesStr
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Prime : IBase, ILogger {
