@@ -22,22 +22,21 @@ package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import org.apache.commons.text.similarity.LevenshteinDistance
 import sx.blah.discord.handle.obj.IChannel
 
 /**
- * Utility class for matching strings using Levenshtein Distance.
+ * Utility class for matching strings using wildcards and regex.
  *
- * @param str String to match.
- * @param matchers List of strings for [str] to compare with.
- * @param action Additional options for fuzzy matching.
+ * @param matchExpr List of "tags" for searching.
+ * @param matchers List of strings for [matchExpr] to compare with.
+ * @param action Additional options for wildcard matching.
  */
-class FuzzyMatcher(private val str: String, private val matchers: List<String>, threshold: Int? = null, action: FuzzyMatcher.() -> Unit = {}) : ILogger {
+class WildcardMatcher(private val matchExpr: List<String>, private val matchers: List<String>, action: WildcardMatcher.() -> Unit = {}) : ILogger {
     private var emptyMatchHandler: (String) -> Unit = {}
     private var emptyMatchMessage: (String) -> Pair<String, IChannel?> = { "" to null }
     private var multipleMatchHandler: (String, List<String>) -> Unit = { _, _ -> }
     private var multipleMatchMessage: (String, List<String>) -> Pair<String, IChannel?> = { _, _ -> "" to null }
-    private val measurer = LevenshteinDistance(threshold)
+    private val regexOptions: MutableSet<RegexOption> = mutableSetOf()
 
     init {
         action(this)
@@ -80,6 +79,13 @@ class FuzzyMatcher(private val str: String, private val matchers: List<String>, 
     }
 
     /**
+     * Sets additional regex options.
+     */
+    fun regex(vararg options: RegexOption) {
+        regexOptions += options
+    }
+
+    /**
      * Attempts to match [matchExpr] with one of the entries in [matchers].
      *
      * @return The matchee if the match is unique; otherwise an empty string.
@@ -89,7 +95,7 @@ class FuzzyMatcher(private val str: String, private val matchers: List<String>, 
 
         return when (matches.size) {
             0 -> {
-                val (message, channel) = emptyMatchMessage(str)
+                val (message, channel) = emptyMatchMessage(matchExpr.joinToString(" "))
 
                 if (channel != null) {
                     buildMessage(channel) {
@@ -99,14 +105,14 @@ class FuzzyMatcher(private val str: String, private val matchers: List<String>, 
                     }
                 }
 
-                emptyMatchHandler(str)
+                emptyMatchHandler(matchExpr.joinToString(" "))
                 ""
             }
             1 -> {
                 matches.first()
             }
             else -> {
-                val (message, channel) = multipleMatchMessage(str, matches)
+                val (message, channel) = multipleMatchMessage(matchExpr.joinToString(" "), matches)
 
                 if (channel != null) {
                     buildMessage(channel) {
@@ -116,21 +122,39 @@ class FuzzyMatcher(private val str: String, private val matchers: List<String>, 
                     }
                 }
 
-                multipleMatchHandler(str, matches)
+                multipleMatchHandler(matchExpr.joinToString(" "), matches)
                 ""
             }
         }
     }
 
     /**
-     * Returns all closest matches.
+     * Returns all matches.
      */
     fun matches(): List<String> {
-        val searchResult = matchers.associate {
-            it to measurer.apply(it, str)
+        matchers.firstOrNull { it.equals(matchExpr.joinToString(" "), true) }?.let {
+            return listOf(it)
         }
 
-        val sortedResults = searchResult.entries.filterNot { it.value == -1 }.sortedBy { it.value }
+        val searchTags = matchExpr
+        val searchResult = mutableMapOf<String, Int>()
+        searchTags.forEach { tag ->
+            val results = matchers.filter {
+                val regex = tag.replace("*", ".+")
+                if (tag.contains("*") && !tag.contains(" ")) {
+                    it.split(" ").any {
+                        it.matches(regex.toRegex(regexOptions))
+                    }
+                } else {
+                    it.contains(regex.toRegex(regexOptions))
+                }
+            }
+            results.forEach {
+                searchResult[it] = searchResult[it]?.plus(1) ?: 1
+            }
+        }
+
+        val sortedResults = searchResult.entries.sortedByDescending { it.value }
         return sortedResults.filter { it.value == sortedResults.first().value }.map { it.key }
     }
 }

@@ -25,7 +25,7 @@ import com.derppening.monikabot.impl.WarframeService.dropTables
 import com.derppening.monikabot.models.warframe.drop.DropInfo
 import com.derppening.monikabot.models.warframe.droptable.BaseDrop
 import com.derppening.monikabot.models.warframe.droptable.BaseEnemy
-import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.WildcardMatcher
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.api.internal.json.objects.EmbedObject
@@ -52,7 +52,7 @@ object DropService : ILogger {
     private val allDrops = mutableListOf<DropInfo>()
 
     fun findAll(args: List<String>): FindResult {
-        val drop = FuzzyMatcher(args, allDrops.map { it.name }) {
+        val drop = WildcardMatcher(args, allDrops.map { it.name }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -80,7 +80,7 @@ object DropService : ILogger {
     }
 
     fun findBlueprint(args: List<String>): FindResult {
-        val mod = FuzzyMatcher(args, dropTables.blueprintLocations.map { it.blueprintName }) {
+        val mod = WildcardMatcher(args, dropTables.blueprintLocations.map { it.blueprintName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -111,7 +111,7 @@ object DropService : ILogger {
     fun findEnemy(args: List<String>): FindResult {
         val allEnemyMap = dropTables.enemyModTables.map { it.enemyName }.union(dropTables.enemyBlueprintTables.map { it.enemyName })
 
-        val (modTable, bpTable) = FuzzyMatcher(args, allEnemyMap.toList()) {
+        val (modTable, bpTable) = WildcardMatcher(args, allEnemyMap.toList()) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -163,7 +163,7 @@ object DropService : ILogger {
     }
 
     fun findKey(args: List<String>): FindResult {
-        val key = FuzzyMatcher(args, dropTables.keyRewards.map { it.keyName }) {
+        val key = WildcardMatcher(args, dropTables.keyRewards.map { it.keyName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -195,7 +195,7 @@ object DropService : ILogger {
     }
 
     fun findMission(args: List<String>): FindResult {
-        val mission = FuzzyMatcher(args, dropTables.missionRewards.flatMap { it.nodes.map { it.name } }) {
+        val mission = WildcardMatcher(args, dropTables.missionRewards.flatMap { it.nodes.map { it.name } }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -230,7 +230,7 @@ object DropService : ILogger {
     }
 
     fun findMod(args: List<String>): FindResult {
-        val mod = FuzzyMatcher(args, dropTables.modLocations.map { it.modName }) {
+        val mod = WildcardMatcher(args, dropTables.modLocations.map { it.modName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -259,7 +259,7 @@ object DropService : ILogger {
     }
 
     fun findOp(args: List<String>): FindResult {
-        val op = FuzzyMatcher(args, dropTables.transientRewards.map { it.objectiveName }) {
+        val op = WildcardMatcher(args, dropTables.transientRewards.map { it.objectiveName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {
@@ -293,7 +293,7 @@ object DropService : ILogger {
     }
 
     fun findPrime(args: List<String>): FindResult {
-        val item = FuzzyMatcher(args, relicDrops) {
+        val item = WildcardMatcher(args, relicDrops) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.size != 1) {

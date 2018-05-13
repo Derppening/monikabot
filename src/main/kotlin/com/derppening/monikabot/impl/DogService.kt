@@ -21,7 +21,7 @@
 package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.WildcardMatcher
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.openAndSetUserAgent
 import com.derppening.monikabot.util.helpers.readText
@@ -130,7 +130,7 @@ object DogService : ILogger {
     private fun findBreedFuzzy(keyword: String): List<String> {
         val list = getList()
 
-        return FuzzyMatcher(keyword.split(' '), list) {
+        return WildcardMatcher(keyword.split(' '), list) {
             regex(RegexOption.IGNORE_CASE)
         }.matches()
     }
@@ -173,7 +173,7 @@ object DogService : ILogger {
     private fun findSubbreedFuzzy(breed: String, keyword: String): List<String> {
         val list = getBreedList(breed)
 
-        return FuzzyMatcher(keyword.split(' '), list) {
+        return WildcardMatcher(keyword.split(' '), list) {
             regex(RegexOption.IGNORE_CASE)
         }.matches()
     }

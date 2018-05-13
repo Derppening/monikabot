@@ -23,7 +23,7 @@ package com.derppening.monikabot.impl.warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.market.MarketManifest
 import com.derppening.monikabot.models.warframe.market.MarketStats
-import com.derppening.monikabot.util.FuzzyMatcher
+import com.derppening.monikabot.util.WildcardMatcher
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -142,7 +142,7 @@ object MarketService : ILogger {
                     jsonMapper.readValue<List<MarketManifest>>(it.toString())
                 }.sortedBy { it.itemName }
 
-        FuzzyMatcher(search, manifest.map { it.itemName }) {
+        WildcardMatcher(search, manifest.map { it.itemName }) {
             regex(RegexOption.IGNORE_CASE)
         }.matches().also {
             if (it.isEmpty()) {
