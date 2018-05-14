@@ -193,7 +193,7 @@ object ReminderService : ILogger {
 
         companion object {
             fun timerCompleteHandler(timerName: String, userID: Long) {
-                buildMessage(Client.getOrCreatePMChannel(Client.getUserByID(userID))) {
+                buildMessage(Client.getUserByID(userID).orCreatePMChannel) {
                     content {
                         val name = if (timerName.isBlank()) "unnamed timer" else timerName
                         withContent("Your timer for $name is up!")
