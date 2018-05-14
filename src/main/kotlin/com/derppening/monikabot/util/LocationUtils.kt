@@ -28,6 +28,67 @@ import sx.blah.discord.handle.obj.IUser
 
 object LocationUtils {
     /**
+     * Parses a channel in the format of <guild>/<channel> or <username>#<discriminator>.
+     *
+     * @return The channel specified by the string.
+     * @throws IllegalArgumentException if string is incorrectly formatted, or the channel cannot be found.
+     *
+     * @see parseGuildChannel
+     * @see parsePrivateChannel
+     */
+    fun parseChannel(str: String, srcGuild: IGuild? = null): IChannel {
+        return if (str.contains('/')) {
+            parseGuildChannel(str, srcGuild)
+        } else {
+            parsePrivateChannel(str)
+        }
+    }
+
+    /**
+     * Parses a guild channel in the format of <guild>/<channel>.
+     *
+     * @param str String to parse.
+     * @param srcGuild Guild if this is limited to a guild.
+     *
+     * @return The channel specified by the string.
+     * @throws IllegalArgumentException if string is incorrectly formatted, or the channel cannot be found.
+     */
+    fun parseGuildChannel(str: String, srcGuild: IGuild? = null): IChannel {
+        val guildStr = str.dropLastWhile { it != '/' }.dropLastWhile { it == '/' }.let {
+            if (srcGuild != null) {
+                srcGuild.name
+            } else {
+                it
+            }
+        }
+        val channelStr = str.dropWhile { it != '/' }.dropWhile { it == '/' || it == '#' }
+
+        check(guildStr.isNotBlank() && channelStr.isNotBlank()) { "No destination specified" }
+
+        val guild = LocationUtils.getGuildByName(guildStr) ?: error("Cannot find guild $guildStr")
+        return LocationUtils.getChannelByName(channelStr, guild) ?: error("Cannot find channel $channelStr")
+    }
+
+    /**
+     * Parses a private channel in the format of <username>#<discriminator>.
+     *
+     * @param str String to parse.
+     *
+     * @return The channel specified by the string.
+     * @throws IllegalArgumentException if string is incorrectly formatted, or the user cannot be found.
+     */
+    fun parsePrivateChannel(str: String): IPrivateChannel {
+        val username = str.dropLastWhile { it != '#' }.dropLastWhile { it == '#' }
+        val discriminator = str.dropWhile { it != '#' }.dropWhile { it == '#' }
+
+        check(username.isNotBlank() && discriminator.isNotBlank()) { "No destination specified" }
+        checkNotNull(discriminator.toIntOrNull()) { "The Discord Tag is formatted incorrectly!" }
+
+        return LocationUtils.getUserByTag(username, discriminator.toInt())?.orCreatePMChannel
+                ?: error("Cannot find user")
+    }
+
+    /**
      * @param username User name portion of the Discord Tag.
      * @param discriminator Discriminator portion of the Discord Tag.
      *
