@@ -20,7 +20,6 @@
 
 package com.derppening.monikabot.impl
 
-import com.derppening.monikabot.commands.Warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.warframe.DropService
 import com.derppening.monikabot.models.warframe.droptable.DropTable
@@ -67,7 +66,7 @@ object WarframeService : ILogger {
             dropTables = jsonMapper.readValue(URL("$DROPTABLE_DATA_URL/all.json"))
         }
 
-        Warframe.logger.debug("updateDropTables(): Parsing took ${timer}ms")
+        logger.debug("updateDropTables(): Parsing took ${timer}ms")
 
         DropService.doCacheUpdate()
     }
@@ -81,9 +80,9 @@ object WarframeService : ILogger {
                 worldState = jsonMapper.readValue(URL(WORLDSTATE_URL))
             }
 
-            Warframe.logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
+            logger.debug("updateWorldState(): Parse WorldState took ${timer}ms")
         } catch (e: Exception) {
-            Warframe.logger.warn("updateWorldState(): Unable to update! Will retry next cycle...")
+            logger.warn("updateWorldState(): Unable to update! Will retry next cycle...")
             e.printStackTrace()
         }
     }

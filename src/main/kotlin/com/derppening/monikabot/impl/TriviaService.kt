@@ -84,7 +84,7 @@ object TriviaService : ILogger {
             answers.forEachIndexed { i, s ->
                 answerDebugStr += "\n[$i] $s ${if (answers.indexOfFirst { it == trivia.correctAnswer.trim() } == i) "<" else ""}"
             }
-            Trivia.logger.debug("Shuffled Answers:$answerDebugStr")
+            logger.debug("Shuffled Answers:$answerDebugStr")
 
             buildEmbed(channel) {
                 fields {
@@ -103,7 +103,7 @@ object TriviaService : ILogger {
             }
 
             var lastMessageId = channel.messageHistory.latestMessage.longID
-            Trivia.logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
+            logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
             checkResponse@ while (true) {
                 if (channel.messageHistory.latestMessage.longID != lastMessageId) {
                     val message = channel.messageHistory.latestMessage
@@ -194,7 +194,7 @@ object TriviaService : ILogger {
         }
 
         users.remove(event.author.longID)
-        Trivia.logger.info("Ending Trivia for ${event.author.discordTag()}")
+        logger.info("Ending Trivia for ${event.author.discordTag()}")
     }
 
     private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {
