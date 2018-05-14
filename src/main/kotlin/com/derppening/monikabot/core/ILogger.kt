@@ -88,6 +88,18 @@ interface ILogger {
         }
 
         fun build() {
+            if (!Client.isReady) {
+                println("${type.name.toLowerCase().capitalize()}: $message")
+                srcMessage()?.also { println("Caused by $it") }
+                srcAuthor()?.also { println("From ${it.discordTag()}") }
+                srcChannel()?.also { println("In ${it.channelName()}") }
+                info().takeIf { it.isNotBlank() }?.also { println("Additional Info: $it") }
+                stackTrace()?.also(::println)
+                println("Package: ${clazz.name}")
+
+                return
+            }
+
             buildEmbed(debugChannel) {
                 fields {
                     when (type) {
