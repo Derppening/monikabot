@@ -109,11 +109,11 @@ object METARService : ILogger {
             }
 
             metar.temperature?.format()?.also {
-                appendField("Temperature", "${it.celsius}°C", false)
+                appendField("Temperature", "${it.celsius}°C", true)
             }
 
             metar.dewpoint?.format()?.also {
-                appendField("Dew Point", "${it.celsius}°C", false)
+                appendField("Dew Point", "${it.celsius}°C", true)
             }
 
             metar.barometer?.format()?.also {
