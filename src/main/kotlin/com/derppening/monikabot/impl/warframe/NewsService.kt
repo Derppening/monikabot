@@ -23,9 +23,9 @@ package com.derppening.monikabot.impl.warframe
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.helpers.ChronoHelper.toNearestChronoDay
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.toNearestChronoDay
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -36,7 +36,7 @@ object NewsService : ILogger {
     }
 
     fun List<WorldState.Event>.toEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("Warframe News")
 
             this@toEmbed.associate {

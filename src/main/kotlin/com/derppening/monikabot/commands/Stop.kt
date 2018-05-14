@@ -25,9 +25,8 @@ import com.derppening.monikabot.core.Core.isFromOwner
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.StopService.cleanup
-import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
+import com.derppening.monikabot.util.isOwnerLocationValid
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Stop : IBase, ILogger {
@@ -55,24 +54,12 @@ object Stop : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         if (isSu) {
-            buildEmbed(event.channel) {
-                fields {
-                    withTitle("Help Text for `stop`")
-                    withDesc("Stops the execution of the bot.")
-                    insertSeparator()
-                    appendField("Usage", "```stop [--force] [stable|development]```", false)
-                    appendField("`--force", "If appended, forcefully shuts down the server without any buffer time.", false)
-                    appendField("`[stable|development]`", "Optional: Which specific instance(s) to stop.", false)
-                }
-
-                onError {
-                    discordException { e ->
-                        log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                            author { event.author }
-                            channel { event.channel }
-                            info { e.errorMessage }
-                        }
-                    }
+            buildHelpText("stop", event) {
+                description { "Stops the execution of the bot." }
+                
+                usage("stop [--force] [stable|development]") {
+                    def("`--force") { "If appended, forcefully shuts down the server without any buffer time." }
+                    def("`[stable|development]`") { "Optional: Which specific instance(s) to stop." }
                 }
             }
         }

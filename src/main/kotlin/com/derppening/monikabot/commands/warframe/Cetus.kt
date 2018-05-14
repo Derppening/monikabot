@@ -27,9 +27,8 @@ import com.derppening.monikabot.impl.warframe.CetusService.getBountyEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getGhoulEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getPlagueStarEmbeds
 import com.derppening.monikabot.impl.warframe.CetusService.getTimeEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -102,27 +101,14 @@ object Cetus : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-cetus`")
-                withDesc("Displays Cetus-related information.")
-                insertSeparator()
-                appendField("Usage", "```warframe cetus [ghoul|plaguestar]```", false)
-                appendField("`ghoul`", "If appended, shows ongoing Ghoul bounties.", false)
-                appendField("`plaguestar`", "If appended, shows ongoing Operation: Plague Star information.", false)
-                insertSeparator()
-                appendField("Usage", "```warframe cetus time```", false)
-                appendField("`time`", "Show the current time in Cetus/Plains.", false)
+        buildHelpText("warframe-cetus", event) {
+            description { "Displays Cetus-related information." }
+            usage("warframe cetus [ghoul|plaguestar") {
+                def("ghoul") { "If appended, shows ongoing Ghoul bounties." }
+                def("plaguestar") { "If appended, shows ongoing Operation: Plague Star information." }
             }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("warframe cetus time") {
+                def("time") { "Show the current time in Cetus/Plains." }
             }
         }
     }

@@ -28,36 +28,6 @@ import java.util.*
 
 object ChronoHelper {
     /**
-     * Formats a duration.
-     */
-    fun Duration.formatDuration(): String =
-            (if (toDays() > 0) "${toDays()}d " else "") +
-                    (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
-                    (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
-                    "${seconds % 60}s"
-
-    /**
-     * Rounds a duration to the smallest time unit, from Seconds to Days.
-     */
-    fun Duration.toNearestChronoDay(): String =
-            when {
-                toDays() > 0 -> "${toDays()}d"
-                toHours() > 0 -> "${toHours()}h"
-                toMinutes() > 0 -> "${toMinutes()}m"
-                else -> "${seconds}s"
-            }
-
-    /**
-     * Rounds a duration to the smallest time unit, from Days to (approximated) Years.
-     */
-    fun Duration.toNearestChronoYear(): String =
-            when {
-                toDays() > 365 -> "${toDays() / 365} years"
-                toDays() > 30 -> "${toDays() / 30} months"
-                else -> "${toDays()} days"
-            }
-
-    /**
      * Formats an integer into "00" format.
      */
     fun formatTimeElement(int: Int): String {
@@ -72,3 +42,33 @@ object ChronoHelper {
             .withLocale(Locale.ENGLISH)
             .withZone(ZoneId.of("UTC"))
 }
+
+/**
+ * Formats a duration.
+ */
+fun Duration.formatDuration(): String =
+        (if (toDays() > 0) "${toDays()}d " else "") +
+                (if (toHours() % 24 > 0) "${toHours() % 24}h " else "") +
+                (if (toMinutes() % 60 > 0) "${toMinutes() % 60}m " else "") +
+                "${seconds % 60}s"
+
+/**
+ * Rounds a duration to the smallest time unit, from Seconds to Days.
+ */
+fun Duration.toNearestChronoDay(): String =
+        when {
+            toDays() > 0 -> "${toDays()}d"
+            toHours() > 0 -> "${toHours()}h"
+            toMinutes() > 0 -> "${toMinutes()}m"
+            else -> "${seconds}s"
+        }
+
+/**
+ * Rounds a duration to the smallest time unit, from Days to (approximated) Years.
+ */
+fun Duration.toNearestChronoYear(): String =
+        when {
+            toDays() > 365 -> "${toDays() / 365} years"
+            toDays() > 30 -> "${toDays() / 30} months"
+            else -> "${toDays()} days"
+        }

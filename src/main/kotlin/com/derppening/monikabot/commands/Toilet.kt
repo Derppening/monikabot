@@ -23,8 +23,7 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.ToiletService.toEmojiText
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -42,23 +41,11 @@ object Toilet : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `toilet`")
-                withDesc("Reformats text to display using eomjis.")
-                insertSeparator()
-                appendField("Usage", "```toilet [text]```", false)
-                appendField("`[text]`", "Text to reformat.", false)
-            }
+        buildHelpText("toilet", event) {
+            description { "Reformats text to display using emojis." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("toilet [text]") {
+                def("[text]") { "Text to reformat." }
             }
         }
     }

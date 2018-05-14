@@ -21,48 +21,45 @@
 package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.Client
-import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IMessage
 
-object MessageUtils : ILogger {
-    /**
-     * Returns true if given message mentions the bot as the first token.
-     */
-    fun IMessage.isMentionMe(): Boolean =
-            content.startsWith(Client.ourUser.mention()) || content.startsWith(Client.ourUser.mention(false))
+/**
+* Returns true if given message mentions the bot as the first token.
+*/
+fun IMessage.isMentionMe(): Boolean =
+        content.startsWith(Client.ourUser.mention()) || content.startsWith(Client.ourUser.mention(false))
 
-    /**
-     * Removes the leading MonikaBot mention from a message.
-     *
-     * @param message Original message.
-     * @param guild Guild where the message is sent, if any.
-     *
-     * @return Message without a leading mention.
-     */
-    fun popLeadingMention(message: String, guild: IGuild? = null): String {
-        return when {
-            message.startsWith(Client.ourUser.mention()) ||
-                    message.startsWith(Client.ourUser.mention(false)) ||
-                    message.startsWith("@${Client.ourUser.name}") -> {
-                message.popFirstWord()
-            }
-            guild != null && message.startsWith("@${Client.ourUser.getNicknameForGuild(guild)}") -> {
-                message.popFirstWord()
-            }
-            else -> {
-                message
-            }
+/**
+ * Removes the leading MonikaBot mention from a message.
+ *
+ * @param message Original message.
+ * @param guild Guild where the message is sent, if any.
+ *
+ * @return Message without a leading mention.
+ */
+fun popLeadingMention(message: String, guild: IGuild? = null): String {
+    return when {
+        message.startsWith(Client.ourUser.mention()) ||
+                message.startsWith(Client.ourUser.mention(false)) ||
+                message.startsWith("@${Client.ourUser.name}") -> {
+            message.popFirstWord()
+        }
+        guild != null && message.startsWith("@${Client.ourUser.getNicknameForGuild(guild)}") -> {
+            message.popFirstWord()
+        }
+        else -> {
+            message
         }
     }
-
-    /**
-     * Remove quotes from a word.
-     */
-    fun String.removeQuotes(): String = dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
-
-    /**
-     * Pops the first word in a string.
-     */
-    private fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }
 }
+
+/**
+ * Remove quotes from a word.
+ */
+fun String.removeQuotes(): String = dropWhile { it == '\"' }.dropLastWhile { it == '\"' }
+
+/**
+ * Pops the first word in a string.
+ */
+private fun String.popFirstWord(): String = dropWhile { it != ' ' }.dropWhile { it == ' ' }

@@ -25,9 +25,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.DropService
 import com.derppening.monikabot.impl.warframe.DropService.FindResult
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IChannel
@@ -131,42 +130,33 @@ object Drop : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-drop`")
-                withDesc("Displays drop chance information for different locations in-game.")
-                insertSeparator()
+        buildHelpText("warframe-drop", event) {
+            description { "Displays drop chance information for different locations in-game." }
 
-                appendField("Usage", "```warframe drop [loc_type] [location]```", false)
-                appendField("`[loc_type]`", "Specifies the type of location to search for." +
-                        "\nRecognized categories include:" +
-                        "\n- `blueprint`" +
-//                    "\n- `bounty`" +
-                        "\n- `enemy`" +
-                        "\n- `key`" +
-                        "\n- `mission`" +
-                        "\n- `operation`" +
-                        "\n- `relic`" +
-                        "\n- `sortie`", false)
-                appendField("`[location]", "The name of the location to lookup drop tables.", false)
-                insertSeparator()
-
-                appendField("Usage", "```warframe drop [item_type] [location]```", false)
-                appendField("`[item_type]`", "If give, specifies the category of item to search for." +
-                        "\nRecognized categories include:" +
-                        "\n- `mod`" +
-                        "\n- `prime`", false)
-                appendField("`[item]`", "Item to search drop locations for.", false)
+            usage("warframe drop [loc_type] [location]") {
+                def("[loc_type]") {
+                    "Specifies the type of location to search for." +
+                            "\nRecognized categories include:" +
+                            "\n- `blueprint`" +
+//                            "\n- `bounty`" +
+                            "\n- `enemy`" +
+                            "\n- `key`" +
+                            "\n- `mission`" +
+                            "\n- `operation`" +
+                            "\n- `relic`" +
+                            "\n- `sortie`"
+                }
+                def("[location]") { "The name of the location to lookup drop tables." }
             }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
+            usage("warframe drop [item_type] [location]") {
+                def("[item_type]") {
+                    "If give, specifies the category of item to search for." +
+                            "\nRecognized categories include:" +
+                            "\n- `mod`" +
+                            "\n- `prime`"
                 }
+                def("[item]") { "Item to search drop locations for." }
             }
         }
     }

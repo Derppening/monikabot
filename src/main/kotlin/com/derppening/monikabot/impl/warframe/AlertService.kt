@@ -24,9 +24,9 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.Manifest
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration
 import java.time.Instant
 
@@ -47,7 +47,7 @@ object AlertService : ILogger {
     }
 
     private fun WorldState.Alert.toEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
+        return buildEmbed {
             val detail = missionInfo
             val archwing = when {
                 detail.isSharkwingMission -> "[Sharkwing]"
@@ -91,7 +91,7 @@ object AlertService : ILogger {
     }
 
     private fun WorldState.Goal.toEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
+        return buildEmbed {
             WorldState.getLanguageFromAsset(missionKeyName).let {
                 when {
                     it.isNotBlank() -> it

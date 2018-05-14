@@ -23,7 +23,7 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.commands.Trivia
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.LocationUtils.getDiscordTag
+import com.derppening.monikabot.util.discordTag
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -64,7 +64,7 @@ object TriviaService : ILogger {
             return
         }
 
-        Trivia.logger.info("Starting Trivia for ${event.author.getDiscordTag()}")
+        Trivia.logger.info("Starting Trivia for ${event.author.discordTag()}")
         buildMessage(channel) {
             content {
                 withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
@@ -194,7 +194,7 @@ object TriviaService : ILogger {
         }
 
         users.remove(event.author.longID)
-        Trivia.logger.info("Ending Trivia for ${event.author.getDiscordTag()}")
+        Trivia.logger.info("Ending Trivia for ${event.author.discordTag()}")
     }
 
     private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {

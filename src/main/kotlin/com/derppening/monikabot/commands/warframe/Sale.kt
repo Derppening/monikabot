@@ -24,9 +24,8 @@ import com.derppening.monikabot.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.SaleService.getSaleEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Sale : IBase, ILogger {
@@ -40,23 +39,10 @@ object Sale : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-sale`")
-                withDesc("Displays the ongoing market sales.")
-                insertSeparator()
-                appendField("Usage", "```warframe sale```", false)
-            }
+        buildHelpText("warframe-sale", event) {
+            description { "Displays the ongoing market sales." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
+            usage("warframe sale")
         }
     }
 }

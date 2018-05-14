@@ -21,24 +21,12 @@
 package com.derppening.monikabot.util
 
 import com.derppening.monikabot.core.Client
-import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IPrivateChannel
 import sx.blah.discord.handle.obj.IUser
 
-object LocationUtils : ILogger {
-
-    /**
-     * @return Discord tag.
-     */
-    fun IUser.getDiscordTag(): String = "$name#$discriminator"
-
-    /**
-     * @return Channel name in "Server/Channel" format.
-     */
-    fun IChannel.getChannelName(): String = "${if (this is IPrivateChannel) "[Private]" else guild.name}/$name"
-
+object LocationUtils {
     /**
      * @param username User name portion of the Discord Tag.
      * @param discriminator Discriminator portion of the Discord Tag.
@@ -68,3 +56,13 @@ object LocationUtils : ILogger {
         return guild.channels.find { it.name == name }
     }
 }
+
+/**
+ * @return Discord tag.
+ */
+fun IUser.discordTag(): String = "$name#$discriminator"
+
+/**
+ * @return Channel name in "Server/Channel" format.
+ */
+fun IChannel.channelName(): String = "${if (this is IPrivateChannel) "[Private]" else guild.name}/$name"

@@ -37,9 +37,7 @@ object EmoticonService : ILogger {
                     }
 
     fun findEmoticon(search: String): Result {
-        return FuzzyMatcher(listOf(search), pairs.map { it.key }) {
-            regex(RegexOption.IGNORE_CASE)
-        }.matches().let { matches ->
+        return FuzzyMatcher(search, pairs.map { it.key }, 2).matches().let { matches ->
             when (matches.size) {
                 0 -> Result.Failure(Parser.HandleState.NOT_FOUND)
                 1 -> Result.Success(pairs.entries.first { it.key == matches.first() }.value)

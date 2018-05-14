@@ -26,8 +26,7 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimesStr
 import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimesStr
 import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimesStr
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -82,23 +81,11 @@ object Prime : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-prime`")
-                withDesc("Displays the most recently released primes, as well as predicts the next few primes.")
-                insertSeparator()
-                appendField("Usage", "```warframe primes [num_to_show]```", false)
-                appendField("`[num_to_show]", "Number of released/predicted primes to show.", false)
-            }
+        buildHelpText("warframe-primt", event) {
+            description { "Displays the most recently released primes, as well as predicts the next few primes." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("warframe primes [num_to_show]") {
+                def("[num_to_show]") { "Number of released/predicted primes to show." }
             }
         }
     }

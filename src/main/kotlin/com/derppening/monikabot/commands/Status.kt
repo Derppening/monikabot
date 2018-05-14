@@ -24,12 +24,11 @@ import com.derppening.monikabot.core.Core.isFromOwner
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.StatusService.setNewStatus
-import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
+import com.derppening.monikabot.util.isOwnerLocationValid
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Status : IBase {
+object Status : IBase, ILogger {
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!event.isFromOwner()) {
             return Parser.HandleState.PERMISSION_DENIED
@@ -45,31 +44,29 @@ object Status : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `status`")
-                withDesc("Sets the status and playing text of the bot.")
-                insertSeparator()
-                appendField("Usage", "```status [STATUS] [ACTIVITY] [TEXT] -- [URL]```", false)
-                appendField("`[STATUS]`", "New status for the bot. Can be one of the following:" +
-                        "\n\t`--online`\n\t`--idle`\n\t`--dnd`\n\t`--offline`", false)
-                appendField("`[ACTIVITY]`", "New activity for the bot. Can be one of the following:" +
-                        "\n\t`--play`\n\t`--stream`\n\t`--listen`\n\t`--watch`", false)
-                appendField("`[TEXT]`", "New \"Playing\" message of the bot.", false)
-                appendField("`[URL]`", "If `ACTIVITY` is set to streaming, the link of the Twitch stream.", false)
-                insertSeparator()
-                appendField("Usage", "```status [--reset]```", false)
-                appendField("`--reset`", "Resets the status to the default.", false)
-            }
+        buildHelpText("status", event) {
+            description { "Sets the status and playing text of the bot." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Unable to display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
+            usage("status [STATUS] [ACTIVITY] [TEXT] -- [URL]") {
+                def("[STATUS]") {
+                    "New status for the bot. Can be one of the following:" +
+                            "\n\t`--online`" +
+                            "\n\t`--idle`" +
+                            "\n\t`--dnd`" +
+                            "\n\t`--offline`"
                 }
+                def("[ACTIVITY]") {
+                    "New activity for the bot. Can be one of the following:" +
+                            "\n\t`--play`" +
+                            "\n\t`--stream`" +
+                            "\n\t`--listen`" +
+                            "\n\t`--watch`"
+                }
+                def("[TEXT]") { "New \"Playing\" message of the bot." }
+                def("[URL]") { "If `ACTIVITY` is set to streaming, the link of the Twitch stream." }
+            }
+            usage("status [--reset]") {
+                def("--reset") { "Resets the status to the default." }
             }
         }
     }

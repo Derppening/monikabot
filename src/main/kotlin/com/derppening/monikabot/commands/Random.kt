@@ -23,12 +23,11 @@ package com.derppening.monikabot.commands
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.RandomService.generateRandom
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object Random : IBase {
+object Random : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).toMutableList()
 
@@ -42,30 +41,18 @@ object Random : IBase {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `random`")
-                withDesc("Randomly generates numbers. Also works for dices and coins.")
-                insertSeparator()
-                appendField("Usage", "```random [real] [min] [max]```", false)
-                appendField("`real`", "If specified, generate a real number instead of an integer.", false)
-                appendField("`[min] [max]`", "Specify the minimum and maximum numbers (inclusive) to generate.", false)
-                insertSeparator()
-                appendField("Usage", "```random list [entries]", false)
-                appendField("`[entries]`", "A list of entries to pick one from, delimited by space.", false)
-                insertSeparator()
-                appendField("Usage", "```random [coin|dice]```", false)
-                appendField("`[coin|dice]`", "Special modes to generate output based on a coin/dice.", false)
-            }
+        buildHelpText("random", event) {
+            description { "Randomly generates numbers. Also works for dices and coins." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("random [real] [min] [max]") {
+                def("real") { "If specified, generate a real number instead of an integer." }
+                def("[min] [max]") { "Specify the minimum and maximum numbers (inclusive) to generate." }
+            }
+            usage("random list [entries]") {
+                def("[entries]") { "A list of entries to pick one from, delimited by space." }
+            }
+            usage("random [coin|dice]") {
+                def("[coin|dice]") { "Special modes to generate output based on a coin/dice." }
             }
         }
     }

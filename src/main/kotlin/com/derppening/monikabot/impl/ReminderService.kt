@@ -25,8 +25,8 @@ import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.util.ReminderDeserializer
 import com.derppening.monikabot.util.helpers.ChronoHelper.dateTimeFormatter
-import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.formatDuration
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -193,7 +193,7 @@ object ReminderService : ILogger {
 
         companion object {
             fun timerCompleteHandler(timerName: String, userID: Long) {
-                buildMessage(Client.getOrCreatePMChannel(Client.getUserByID(userID))) {
+                buildMessage(Client.getUserByID(userID).orCreatePMChannel) {
                     content {
                         val name = if (timerName.isBlank()) "unnamed timer" else timerName
                         withContent("Your timer for $name is up!")

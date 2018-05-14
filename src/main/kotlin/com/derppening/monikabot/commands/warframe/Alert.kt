@@ -25,9 +25,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.AlertService.getAlertEmbeds
 import com.derppening.monikabot.impl.warframe.AlertService.getGoalEmbeds
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -90,24 +89,12 @@ object Alert : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-alert`")
-                withDesc("Displays all currently ongoing alerts.")
-                insertSeparator()
-                appendField("Usage", "```warframe alert [--alert|--special]```", false)
-                appendField("`--alert`", "Only show normal mission alerts.", false)
-                appendField("`--special`", "Only show special alerts.", false)
-            }
+        buildHelpText("warframe-alert", event) {
+            description { "Displays all currently ongoing alerts." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("warframe alert [--alert|--special]") {
+                def("--alert") { "Only show normal mission alerts." }
+                def("--special") { "Only show special alerts." }
             }
         }
     }

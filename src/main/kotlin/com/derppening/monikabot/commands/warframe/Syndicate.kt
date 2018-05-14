@@ -26,9 +26,8 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.SyndicateService.findSyndicateFromTag
 import com.derppening.monikabot.impl.warframe.SyndicateService.toEmbed
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -78,23 +77,11 @@ object Syndicate : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-syndicate`")
-                withDesc("Displays missions of a given syndicate.")
-                insertSeparator()
-                appendField("Usage", "```warframe syndicate [syndicate]```", false)
-                appendField("`[syndicate]`", "The syndicate to show missions for.", false)
-            }
+        buildHelpText("warframe-syndicate", event) {
+            description { "Displays missions of a given syndicate." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("warframe syndicate [syndicate]") {
+                def("[syndicate]") { "The syndicate to show missions for." }
             }
         }
     }

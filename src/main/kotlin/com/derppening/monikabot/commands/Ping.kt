@@ -25,7 +25,7 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.PingService.getEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import java.time.Instant
 
@@ -58,23 +58,10 @@ object Ping : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `ping`")
-                withDesc("Displays the current latency of the bot to various servers.")
-                insertSeparator()
-                appendField("Usage", "```ping```", false)
-            }
+        buildHelpText("ping", event) {
+            description { "Displays the current latency of the bot to various servers." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
+            usage("ping")
         }
     }
 }

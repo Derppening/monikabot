@@ -24,9 +24,9 @@ import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.WarframeService.worldState
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
-import com.derppening.monikabot.util.helpers.ChronoHelper.formatDuration
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.time.Duration
 import java.time.Instant
 
@@ -42,7 +42,7 @@ object SortieService : ILogger {
     }
 
     fun WorldState.Sorties.toEmbed(): EmbedObject {
-        return EmbedBuilder().apply {
+        return buildEmbed {
             val boss = WorldState.getSortieBoss(boss)
             withTitle("Sortie Information")
 

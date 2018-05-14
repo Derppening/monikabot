@@ -21,8 +21,8 @@
 package com.derppening.monikabot.core
 
 import com.derppening.monikabot.core.Persistence.debugChannel
-import com.derppening.monikabot.util.LocationUtils.getChannelName
-import com.derppening.monikabot.util.LocationUtils.getDiscordTag
+import com.derppening.monikabot.util.channelName
+import com.derppening.monikabot.util.discordTag
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -112,8 +112,8 @@ interface ILogger {
                     withDesc(message)
 
                     if (srcMessage() != null) appendField("Caused by", "`${srcMessage()?.content}`", false)
-                    if (srcAuthor() != null) appendField("From", srcAuthor()!!.getDiscordTag(), false)
-                    if (srcChannel() != null) appendField("In", srcChannel()!!.getChannelName(), false)
+                    if (srcAuthor() != null) appendField("From", srcAuthor()!!.discordTag(), false)
+                    if (srcChannel() != null) appendField("In", srcChannel()!!.channelName(), false)
                     if (info().isNotBlank()) appendField("Additional Info", info(), false)
                     if (stackTrace() != null) appendField("Stack Trace", "```${stackTrace()?.joinToString("\n")}```", false)
 

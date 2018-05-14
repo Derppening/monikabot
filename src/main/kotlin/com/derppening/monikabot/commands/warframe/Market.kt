@@ -25,9 +25,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.MarketService
 import com.derppening.monikabot.impl.warframe.MarketService.getMarketItem
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -64,27 +63,16 @@ object Market : IBase, ILogger {
         return Parser.HandleState.HANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-market`")
-                withDesc("Displays market information of any item.")
-                insertSeparator()
-                appendField("Usage", "```warframe market [search_expr]```", false)
-                appendField("`[search_expr]`", "The search expression." +
-                        "\n\nThe expression can comprise of one or more space-delimited terms:" +
-                        "\n\t- `[term]`: Fuzzily match `[term]`" +
-                        "\n\t- `\"[term]\"`: Match whole `[term]`" +
-                        "\n\t- `*`: Match anything", false)
-            }
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) { buildHelpText("warframe-market", event) {
+            description { "Displays market information of any item." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
+            usage("warframe market [search_expr]") {
+                def("[search_expr]") {
+                    "The search expression." +
+                            "\n\nThe expression can comprise of one or more space-delimited terms:" +
+                            "\n\t- `[term]`: Fuzzily match `[term]`" +
+                            "\n\t- `\"[term]\"`: Match whole `[term]`" +
+                            "\n\t- `*`: Match anything"
                 }
             }
         }

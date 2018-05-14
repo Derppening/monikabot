@@ -26,10 +26,8 @@ import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.RateLimitException
 
 abstract class SenderHelper<T> : ILogger {
-    var genericHandler: (Exception) -> Unit = {}
-        private set
-    var discordHandler: (DiscordException) -> Unit = {}
-        private set
+    private var genericHandler: (Exception) -> Unit = {}
+    private var discordHandler: (DiscordException) -> Unit = {}
 
     /**
      * Sets the handler for Exception.

@@ -24,8 +24,9 @@ import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Version : IBase, ILogger {
@@ -57,6 +58,12 @@ object Version : IBase, ILogger {
                     }
                 }
             }
+        }
+
+        buildHelpText("version", event) {
+            description { "Displays the version information." }
+
+            usage("version")
         }
     }
 }

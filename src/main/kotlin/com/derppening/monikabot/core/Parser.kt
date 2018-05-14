@@ -21,14 +21,9 @@
 package com.derppening.monikabot.core
 
 import com.derppening.monikabot.commands.*
-import com.derppening.monikabot.core.Core.isFromSuperuser
-import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.TriviaService
-import com.derppening.monikabot.util.EventUtils.isOwnerLocationValid
-import com.derppening.monikabot.util.LocationUtils.getChannelName
-import com.derppening.monikabot.util.LocationUtils.getDiscordTag
-import com.derppening.monikabot.util.MessageUtils.isMentionMe
-import com.derppening.monikabot.util.MessageUtils.popLeadingMention
+import com.derppening.monikabot.util.*
+import com.derppening.monikabot.util.ExceptionDisplayer.catchAllEx
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -68,8 +63,6 @@ object Parser : ILogger {
             "bugreport" to Issue
     )
 
-    private val experimentalCommands: Map<String, IBase> = emptyMap()
-
     /**
      * Command delegator for all messages.
      *
@@ -80,8 +73,8 @@ object Parser : ILogger {
         thread(name = "Delegator Thread (${event.messageID})") {
             logger.debug("Thread detached")
             logger.debug("Handling message \"${event.message.content}\" " +
-                    "from ${event.author.getDiscordTag()} " +
-                    "in ${event.channel.getChannelName()} ")
+                    "from ${event.author.discordTag()} " +
+                    "in ${event.channel.channelName()} ")
 
             if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
                 logger.debug("Message ignored: Not invoking bot")
@@ -126,49 +119,43 @@ object Parser : ILogger {
                 return@thread
             }
 
-            val runExperimental = event.message.content.split(' ').any { it == "--experimental" }
-            val retval = if (runExperimental && ConfigService.enableExperimentalFeatures) {
-                parseExperimental(event, cmd)
-            } else {
-                if (runExperimental) {
-                    buildMessage(event.channel) {
-                        content {
-                            if (event.isFromSuperuser()) {
-                                withContent("It seems like you're trying to invoke an experimental command without it being on...")
-                            } else {
-                                withContent("Experimental features are turned off! If you want to test it, ask the owner to turn it on!")
-                            }
-                        }
-                    }
-                }
-
+            val retval = run {
                 val cmdMatches = commands.filter { it.key.startsWith(cmd) }
-                when (cmdMatches.size) {
-                    0 -> {
-                        logger.info("Command not found in primary set. Trying to match emoticons...")
-                        Emoticon.handler(event)
-                    }
-                    1 -> {
-                        if (cmd != cmdMatches.entries.first().key) {
-                            buildMessage(event.channel) {
-                                content {
-                                    withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
-                                }
-                            }
+
+                catchAllEx(event.channel) {
+                    when (cmdMatches.size) {
+                        0 -> {
+                            logger.info("Command not found in primary set. Trying to match emoticons...")
+                            Emoticon.handler(event)
                         }
-                        cmdMatches.entries.first().value.delegateCommand(event)
-                    }
-                    else -> {
-                        if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
-                            buildMessage(event.channel) {
-                                content {
-                                    withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                        1 -> {
+                            if (cmd != cmdMatches.entries.first().key) {
+                                buildMessage(event.channel) {
+                                    content {
+                                        withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                    }
                                 }
                             }
                             cmdMatches.entries.first().value.delegateCommand(event)
-                        } else {
-                            HandleState.MULTIPLE_MATCHES
                         }
+                        else -> {
+                            if (cmdMatches.entries.all { it.value == cmdMatches.entries.first().value }) {
+                                buildMessage(event.channel) {
+                                    content {
+                                        withContent(":information_source: Assuming you meant ${cmdMatches.entries.first().key}...")
+                                    }
+                                }
+                                cmdMatches.entries.first().value.delegateCommand(event)
+                            } else {
+                                HandleState.MULTIPLE_MATCHES
+                            }
+                        }
+                    }
+                }.also {
+                    if (it == null) {
+                        logger.debug("Caught unhandled exception! Bailing...")
+                        logger.debug("Joining thread")
+                        return@thread
                     }
                 }
             }
@@ -229,13 +216,6 @@ object Parser : ILogger {
      * Returns the command from a string.
      */
     private fun getCommand(message: String): String = message.split(' ')[0]
-
-    /**
-     * Parses commands with "--experimental" flag given.
-     */
-    private fun parseExperimental(event: MessageReceivedEvent, cmd: String): HandleState {
-        return experimentalCommands[cmd]?.delegateCommand(event) ?: HandleState.NOT_FOUND
-    }
 
     enum class HandleState {
         HANDLED,

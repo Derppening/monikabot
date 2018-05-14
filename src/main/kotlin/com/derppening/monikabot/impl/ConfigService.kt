@@ -20,38 +20,16 @@
 
 package com.derppening.monikabot.impl
 
-import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.PersistentMessage
 import kotlin.concurrent.thread
 
 object ConfigService : ILogger {
     /**
-     * Whether to enable experimental features.
-     */
-    var enableExperimentalFeatures = Core.monikaVersionBranch == "development"
-        private set
-    /**
      * Whether to allow superusers to access owner mode echo.
      */
     var ownerModeEchoForSu = true
         private set
-
-    fun configureExperimentalFlag(args: List<String>): Result {
-        if (args.size == 1) {
-            return Result.GET
-        } else if (args.size != 2 || args[1].matches(Regex("-{0,2}help"))) {
-            return Result.HELP
-        }
-
-        enableExperimentalFeatures = args[1].toBoolean() || args[1] == "enable"
-
-        thread {
-            PersistentMessage.modify("Config", "Experimental Features", enableExperimentalFeatures.toString(), true)
-        }
-
-        return Result.SET
-    }
 
     fun configureOwnerEchoFlag(args: List<String>): Result {
         if (args.size == 1) {

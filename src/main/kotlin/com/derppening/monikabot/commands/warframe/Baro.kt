@@ -25,9 +25,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.warframe.BaroService
 import com.derppening.monikabot.impl.warframe.BaroService.getBaroEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
@@ -52,23 +51,10 @@ object Baro : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-baro`")
-                withDesc("Displays information about Baro Ki'Teer.")
-                insertSeparator()
-                appendField("Usage", "```warframe baro```", false)
-            }
+        buildHelpText("warframe-baro", event) {
+            description { "Displays information about Baro Ki'Teer." }
 
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
+            usage("warframe baro")
         }
     }
 }

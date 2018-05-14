@@ -23,13 +23,13 @@ package com.derppening.monikabot.impl
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.METARModel
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.util.helpers.insertSeparator
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.util.EmbedBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -74,18 +74,18 @@ object METARService : ILogger {
             getForICAO(icao)
         } catch (e: Exception) {
             e.printStackTrace()
-            return EmbedBuilder().apply {
+            return buildEmbed {
                 withTitle("METAR for ${icao.toUpperCase()}")
                 withDesc(e.message)
             }.build()
         }
 
-        return EmbedBuilder().apply {
+        return buildEmbed {
             withTitle("METAR for ${metar.name} (${icao.toUpperCase()})")
             withDesc("```${metar.rawText}```")
 
             metar.wind?.format()?.also {
-                it.degrees?.also { appendField("Wind Direction", "$it\u00B0", true) }
+                it.degrees?.also { appendField("Wind Direction", "$it°", true) }
                 it.speedKts?.also { appendField("Wind Spped", "$it kts", true) }
                 it.gustKts?.also { appendField("Gusts Speed", "$it kts", true) }
             }
@@ -109,11 +109,11 @@ object METARService : ILogger {
             }
 
             metar.temperature?.format()?.also {
-                appendField("Temperature", "${it.celsius}\u00B0C", false)
+                appendField("Temperature", "${it.celsius}°C", true)
             }
 
             metar.dewpoint?.format()?.also {
-                appendField("Dew Point", "${it.celsius}\u00B0C", false)
+                appendField("Dew Point", "${it.celsius}°C", true)
             }
 
             metar.barometer?.format()?.also {

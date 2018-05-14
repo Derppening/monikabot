@@ -114,7 +114,7 @@ class DropTable {
     }
 
     data class Planet(val name: String = "",
-                      val nodes: Set<Node> = setOf()){
+                      val nodes: Set<Node> = setOf()) {
         data class Node(val name: String = "",
                         val drops: MissionDropInfo = MissionDropInfo())
     }

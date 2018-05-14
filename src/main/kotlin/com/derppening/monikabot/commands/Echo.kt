@@ -26,8 +26,9 @@ import com.derppening.monikabot.impl.EchoService
 import com.derppening.monikabot.impl.EchoService.toGuildChannel
 import com.derppening.monikabot.impl.EchoService.toPrivateChannel
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.insertSeparator
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Echo : IBase, ILogger {
@@ -177,6 +178,25 @@ object Echo : IBase, ILogger {
                         info { e.errorMessage }
                     }
                 }
+            }
+        }
+
+        buildHelpText("echo", event) {
+            description { "Echo: Repeats a string." }
+
+            usage("echo [string]") {
+                def("[string]") { "String to repeat." }
+            }
+            usage("echo -d [destination] [string]") {
+                def("[destination]") {
+                    "Destination of the string. Recognized formats include:" +
+                            "\n\t- `/channel`: Sends to `channel` in current server." +
+                            if (isSu) {
+                                "\n\t- `server/channel`: Sends to `channel` in `server`." +
+                                        "\n\t- `username#discriminator`: Sends to user with this Discord Tag."
+                            } else ""
+                }
+                def("[string]") { "String to repeat." }
             }
         }
     }

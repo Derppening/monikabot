@@ -22,7 +22,7 @@ package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.Client
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.MessageUtils.removeQuotes
+import com.derppening.monikabot.util.removeQuotes
 import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
 

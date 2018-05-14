@@ -174,3 +174,8 @@
 
 [v1.2.0-beta.6]
 - Add `taf` command for displaying forecasted weather
+
+[v1.2.0-beta.7]
+- Remove `--experimental` flag now that it is not needed
+- Add embed for displaying exceptions instead of failing silently
+- Add an actual fuzzy matcher instead of the wildcard matcher we used to use
