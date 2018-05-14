@@ -373,7 +373,7 @@ class WorldState {
 
         fun getArcaneInfo(arcane: String): Arcane {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/arcanes.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/arcanes.json"))
                         .find { arcane.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             jsonMapper.readValue<Arcane>(it.toString())
@@ -385,7 +385,7 @@ class WorldState {
 
         fun getFactionString(faction: String): String {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/factionsData.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/factionsData.json"))
                         .get(faction)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -395,7 +395,7 @@ class WorldState {
 
         fun getFissureModifier(tier: String): String {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/fissureModifiers.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/fissureModifiers.json"))
                         .get(tier)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -404,7 +404,7 @@ class WorldState {
         }
 
         fun getLanguageFromAsset(encoded: String): String {
-            val mapper = jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/languages.json"))
+            val mapper = jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/languages.json"))
             return try {
                 mapper.get(encoded).get("value").asText()
             } catch (e: Exception) {
@@ -418,7 +418,7 @@ class WorldState {
 
         fun getMissionType(missionType: String): String {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/missionTypes.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/missionTypes.json"))
                         .get(missionType)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -428,7 +428,7 @@ class WorldState {
 
         fun getSolNode(solNode: String): SolNode {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/solNodes.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/solNodes.json"))
                         .get(solNode)
                         .let {
                             jsonMapper.readValue(it.toString())
@@ -440,7 +440,7 @@ class WorldState {
 
         fun getSortieModifier(modifier: String): SortieModifier {
             return try {
-                val tree = jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/sortieData.json"))
+                val tree = jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/sortieData.json"))
 
                 SortieModifier(tree.get("modifierTypes").get(modifier).asText(), tree.get("modifierDescriptions").get(modifier).asText())
             } catch (e: Exception) {
@@ -450,7 +450,7 @@ class WorldState {
 
         fun getSortieBoss(boss: String): SortieBoss {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/sortieData.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/sortieData.json"))
                         .get("bosses")
                         .get(boss)
                         .let {
@@ -463,7 +463,7 @@ class WorldState {
 
         fun getSyndicateName(syndicate: String): String {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/syndicatesData.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/syndicatesData.json"))
                         .get(syndicate)
                         .get("name").asText()
             } catch (e: Exception) {
@@ -473,7 +473,7 @@ class WorldState {
 
         fun getUpgradeType(upgrade: String): String {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/upgradeTypes.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/upgradeTypes.json"))
                         .get(upgrade)
                         .get("value").asText()
             } catch (e: Exception) {
@@ -483,7 +483,7 @@ class WorldState {
 
         fun getWarframeInfo(warframe: String): Warframe {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/warframes.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/warframes.json"))
                         .find { warframe.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             jsonMapper.readValue<Warframe>(it.toString())
@@ -495,7 +495,7 @@ class WorldState {
 
         fun getWeaponInfo(weapon: String): Weapon {
             return try {
-                jsonMapper.readTree(URL("${WORLDSTATE_DATA_URL}/weapons.json"))
+                jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/weapons.json"))
                         .find { weapon.matches(it.get("regex").asText().toRegex()) }
                         ?.let {
                             jsonMapper.readValue<Weapon>(it.toString())
