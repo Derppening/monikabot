@@ -35,6 +35,16 @@ interface ILogger {
     val logger: Logger
         get() = LoggerFactory.getLogger(javaClass.name)!!
 
+    fun Logger.fmt(level: LogLevel, func: String, message: () -> String) {
+        val text = "$func: ${message()}"
+        when (level) {
+            LogLevel.DEBUG -> logger.debug(text)
+            LogLevel.INFO -> logger.info(text)
+            LogLevel.WARN -> logger.warn(text)
+            LogLevel.ERROR -> logger.error(text)
+        }
+    }
+
     /**
      * Logs a message to the debug channel.
      *
