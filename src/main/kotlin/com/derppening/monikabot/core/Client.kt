@@ -94,6 +94,12 @@ object Client : ILogger, IDiscordClient by client {
 
     @EventSubscriber
     fun onReconnectSuccessListener(event: ReconnectSuccessEvent) {
+        while (!event.client.isLoggedIn || !event.client.isReady) {
+            logger.fmt(ILogger.LogLevel.WARN, Core.getMethodName()) { "Waiting for Client to login and ready..." }
+            logger.fmt(ILogger.LogLevel.WARN, Core.getMethodName()) { "isLoggedIn = ${event.client.isLoggedIn}\tisReady = ${event.client.isReady}" }
+            Thread.sleep(1000)
+        }
+
         event.client.changeUsername(defaultUserName)
         changePresence(defaultState, defaultActivity, defaultText)
 
