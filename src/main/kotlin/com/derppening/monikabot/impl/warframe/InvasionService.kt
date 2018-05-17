@@ -49,7 +49,7 @@ object InvasionService : ILogger {
             @Suppress("DIVISION_BY_ZERO")
             val percentageDouble = (count * 100.0 / goal)
             val percentage = formatReal(percentageDouble)
-            val percentageText = "${percentage.dropWhile { it == '-' }} ${if (percentageDouble < 0) attackerFaction else defenderFaction}"
+            val percentageText = "${percentage.dropWhile { it == '-' }}% ${if (percentageDouble < 0) attackerFaction else defenderFaction}"
 
             withAuthorName("$attackerFaction vs $defenderFaction")
             withTitle("Invasion in ${WorldState.getSolNode(node).value}")
