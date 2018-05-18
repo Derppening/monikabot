@@ -20,9 +20,11 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.DiscordException
+import kotlin.system.measureTimeMillis
 
 object ClearService : ILogger {
     fun clearChannel(channel: IChannel, isClearAll: Boolean): Result {
@@ -31,8 +33,15 @@ object ClearService : ILogger {
         }
 
         try {
-            val messages = if (isClearAll) channel.fullMessageHistory else channel.messageHistory
-            channel.bulkDelete(messages)
+            measureTimeMillis {
+                when (isClearAll) {
+                    true -> channel.fullMessageHistory
+                    false -> channel.messageHistory
+                }.also {
+                    logger.infoFun(Core.getMethodName("...")) { "Deleting ${it.size} messages" }
+                    channel.bulkDelete(it)
+                }
+            }.also { logger.infoFun(Core.getMethodName("...")) { "Deletion took $it ms" } }
         } catch (de: DiscordException) {
             de.printStackTrace()
             return Result.FAILURE_OTHER
