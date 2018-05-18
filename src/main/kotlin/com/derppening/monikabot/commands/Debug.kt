@@ -25,7 +25,7 @@ import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.DebugService.appendToMessage
 import com.derppening.monikabot.impl.DebugService.displayMemoryUsage
 import com.derppening.monikabot.impl.DebugService.editMessage
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
+import com.derppening.monikabot.impl.DebugService.pipeMessageToChannel
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -40,13 +40,16 @@ object Debug : IBase, ILogger {
         }
 
         when (args[0].toLowerCase()) {
-            "append" -> {
+            "message.append" -> {
                 appendToMessage(args.drop(1), event.client)
             }
-            "edit" -> {
+            "message.edit" -> {
                 editMessage(args.drop(1), event.client)
             }
-            "mem" -> {
+            "message.pipe.channel" -> {
+                pipeMessageToChannel(args.drop(1), event.client)
+            }
+            "sys.mem" -> {
                 sendEmbed(displayMemoryUsage() to event.channel)
             }
             else -> {
@@ -62,28 +65,16 @@ object Debug : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `debug`")
-                withDesc("Enables superuser debugging methods.")
-            }
-
-            onError {
-                discordException { e ->
-                    log(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
-        }
-
         buildHelpText("debug", event) {
             description { "Enables superuser debugging methods." }
 
             usage("debug [option] [args]") {
-                field("Option: `mem`") { "Displays current memory usage." }
+                field("Option: `sys.mem`") { "Displays current memory usage." }
+                if (isSu) {
+                    field("Option: `message.append`") { "Appends to a message." }
+                    field("Option: `message.edit`") { "Edits a message." }
+                    field("Option: `message.pipe.channel`") { "Copies a message to another channel." }
+                }
             }
         }
     }

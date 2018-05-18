@@ -20,7 +20,9 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.LocationUtils.parseChannel
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.toEmbedObject
 import sx.blah.discord.api.IDiscordClient
@@ -83,6 +85,35 @@ object DebugService : ILogger {
                 stackTrace { e.stackTrace }
             }
             return false
+        }
+
+        return true
+    }
+
+    fun pipeMessageToChannel(args: List<String>, client: IDiscordClient): Boolean {
+        if (args.none { it == ">>" }) {
+            return false
+        }
+
+        val (messageID, channel) = args.joinToString(" ").split(">>").map {
+            it.trim()
+        }.let {
+            check(it.size == 2) { "Incorrect number of arguments: Expected 2, got ${it.size}" }
+            it[0].toLong() to it[1]
+        }
+        val message = client.getMessageByID(messageID).also {
+            logger.debug(Core.getMethodName()) {"Message ID = $messageID\tMessage Is Null? = ${it == null}"}
+            checkNotNull(it)
+        }.copy()
+        val parsedChannel = parseChannel(channel)
+
+        if (message.embeds.isNotEmpty()) {
+            message.embeds.forEachIndexed { index, iEmbed ->
+                logger.infoFun(Core.getMethodName()) { "[$index] $iEmbed" }
+            }
+            parsedChannel.sendMessage(message.content, message.embeds[0].toEmbedObject())
+        } else {
+            parsedChannel.sendMessage(message.content)
         }
 
         return true
