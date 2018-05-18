@@ -96,7 +96,7 @@ object Core : ILogger {
         private set
 
     init {
-        logger.info("${getMethodName()} - Initializing from *.properties...")
+        logger.infoFun(getMethodName()) { "Initializing from *.properties..." }
 
         val sourceProp = getProperties(SOURCE_PROP)
 
@@ -112,7 +112,7 @@ object Core : ILogger {
 
         loadFromVersion()
 
-        logger.info("${getMethodName()} - Done")
+        logger.infoFun(getMethodName()) { "Done" }
     }
 
     /**

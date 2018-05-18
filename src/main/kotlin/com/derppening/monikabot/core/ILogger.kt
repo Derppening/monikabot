@@ -32,18 +32,31 @@ import sx.blah.discord.handle.obj.IUser
 import java.awt.Color
 
 interface ILogger {
+    /**
+     * Class-specific logger.
+     */
     val logger: Logger
         get() = LoggerFactory.getLogger(javaClass.name)!!
 
-    fun Logger.fmt(level: LogLevel, func: String, message: () -> String) {
-        val text = "$func: ${message()}"
-        when (level) {
-            LogLevel.DEBUG -> logger.debug(text)
-            LogLevel.INFO -> logger.info(text)
-            LogLevel.WARN -> logger.warn(text)
-            LogLevel.ERROR -> logger.error(text)
-        }
-    }
+    /**
+     * Logs a message at DEBUG level, with function name and arguments.
+     */
+    fun Logger.debugFun(func: String, message: () -> String) = debug("$func: ${message()}")
+
+    /**
+     * Logs a message at INFO level, with function name and arguments.
+     */
+    fun Logger.infoFun(func: String, message: () -> String) = info("$func: ${message()}")
+
+    /**
+     * Logs a message at WARN level, with function name and arguments.
+     */
+    fun Logger.warnFun(func: String, message: () -> String) = warn("$func: ${message()}")
+
+    /**
+     * Logs a message at ERROR level, with function name and arguments.
+     */
+    fun Logger.errorFun(func: String, message: () -> String) = error("$func: ${message()}")
 
     /**
      * Logs a message to the debug channel.
