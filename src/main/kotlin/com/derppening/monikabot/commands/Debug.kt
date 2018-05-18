@@ -24,6 +24,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.DebugService.appendToMessage
 import com.derppening.monikabot.impl.DebugService.displayMemoryUsage
+import com.derppening.monikabot.impl.DebugService.displayMessageCache
+import com.derppening.monikabot.impl.DebugService.editEmbed
 import com.derppening.monikabot.impl.DebugService.editMessage
 import com.derppening.monikabot.impl.DebugService.pipeMessageToChannel
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
@@ -39,7 +41,10 @@ object Debug : IBase, ILogger {
             return Parser.HandleState.HANDLED
         }
 
-        when (args[0].toLowerCase()) {
+        when (args[0]) {
+            "embed.edit" -> {
+                editEmbed(args.drop(1), event.client)
+            }
             "message.append" -> {
                 appendToMessage(args.drop(1), event.client)
             }

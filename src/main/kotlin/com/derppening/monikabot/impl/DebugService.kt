@@ -28,6 +28,7 @@ import com.derppening.monikabot.util.helpers.toEmbedObject
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.DiscordException
+import sx.blah.discord.util.EmbedBuilder
 
 object DebugService : ILogger {
     fun appendToMessage(args: List<String>, client: IDiscordClient): Boolean {
@@ -90,6 +91,52 @@ object DebugService : ILogger {
         return true
     }
 
+    fun editEmbed(args: List<String>, client: IDiscordClient) {
+        check(args.size == 4) { "Function requires 4 arguments" }
+
+        val message = client.getMessageByID(args[0].toLongOrNull() ?: 0).also {
+            if (it == null) {
+                logger.errorFun(Core.getMethodName("...")) { "Cannot find message by ID ${args[0]}" }
+                return
+            } else if (it.embeds.isEmpty()) {
+                logger.errorFun(Core.getMethodName("...")) { "Message with ID ${args[0]} does not contain an embed" }
+            }
+        }
+
+        val key = args[1]
+
+        message.embeds.first().let {
+            EmbedBuilder().apply {
+                it.author?.name?.also { withAuthorName(it) }
+                it.author?.iconUrl?.also { withAuthorIcon(it) }
+                it.author?.url?.also { withAuthorUrl(it) }
+                it.title?.also { withTitle(it) }
+                it.description?.also { withDesc(it) }
+
+                it.embedFields?.forEach {
+                    if (it.name == key) {
+                        val newkey = args[2].takeIf { it != "_" }
+                        val value = args[3].takeIf { it != "_" }
+
+                        appendField(newkey ?: it.name, value ?: it.value, it.isInline)
+                    } else {
+                        appendField(it)
+                    }
+                }
+
+                it.url?.also { withUrl(it) }
+                it.footer?.text?.also { withFooterText(it) }
+                it.footer?.iconUrl?.also { withFooterIcon(it) }
+                it.timestamp?.also { withTimestamp(it) }
+
+                it.image?.url?.also { withImage(it) }
+                it.thumbnail?.url?.also { withThumbnail(it) }
+
+                it.color.also { withColor(it) }
+            }.build()
+        }.also { message.edit(it) }
+    }
+
     fun pipeMessageToChannel(args: List<String>, client: IDiscordClient): Boolean {
         if (args.none { it == ">>" }) {
             return false
@@ -102,7 +149,7 @@ object DebugService : ILogger {
             it[0].toLong() to it[1]
         }
         val message = client.getMessageByID(messageID).also {
-            logger.debug(Core.getMethodName()) {"Message ID = $messageID\tMessage Is Null? = ${it == null}"}
+            logger.debug(Core.getMethodName()) { "Message ID = $messageID\tMessage Is Null? = ${it == null}" }
             checkNotNull(it)
         }.copy()
         val parsedChannel = parseChannel(channel)
