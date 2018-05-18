@@ -57,6 +57,9 @@ object Debug : IBase, ILogger {
             "sys.mem" -> {
                 sendEmbed(displayMemoryUsage() to event.channel)
             }
+            "sys.messageCache" -> {
+                sendEmbed(displayMessageCache(event.client) to event.channel)
+            }
             else -> {
                 log(ILogger.LogLevel.ERROR, "Unknown debug option \"${args[0]}\"") {
                     message { event.message }

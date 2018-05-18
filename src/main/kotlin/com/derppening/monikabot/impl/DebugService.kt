@@ -181,5 +181,18 @@ object DebugService : ILogger {
         }.build()
     }
 
+    fun displayMessageCache(client: IDiscordClient): EmbedObject {
+        val channels = client.channels.size
+        val totalCached = client.channels.sumBy { it.internalCacheCount }
+        val maxCachable = client.channels.sumBy { it.maxInternalCacheCount }
+
+        return buildEmbed {
+            withTitle("Message Cache")
+
+            appendField("No. of Watching Channels", channels.toString(), false)
+            appendField("Cache Usage", "$totalCached/$maxCachable", false)
+        }.build()
+    }
+
     private fun byteToMiB(byte: Long) = byte / 1024 / 1024
 }
