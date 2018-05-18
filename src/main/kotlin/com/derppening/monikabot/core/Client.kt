@@ -69,7 +69,7 @@ object Client : ILogger, IDiscordClient by client {
             PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", ConfigService.ownerModeEchoForSu.toString())
             PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 
-            logger.info("Initialization complete with $shardCount shard(s)")
+            logger.infoFun(Core.getMethodName()) { "Initialization complete with $shardCount shard(s)" }
 
             ReminderService.importTimersFromFile()
         } catch (e: DiscordException) {
@@ -80,7 +80,7 @@ object Client : ILogger, IDiscordClient by client {
     @EventSubscriber
     fun onRconnectFailureListener(event: ReconnectFailureEvent) {
         if (event.isShardAbandoned) {
-            logger.info("onReconnectFailureListener() - Attempting client reconnect")
+            logger.infoFun(Core.getMethodName()) { "Attempting client reconnect" }
 
             while (!event.client.isReady) {
                 Thread.sleep(30000)
@@ -103,7 +103,7 @@ object Client : ILogger, IDiscordClient by client {
         event.client.changeUsername(defaultUserName)
         changePresence(defaultState, defaultActivity, defaultText)
 
-        logger.info("onReconnectSuccessListener() - Initialization complete with $shardCount shard(s)")
+        logger.infoFun(Core.getMethodName()) { "Initialization complete with $shardCount shard(s)" }
     }
 
     fun logoutHandler() {

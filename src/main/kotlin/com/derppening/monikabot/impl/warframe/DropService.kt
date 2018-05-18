@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl.warframe
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.WarframeService.dropTables
 import com.derppening.monikabot.models.warframe.drop.DropInfo
@@ -456,7 +457,9 @@ object DropService : ILogger {
                 bounty.rewards.b.forEach { parseReward(it, rot("B")) }
                 bounty.rewards.c.forEach { parseReward(it, rot("C")) }
             }
-        }.also { logger.debug("flatMapDropTable(): Mapping took $it ms") }
+        }.also {
+            logger.debugFun(Core.getMethodName()) { "Mapping took $it ms" }
+        }
     }
 
     fun doCacheUpdate() {

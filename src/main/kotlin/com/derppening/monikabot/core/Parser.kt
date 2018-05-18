@@ -125,7 +125,7 @@ object Parser : ILogger {
                 catchAllEx(event.channel) {
                     when (cmdMatches.size) {
                         0 -> {
-                            logger.info("Command not found in primary set. Trying to match emoticons...")
+                            logger.infoFun(Core.getMethodName()) { "Command not found in primary set. Trying to match emoticons..." }
                             Emoticon.handler(event)
                         }
                         1 -> {

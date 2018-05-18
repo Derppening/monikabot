@@ -34,7 +34,7 @@ import java.net.URL
 
 object TAFService : ILogger {
     private val apiKey = Core.checkwxKey ?: run {
-        logger.warn("Cannot load CheckWX API key! METAR services will not be available")
+        logger.warnFun(Core.getMethodName()) { "Cannot load CheckWX API key! METAR services will not be available" }
         ""
     }
 
