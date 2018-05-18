@@ -77,12 +77,12 @@ object Debug : IBase, ILogger {
             description { "Enables superuser debugging methods." }
 
             usage("debug [option] [args]") {
+                field("Option: `embed.edit`") { "Edits a field of an embed." }
+                field("Option: `message.append`") { "Appends to a message." }
+                field("Option: `message.edit`") { "Edits a message." }
+                field("Option: `message.pipe.channel`") { "Copies a message to another channel." }
                 field("Option: `sys.mem`") { "Displays current memory usage." }
-                if (isSu) {
-                    field("Option: `message.append`") { "Appends to a message." }
-                    field("Option: `message.edit`") { "Edits a message." }
-                    field("Option: `message.pipe.channel`") { "Copies a message to another channel." }
-                }
+                field("Option: `sys.messageCache`") { "Displays message cache usage." }
             }
         }
     }
