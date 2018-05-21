@@ -95,12 +95,8 @@ object DebugService : ILogger {
         check(args.size == 4) { "Function requires 4 arguments" }
 
         val message = client.getMessageByID(args[0].toLongOrNull() ?: 0).also {
-            if (it == null) {
-                logger.errorFun(Core.getMethodName("...")) { "Cannot find message by ID ${args[0]}" }
-                return
-            } else if (it.embeds.isEmpty()) {
-                logger.errorFun(Core.getMethodName("...")) { "Message with ID ${args[0]} does not contain an embed" }
-            }
+            checkNotNull(it) { "Cannot find message by ID ${args[0]}" }
+            check(it.embeds.isNotEmpty()) { "Message with ID ${args[0]} does not contain an embed" }
         }
 
         val key = args[1]
@@ -150,7 +146,7 @@ object DebugService : ILogger {
         }
         val message = client.getMessageByID(messageID).also {
             logger.debug(Core.getMethodName()) { "Message ID = $messageID\tMessage Is Null? = ${it == null}" }
-            checkNotNull(it)
+            checkNotNull(it) { "Cannot find message with ID $messageID" }
         }.copy()
         val parsedChannel = parseChannel(channel)
 
