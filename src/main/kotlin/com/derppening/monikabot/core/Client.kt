@@ -69,7 +69,7 @@ object Client : ILogger, IDiscordClient by client {
             PersistentMessage.modify("Config", "Owner Mode Echo for Superusers", ConfigService.ownerModeEchoForSu.toString())
             PersistentMessage.modify("Misc", "Version", Core.monikaVersion, true)
 
-            logger.info("Initialization complete with $shardCount shard(s)")
+            logger.infoFun(Core.getMethodName()) { "Initialization complete with $shardCount shard(s)" }
 
             ReminderService.importTimersFromFile()
         } catch (e: DiscordException) {
@@ -80,7 +80,7 @@ object Client : ILogger, IDiscordClient by client {
     @EventSubscriber
     fun onRconnectFailureListener(event: ReconnectFailureEvent) {
         if (event.isShardAbandoned) {
-            logger.info("onReconnectFailureListener() - Attempting client reconnect")
+            logger.infoFun(Core.getMethodName()) { "Attempting client reconnect" }
 
             while (!event.client.isReady) {
                 Thread.sleep(30000)
@@ -94,10 +94,16 @@ object Client : ILogger, IDiscordClient by client {
 
     @EventSubscriber
     fun onReconnectSuccessListener(event: ReconnectSuccessEvent) {
+        while (!event.client.isLoggedIn || !event.client.isReady) {
+            logger.warnFun(Core.getMethodName()) { "Waiting for Client to login and ready..." }
+            logger.warnFun(Core.getMethodName()) { "isLoggedIn = ${event.client.isLoggedIn}\tisReady = ${event.client.isReady}" }
+            Thread.sleep(1000)
+        }
+
         event.client.changeUsername(defaultUserName)
         changePresence(defaultState, defaultActivity, defaultText)
 
-        logger.info("onReconnectSuccessListener() - Initialization complete with $shardCount shard(s)")
+        logger.infoFun(Core.getMethodName()) { "Initialization complete with $shardCount shard(s)" }
     }
 
     fun logoutHandler() {

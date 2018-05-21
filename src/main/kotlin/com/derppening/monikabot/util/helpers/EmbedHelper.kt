@@ -104,11 +104,11 @@ object EmbedHelper {
 fun EmbedBuilder.insertSeparator(): EmbedBuilder = this.appendField("\u200B", "\u200B", false)
 
 /**
- * Converts into an EmbedObjecet, copying all impl from the original.
+ * Converts into an EmbedObject, copying all impl from the original.
  *
  * @param action Fields
  */
-fun IEmbed.toEmbedObject(action: EmbedBuilder.() -> Unit): EmbedObject {
+fun IEmbed.toEmbedObject(action: EmbedBuilder.() -> Unit = {}): EmbedObject {
     return EmbedBuilder().apply {
         author?.name?.also { withAuthorName(it) }
         author?.iconUrl?.also { withAuthorIcon(it) }

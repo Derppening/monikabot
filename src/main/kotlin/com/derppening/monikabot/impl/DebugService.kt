@@ -20,12 +20,15 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.LocationUtils.parseChannel
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.toEmbedObject
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.util.DiscordException
+import sx.blah.discord.util.EmbedBuilder
 
 object DebugService : ILogger {
     fun appendToMessage(args: List<String>, client: IDiscordClient): Boolean {
@@ -88,6 +91,77 @@ object DebugService : ILogger {
         return true
     }
 
+    fun editEmbed(args: List<String>, client: IDiscordClient) {
+        check(args.size == 4) { "Function requires 4 arguments" }
+
+        val message = client.getMessageByID(args[0].toLongOrNull() ?: 0).also {
+            checkNotNull(it) { "Cannot find message by ID ${args[0]}" }
+            check(it.embeds.isNotEmpty()) { "Message with ID ${args[0]} does not contain an embed" }
+        }
+
+        val key = args[1]
+
+        message.embeds.first().let {
+            EmbedBuilder().apply {
+                it.author?.name?.also { withAuthorName(it) }
+                it.author?.iconUrl?.also { withAuthorIcon(it) }
+                it.author?.url?.also { withAuthorUrl(it) }
+                it.title?.also { withTitle(it) }
+                it.description?.also { withDesc(it) }
+
+                it.embedFields?.forEach {
+                    if (it.name == key) {
+                        val newkey = args[2].takeIf { it != "_" }
+                        val value = args[3].takeIf { it != "_" }
+
+                        appendField(newkey ?: it.name, value ?: it.value, it.isInline)
+                    } else {
+                        appendField(it)
+                    }
+                }
+
+                it.url?.also { withUrl(it) }
+                it.footer?.text?.also { withFooterText(it) }
+                it.footer?.iconUrl?.also { withFooterIcon(it) }
+                it.timestamp?.also { withTimestamp(it) }
+
+                it.image?.url?.also { withImage(it) }
+                it.thumbnail?.url?.also { withThumbnail(it) }
+
+                it.color.also { withColor(it) }
+            }.build()
+        }.also { message.edit(it) }
+    }
+
+    fun pipeMessageToChannel(args: List<String>, client: IDiscordClient): Boolean {
+        if (args.none { it == ">>" }) {
+            return false
+        }
+
+        val (messageID, channel) = args.joinToString(" ").split(">>").map {
+            it.trim()
+        }.let {
+            check(it.size == 2) { "Incorrect number of arguments: Expected 2, got ${it.size}" }
+            it[0].toLong() to it[1]
+        }
+        val message = client.getMessageByID(messageID).also {
+            logger.debug(Core.getMethodName()) { "Message ID = $messageID\tMessage Is Null? = ${it == null}" }
+            checkNotNull(it) { "Cannot find message with ID $messageID" }
+        }.copy()
+        val parsedChannel = parseChannel(channel)
+
+        if (message.embeds.isNotEmpty()) {
+            message.embeds.forEachIndexed { index, iEmbed ->
+                logger.infoFun(Core.getMethodName()) { "[$index] $iEmbed" }
+            }
+            parsedChannel.sendMessage(message.content, message.embeds[0].toEmbedObject())
+        } else {
+            parsedChannel.sendMessage(message.content)
+        }
+
+        return true
+    }
+
     fun displayMemoryUsage(): EmbedObject {
         val runtime = Runtime.getRuntime()
         val used = (runtime.totalMemory() - runtime.freeMemory()) to runtime.totalMemory()
@@ -100,6 +174,19 @@ object DebugService : ILogger {
 
             appendField("Used", "${byteToMiB(used.first)}/${byteToMiB(used.second)} MiB ($usedPercent%)", false)
             appendField("Allocated", "${byteToMiB(allocated)} MiB ($allocatedPercent%)", false)
+        }.build()
+    }
+
+    fun displayMessageCache(client: IDiscordClient): EmbedObject {
+        val channels = client.channels.size
+        val totalCached = client.channels.sumBy { it.internalCacheCount }
+        val maxCachable = client.channels.sumBy { it.maxInternalCacheCount }
+
+        return buildEmbed {
+            withTitle("Message Cache")
+
+            appendField("No. of Watching Channels", channels.toString(), false)
+            appendField("Cache Usage", "$totalCached/$maxCachable", false)
         }.build()
     }
 

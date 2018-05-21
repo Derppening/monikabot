@@ -32,8 +32,31 @@ import sx.blah.discord.handle.obj.IUser
 import java.awt.Color
 
 interface ILogger {
+    /**
+     * Class-specific logger.
+     */
     val logger: Logger
         get() = LoggerFactory.getLogger(javaClass.name)!!
+
+    /**
+     * Logs a message at DEBUG level, with function name and arguments.
+     */
+    fun Logger.debugFun(func: String, message: () -> String) = debug("$func: ${message()}")
+
+    /**
+     * Logs a message at INFO level, with function name and arguments.
+     */
+    fun Logger.infoFun(func: String, message: () -> String) = info("$func: ${message()}")
+
+    /**
+     * Logs a message at WARN level, with function name and arguments.
+     */
+    fun Logger.warnFun(func: String, message: () -> String) = warn("$func: ${message()}")
+
+    /**
+     * Logs a message at ERROR level, with function name and arguments.
+     */
+    fun Logger.errorFun(func: String, message: () -> String) = error("$func: ${message()}")
 
     /**
      * Logs a message to the debug channel.
@@ -88,6 +111,18 @@ interface ILogger {
         }
 
         fun build() {
+            if (!Client.isReady) {
+                println("${type.name.toLowerCase().capitalize()}: $message")
+                srcMessage()?.also { println("Caused by $it") }
+                srcAuthor()?.also { println("From ${it.discordTag()}") }
+                srcChannel()?.also { println("In ${it.channelName()}") }
+                info().takeIf { it.isNotBlank() }?.also { println("Additional Info: $it") }
+                stackTrace()?.also(::println)
+                println("Package: ${clazz.name}")
+
+                return
+            }
+
             buildEmbed(debugChannel) {
                 fields {
                     when (type) {

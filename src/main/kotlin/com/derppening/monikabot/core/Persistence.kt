@@ -57,7 +57,7 @@ object Persistence : ILogger {
                 }
             } ?: ownerPrivateChannel
         } catch (e: Exception) {
-            logger.error("Cannot initialize debug channel")
+            logger.errorFun(Core.getMethodName()) { "Cannot initialize debug channel" }
             e.printStackTrace()
 
             exitProcess(0)

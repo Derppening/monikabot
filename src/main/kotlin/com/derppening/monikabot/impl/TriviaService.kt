@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl
 
-import com.derppening.monikabot.commands.Trivia
 import com.derppening.monikabot.core.Client
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.discordTag
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
@@ -64,7 +64,7 @@ object TriviaService : ILogger {
             return
         }
 
-        Trivia.logger.info("Starting Trivia for ${event.author.discordTag()}")
+        logger.infoFun(Core.getMethodName()) { "Starting Trivia for ${event.author.discordTag()}" }
         buildMessage(channel) {
             content {
                 withContent("Let's play Trivia! There will be $questions questions with $difficulty difficulty for you to answer.")
@@ -78,13 +78,14 @@ object TriviaService : ILogger {
         var totalAnswers = 0
 
         game@ for (trivia in triviaData.results) {
-            val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled().map { it.trim() }
+            val answers = trivia.incorrectAnswers.toMutableList().also { it.add(trivia.correctAnswer) }.shuffled()
+                .map { it.trim() }
 
             var answerDebugStr = ""
             answers.forEachIndexed { i, s ->
                 answerDebugStr += "\n[$i] $s ${if (answers.indexOfFirst { it == trivia.correctAnswer.trim() } == i) "<" else ""}"
             }
-            Trivia.logger.debug("Shuffled Answers:$answerDebugStr")
+            logger.debugFun(Core.getMethodName()) { "Shuffled Answers:$answerDebugStr" }
 
             buildEmbed(channel) {
                 fields {
@@ -103,7 +104,7 @@ object TriviaService : ILogger {
             }
 
             var lastMessageId = channel.messageHistory.latestMessage.longID
-            Trivia.logger.debug("Waiting for user input for Question ${totalAnswers + 1} of $questions")
+            logger.debugFun(Core.getMethodName()) { "Waiting for user input for Question ${totalAnswers + 1} of $questions" }
             checkResponse@ while (true) {
                 if (channel.messageHistory.latestMessage.longID != lastMessageId) {
                     val message = channel.messageHistory.latestMessage
@@ -115,11 +116,20 @@ object TriviaService : ILogger {
                     }
 
                     if (answers.any { it.equals(message.content, true) } ||
-                            (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
+                        (message.content.length == 1 && (message.content[0].toUpperCase().toInt() - 65) in 0..answers.lastIndex)) {
                         if (answers.any { it.equals(message.content, true) }) {
-                            Trivia.logger.debug("Input \"${message.content}\" matches Answer Index ${answers.indexOfFirst { it.equals(message.content, true) }}")
+                            logger.debugFun(Core.getMethodName()) {
+                                "Input \"${message.content}\" matches Answer Index ${answers.indexOfFirst {
+                                    it.equals(
+                                        message.content,
+                                        true
+                                    )
+                                }}"
+                            }
                         } else {
-                            Trivia.logger.debug("Input \"${message.content}\" converted to match Answer Index ${message.content[0].toUpperCase().toInt() - 65}")
+                            logger.debugFun(Core.getMethodName()) {
+                                "Input \"${message.content}\" converted to match Answer Index ${message.content[0].toUpperCase().toInt() - 65}"
+                            }
                         }
                         break@checkResponse
                     }
@@ -176,7 +186,11 @@ object TriviaService : ILogger {
                         else -> {
                             buildMessage(channel) {
                                 content {
-                                    withContent("You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(trivia.correctAnswer)}.")
+                                    withContent(
+                                        "You're incorrect... :(\nThe correct answer is ${StringEscapeUtils.unescapeHtml4(
+                                            trivia.correctAnswer
+                                        )}."
+                                    )
                                 }
                             }
                         }
@@ -194,7 +208,7 @@ object TriviaService : ILogger {
         }
 
         users.remove(event.author.longID)
-        Trivia.logger.info("Ending Trivia for ${event.author.discordTag()}")
+        logger.infoFun(Core.getMethodName()) { "Ending Trivia for ${event.author.discordTag()}" }
     }
 
     private fun getTriviaQuestions(questions: Int, difficulty: String): TriviaData {

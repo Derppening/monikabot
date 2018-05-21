@@ -179,3 +179,7 @@
 - Remove `--experimental` flag now that it is not needed
 - Add embed for displaying exceptions instead of failing silently
 - Add an actual fuzzy matcher instead of the wildcard matcher we used to use
+
+[v1.2.0-beta.8]
+- Better process client disconnect events
+- Improvements and fixes to logging

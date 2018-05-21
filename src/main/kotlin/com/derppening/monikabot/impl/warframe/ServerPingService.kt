@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl.warframe
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import sx.blah.discord.api.internal.json.objects.EmbedObject
@@ -34,7 +35,7 @@ object ServerPingService : ILogger {
 
             PingDestination.values().forEach { (server, url, expectedResponse) ->
                 var responseCode = 0
-                logger.info("Pinging $server at $url...")
+                logger.infoFun(Core.getMethodName()) { "Pinging $server at $url..." }
                 val time = measureTimeMillis {
                     val connection = URL(url).openConnection().also {
                         it.connectTimeout = 10000
@@ -44,7 +45,7 @@ object ServerPingService : ILogger {
                         responseCode = connection.responseCode
                     }
                 }
-                logger.info("Connecting to $url took $time ms, with response code $responseCode")
+                logger.infoFun(Core.getMethodName()) { "Connecting to $url took $time ms, with response code $responseCode" }
 
                 val isResponseExpected = expectedResponse.any { it == responseCode }
                 appendField(server, if (time < 10000 && isResponseExpected) "$time ms" else "Unreachable", false)
