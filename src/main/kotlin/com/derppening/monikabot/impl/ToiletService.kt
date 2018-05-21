@@ -21,12 +21,29 @@
 package com.derppening.monikabot.impl
 
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.helpers.openAndSetUserAgent
+import com.derppening.monikabot.util.helpers.readLines
+import org.apache.commons.text.StringEscapeUtils
+import java.net.URL
 
 object ToiletService : ILogger {
     private val emojiTextMap = mapOf(
             '?' to "question",
             '!' to "exclamation"
     )
+
+    fun String.toASCIIText(font: String? = null): String {
+        val strText = StringEscapeUtils.escapeHtml4(this).replace(' ', '+')
+        val url = if (font != null) {
+            "http://artii.herokuapp.com/make?text=$strText&font=$font"
+        } else {
+            "http://artii.herokuapp.com/make?text=$strText"
+        }
+
+        return URL(url).openAndSetUserAgent().readLines().let {
+            it.map { it.trimEnd() }
+        }.joinToString("\n")
+    }
 
     /**
      * Converts into text represented by emoji syntax in discord.
