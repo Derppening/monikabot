@@ -36,7 +36,9 @@ object Toilet : IBase, ILogger {
             args.isNotEmpty() && args[0] == "--emoji" -> {
                 buildMessage(event.channel) {
                     content {
-                        withContent(args.drop(1).joinToString(" ").toEmojiText())
+                        convertToEmoji(args.drop(1).joinToString(" ")).also {
+                            withContent(it)
+                        }
                     }
                 }
             }
@@ -53,11 +55,11 @@ object Toilet : IBase, ILogger {
 
                 buildMessage(event.channel) {
                     content {
-                        text.toASCIIText(font).also {
+                        convertToASCII(text, font).also {
                             if (it.length >= 1990) {
                                 withContent("Message is too long to be reformatted!")
                             } else {
-                                withContent("```${text.toASCIIText(font)}```")
+                                withContent("```$it```")
                             }
                         }
                     }
@@ -67,6 +69,10 @@ object Toilet : IBase, ILogger {
 
         return Parser.HandleState.HANDLED
     }
+
+    private fun convertToEmoji(text: String): String = text.toEmojiText()
+
+    private fun convertToASCII(text: String, font: String?): String = text.toASCIIText(font)
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         buildHelpText("toilet", event) {
