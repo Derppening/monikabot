@@ -28,6 +28,10 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IGuild
 
 interface IBase : ILogger {
+    fun cmdName(): String
+    fun cmdInvocation() = cmdName().replace('-', ' ')
+    fun cmdInvocationAlias(): List<String> = listOf()
+
     /**
      * Delegates [event] to the appropriate function.
      *

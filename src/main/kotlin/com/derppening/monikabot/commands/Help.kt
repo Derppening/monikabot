@@ -29,6 +29,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 
 object Help : IBase, ILogger {
+    override fun cmdName(): String = "help"
+
     override fun delegateCommand(event: MessageReceivedEvent, args: List<String>): Parser.HandleState {
         buildEmbed(event.channel) {
             val builder = fields {

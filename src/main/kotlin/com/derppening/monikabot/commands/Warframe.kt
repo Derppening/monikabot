@@ -56,6 +56,8 @@ object Warframe : IBase, ILogger {
             "wikia" to Wiki
     )
 
+    override fun cmdName(): String = "warframe"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 

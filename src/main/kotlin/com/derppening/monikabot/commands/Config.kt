@@ -32,6 +32,8 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Config : IBase, ILogger {
+    override fun cmdName(): String = "config"
+
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 

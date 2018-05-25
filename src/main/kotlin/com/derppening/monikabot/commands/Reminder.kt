@@ -34,6 +34,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import java.time.Instant
 
 object Reminder : IBase, ILogger {
+    override fun cmdName(): String = "reminder"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 

@@ -30,6 +30,8 @@ import com.derppening.monikabot.util.isOwnerLocationValid
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Stop : IBase, ILogger {
+    override fun cmdName(): String = "stop"
+
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         if (!event.isFromOwner()) {
             return Parser.HandleState.PERMISSION_DENIED

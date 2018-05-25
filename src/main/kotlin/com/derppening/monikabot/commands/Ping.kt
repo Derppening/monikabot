@@ -30,6 +30,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import java.time.Instant
 
 object Ping : IBase, ILogger {
+    override fun cmdName(): String = "ping"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
         if (args.isNotEmpty() && args.any { it.matches(Regex("-{0,2}help")) }) {

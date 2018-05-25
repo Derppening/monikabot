@@ -33,6 +33,8 @@ import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Dog : IBase, ILogger {
+    override fun cmdName(): String = "dog"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).dropWhile { it == "--experimental" }
 
@@ -103,7 +105,7 @@ object Dog : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-       buildHelpText("dog", event) {
+        buildHelpText("dog", event) {
             description { "Displays a photo of a dog." }
 
             usage("dog [breed] [subbreed]") {

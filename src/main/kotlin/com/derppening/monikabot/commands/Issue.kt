@@ -29,6 +29,8 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Issue : IBase, ILogger {
+    override fun cmdName(): String = "issue"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         buildMessage(event.channel) {
             content {
