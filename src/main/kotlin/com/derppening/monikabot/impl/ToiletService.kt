@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.helpers.openAndSetUserAgent
 import com.derppening.monikabot.util.helpers.readLines
@@ -40,6 +41,8 @@ object ToiletService : ILogger {
             "http://artii.herokuapp.com/make?text=$strText"
         }
 
+        val fontLog = if (font == null) { font.toString() } else { "\"$font\"" }
+        logger.debugFun(Core.getMethodName("font = $fontLog")) { "Fetching from $url" }
         return URL(url).openAndSetUserAgent().readLines().let {
             it.map { it.trimEnd() }
         }.joinToString("\n")

@@ -33,6 +33,8 @@ import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Debug : IBase, ILogger {
+    override fun cmdName(): String = "debug"
+
     override fun handlerSu(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content)
 

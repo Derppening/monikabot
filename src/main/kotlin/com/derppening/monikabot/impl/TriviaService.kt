@@ -234,6 +234,8 @@ object TriviaService : ILogger {
     }
 
     fun gracefulShutdown() {
+        logger.infoFun(Core.getMethodName()) { "Users in Session: ${users.joinToString(",") { Client.getUserByID(it).discordTag() }}" }
+
         users.forEach {
             val channel = Client.getUserByID(it)!!.orCreatePMChannel
             buildMessage(channel) {

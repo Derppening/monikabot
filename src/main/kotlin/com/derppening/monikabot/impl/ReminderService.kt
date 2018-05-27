@@ -114,6 +114,7 @@ object ReminderService : ILogger {
         if (timers.any { it.isEqual(newTimer) }) {
             return "You already have a reminder with the same name!"
         }
+        logger.infoFun(Core.getMethodName("...")) { "Add timer with params: name=\"${timerName.trim()}\", timeEnd=${timeEnd.toEpochMilli()}, user=${user.longID}" }
         timers.add(newTimer.apply { start() })
         exportTimersToFile()
 

@@ -33,6 +33,9 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Sortie : IBase, ILogger {
+    override fun cmdName(): String = "warframe-sortie"
+    override fun cmdInvocationAlias(): List<String> = listOf("warframe sorties")
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

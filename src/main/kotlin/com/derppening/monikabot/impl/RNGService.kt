@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.helpers.NumericHelper
 import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
@@ -49,6 +50,8 @@ object RNGService : ILogger {
                     }
                 }
             }
+
+            logger.infoFun(Core.getMethodName("[${args.joinToString(", ") { "\"$it\"" }}]")) { "Invoked with p=$prob, n=$attempts, k=$success, r=$round" }
 
             if (!prob.first) {
                 error("I need the probability!")

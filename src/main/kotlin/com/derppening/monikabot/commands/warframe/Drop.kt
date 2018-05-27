@@ -32,6 +32,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IChannel
 
 object Drop : IBase, ILogger {
+    override fun cmdName(): String = "warframe-drop"
+    override fun cmdInvocationAlias(): List<String> = listOf("warframe drops")
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

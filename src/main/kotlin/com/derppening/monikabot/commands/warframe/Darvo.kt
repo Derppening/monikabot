@@ -33,6 +33,8 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Darvo : IBase, ILogger {
+    override fun cmdName(): String = "warframe-darvo"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

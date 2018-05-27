@@ -20,11 +20,13 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.Core.isFromSuperuser
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.LocationUtils.getChannelByName
 import com.derppening.monikabot.util.LocationUtils.getGuildByName
 import com.derppening.monikabot.util.LocationUtils.getUserByTag
+import com.derppening.monikabot.util.channelName
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.DiscordException
@@ -45,6 +47,9 @@ object EchoService : ILogger {
                     ?: error("Cannot find user!")
 
             val message = args.drop(2).joinToString(" ")
+            logger.infoFun(Core.getMethodName("[${args.joinToString(", ") { "\"$it\"" }}]")) {
+                "\"$message\" -> ${channel.channelName()} (${channel.longID})"
+            }
             buildMessage(channel) {
                 content {
                     withContent(message)
@@ -84,6 +89,9 @@ object EchoService : ILogger {
             }
 
             val message = args.drop(2).joinToString(" ")
+            logger.infoFun(Core.getMethodName("[${args.joinToString(", ") { "\"$it\"" }}]", event.toString())) {
+                "\"$message\" -> ${channel.channelName()} (${channel.longID})"
+            }
             buildMessage(channel) {
                 content {
                     withContent(message)

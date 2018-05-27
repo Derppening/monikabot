@@ -32,6 +32,9 @@ import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Invasion : IBase, ILogger {
+    override fun cmdName(): String = "warframe-invasion"
+    override fun cmdInvocationAlias(): List<String> = listOf("warframe invasions")
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

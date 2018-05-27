@@ -31,6 +31,8 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object News : IBase, ILogger {
+    override fun cmdName(): String = "warframe-news"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

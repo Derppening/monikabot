@@ -29,6 +29,8 @@ import com.derppening.monikabot.util.popLeadingMention
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Emoticon : IBase, ILogger {
+    override fun cmdName(): String = ""
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val str = popLeadingMention(event.message.content, event.guild).dropLastWhile { it == '!' }
 

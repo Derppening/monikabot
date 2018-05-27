@@ -29,6 +29,9 @@ import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Fissure : IBase, ILogger {
+    override fun cmdName(): String = "warframe-fissure"
+    override fun cmdInvocationAlias(): List<String> = listOf("warframe fissures")
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = getArgumentList(event.message.content).drop(1)
 

@@ -30,6 +30,8 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Version : IBase, ILogger {
+    override fun cmdName(): String = "version"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         buildMessage(event.channel) {
             content {

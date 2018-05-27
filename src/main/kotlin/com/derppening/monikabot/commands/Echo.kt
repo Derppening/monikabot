@@ -32,6 +32,8 @@ import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Echo : IBase, ILogger {
+    override fun cmdName(): String = "echo"
+
     override fun handler(event: MessageReceivedEvent): Parser.HandleState {
         val args = if (event.channel.isPrivate) {
             getArgumentList(event.message.content)

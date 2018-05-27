@@ -183,3 +183,6 @@
 [v1.2.0-beta.8]
 - Better process client disconnect events
 - Improvements and fixes to logging
+
+[v1.2.0-beta.9]
+- Add more messages for debugging purposes
