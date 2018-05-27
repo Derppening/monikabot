@@ -38,7 +38,7 @@ object MarketService : ILogger {
     /**
      * Fixed link for warframe market images.
      */
-    private const val imageLink = "https://warframe.market/static/assets/"
+    private const val IMAGE_LINK = "https://warframe.market/static/assets/"
 
     private val jsonMapper = jacksonObjectMapper().apply {
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -113,8 +113,8 @@ object MarketService : ILogger {
 
                 withAuthorName(itemInSet.en.itemName)
                 withAuthorUrl(itemInSet.en.wikiLink)
-                withAuthorIcon(imageLink + itemInSet.thumb)
-                withImage(imageLink + itemInSet.subIcon)
+                withAuthorIcon(IMAGE_LINK + itemInSet.thumb)
+                withImage(IMAGE_LINK + itemInSet.subIcon)
             }
 
             withUrl(link)

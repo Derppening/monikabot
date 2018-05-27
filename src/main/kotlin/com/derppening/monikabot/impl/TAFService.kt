@@ -42,6 +42,7 @@ object TAFService : ILogger {
         check(apiKey.isNotEmpty()) { "No CheckWX Key - METAR functionality is disabled" }
 
         val url = URL("https://api.checkwx.com/taf/$icao/decoded")
+        logger.debugFun(Core.getMethodName()) { "Fetching from $url" }
 
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"

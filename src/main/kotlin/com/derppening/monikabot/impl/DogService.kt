@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.util.WildcardMatcher
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
@@ -113,6 +114,7 @@ object DogService : ILogger {
      */
     private fun getList(): List<String> {
         val page = "https://dog.ceo/api/breeds/list"
+        logger.infoFun(Core.getMethodName()) { "Fetching from $page" }
         val json = URL(page).openAndSetUserAgent().readText()
 
         return jsonMapper.readTree(json)
@@ -183,6 +185,7 @@ object DogService : ILogger {
      */
     private fun getBreedList(subbreed: String): List<String> {
         val page = "https://dog.ceo/api/breed/$subbreed/list"
+        logger.infoFun(Core.getMethodName()) { "Fetching from $page" }
         val json = URL(page).openAndSetUserAgent().readText()
 
         return jsonMapper.readTree(json)
@@ -197,6 +200,7 @@ object DogService : ILogger {
      */
     fun getRandomPic(): String {
         val page = "https://dog.ceo/api/breeds/image/random"
+        logger.infoFun(Core.getMethodName()) { "Fetching from $page" }
         val json = URL(page).openAndSetUserAgent().readText()
 
         return jsonMapper.readTree(json).get("message").asText()
@@ -211,6 +215,7 @@ object DogService : ILogger {
         } else {
             "https://dog.ceo/api/breed/$breed/$subbreed/images/random"
         }
+        logger.infoFun(Core.getMethodName()) { "Fetching from $page" }
         val json = URL(page).openAndSetUserAgent().readText()
 
         return jsonMapper.readTree(json).get("message").asText()

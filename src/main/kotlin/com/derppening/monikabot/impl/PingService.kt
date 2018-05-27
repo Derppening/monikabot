@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
 
 object PingService : ILogger {
@@ -42,7 +43,9 @@ object PingService : ILogger {
 
     fun getEmbed(): EmbedFields {
         val digitalOceanString = digitalOceanPings.entries.joinToString("\n") { (server, ip) ->
-            val p = ProcessBuilder("ping -c 1 $ip".split(" "))
+            val cmd = "ping -c 1 $ip"
+            logger.infoFun(Core.getMethodName()) { "Invoking \"$cmd\"" }
+            val p = ProcessBuilder(cmd.split(" "))
             val process = p.start()
             process.waitFor()
 
@@ -57,7 +60,9 @@ object PingService : ILogger {
         }
 
         val dnsString = dnsPings.entries.joinToString("\n") { (server, ip) ->
-            val p = ProcessBuilder("ping -c 1 $ip".split(" "))
+            val cmd = "ping -c 1 $ip"
+            logger.infoFun(Core.getMethodName()) { "Invoking \"$cmd\"" }
+            val p = ProcessBuilder(cmd.split(" "))
             val process = p.start()
             process.waitFor()
 
