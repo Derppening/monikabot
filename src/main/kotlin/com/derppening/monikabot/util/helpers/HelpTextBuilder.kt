@@ -82,7 +82,7 @@ object HelpTextBuilder : ILogger {
 
                 onError {
                     discordException { e ->
-                        log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        logToChannel(ILogger.LogLevel.ERROR, "Cannot display help text") {
                             author { event.author }
                             channel { event.channel }
                             info { e.errorMessage }

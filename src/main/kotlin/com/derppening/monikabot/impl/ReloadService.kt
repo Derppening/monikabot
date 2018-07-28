@@ -20,13 +20,13 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.core.Parser
 
 object ReloadService : ILogger {
     fun commitReload() {
         Core.reload()
-        Parser.loadNullResponses()
+        CommandInterpreter.loadNullResponses()
     }
 }
