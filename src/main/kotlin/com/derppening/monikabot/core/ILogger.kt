@@ -36,7 +36,7 @@ interface ILogger {
      * Class-specific logger.
      */
     val logger: Logger
-        get() = LoggerFactory.getLogger(javaClass.name)!!
+        get() = LoggerFactory.getLogger(this::class.java.name)!!
 
     /**
      * Logs a message at DEBUG level, with function name and arguments.

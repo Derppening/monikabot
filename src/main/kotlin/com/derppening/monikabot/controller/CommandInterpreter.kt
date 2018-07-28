@@ -26,10 +26,12 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.TriviaService
 import com.derppening.monikabot.util.*
 import com.derppening.monikabot.util.helpers.MessageHelper
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import kotlinx.coroutines.experimental.launch
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.IChannel
 import java.io.File
-import kotlin.concurrent.thread
 
 object CommandInterpreter : ILogger {
     private var nullResponses = loadNullResponses()
@@ -71,39 +73,37 @@ object CommandInterpreter : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        thread(name = "Delegator Thread (${event.messageID})") {
-            logger.debug("Thread detached")
-            logger.debug("Handling message \"${event.message.content}\" " +
-                    "from ${event.author.discordTag()} " +
-                    "in ${event.channel.channelName()} ")
+        launch(onCompletion = { logger.debug("Coroutine completed") }) {
+            logger.debug("Coroutine launched")
+            logger.debug(
+                "Handling message \"${event.message.content}\" " +
+                        "from ${event.author.discordTag()} " +
+                        "in ${event.channel.channelName()} "
+            )
 
             if (!isInvocationValid(event) && !event.isOwnerLocationValid()) {
                 logger.debug("Message ignored: Not invoking bot")
-                logger.debug("Joining thread")
-                return@thread
+                return@launch
             }
 
             if (TriviaService.checkUserTriviaStatus(event)) {
                 logger.debug("Message ignored: User in Trivia session")
-                logger.debug("Joining thread")
-                return@thread
+                return@launch
             }
 
             val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
                 when {
                     it.isBlank() -> it
                     it.last() == '!' && Core.monikaVersionBranch != "development" -> {
-                        logger.debug("Message ignored: Target=devel")
-                        logger.debug("Joining thread")
-                        return@thread
+                        logger.debug("Message ignored: target=devel")
+                        return@launch
                     }
                     it.last() == '!' -> {
                         it.dropLast(1)
                     }
                     Core.monikaVersionBranch == "development" -> {
-                        logger.debug("Message ignored: Target=stable")
-                        logger.debug("Joining thread")
-                        return@thread
+                        logger.debug("Message ignored: target=stable")
+                        return@launch
                     }
                     else -> it
                 }
@@ -111,13 +111,9 @@ object CommandInterpreter : ILogger {
 
             if (cmd.isBlank()) {
                 logger.debug("Message has no command: Getting random response")
-                MessageHelper.buildMessage(event.channel) {
-                    content {
-                        withContent(getRandomNullResponse())
-                    }
-                }
-                logger.debug("Joining thread")
-                return@thread
+                noCommandResponse(event.channel)
+
+                return@launch
             }
 
             val retval = run {
@@ -155,8 +151,7 @@ object CommandInterpreter : ILogger {
                 }.also {
                     if (it == null) {
                         logger.debug("Caught unhandled exception! Bailing...")
-                        logger.debug("Joining thread")
-                        return@thread
+                        return@launch
                     }
                 }
             }
@@ -180,15 +175,34 @@ object CommandInterpreter : ILogger {
                     MessageHelper.buildMessage(event.channel) {
                         content {
                             withContent("Your message matches multiple commands!")
+
                             appendContent("\n\nYour provided command matches:\n")
-                            appendContent(commands.filter { it.key.startsWith(cmd) }.entries.distinctBy { it.value }.joinToString("\n") { "- ${it.key}" })
+                            appendContent(commands.filter {
+                                it.key.startsWith(cmd)
+                            }.entries.distinctBy {
+                                it.value
+                            }.joinToString("\n") {
+                                "- ${it.key}"
+                            })
                         }
                     }
                 }
                 else -> {
                 }
             }
-            logger.debug("Joining thread")
+        }
+    }
+
+    /**
+     * Sends a message to [channel] with a null response.
+     */
+    private fun noCommandResponse(channel: IChannel) {
+        val response = nullResponses[java.util.Random().nextInt(nullResponses.size)]
+
+        buildMessage(channel) {
+            content {
+                withContent(response)
+            }
         }
     }
 
@@ -201,15 +215,11 @@ object CommandInterpreter : ILogger {
         event.channel.isPrivate || event.message.isMentionMe()
 
     /**
-     * Returns a random message from nullResponses.
-     */
-    private fun getRandomNullResponse(): String = nullResponses[java.util.Random().nextInt(nullResponses.size)]
-
-    /**
      * Reloads responses when bot is invoked but no command is given.
      */
     fun loadNullResponses(): List<String> {
-        nullResponses = File(Thread.currentThread().contextClassLoader.getResource(NULL_RESPONSE_PATH).toURI()).readLines()
+        nullResponses =
+                File(Thread.currentThread().contextClassLoader.getResource(NULL_RESPONSE_PATH).toURI()).readLines()
         return nullResponses
     }
 
