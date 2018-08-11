@@ -20,8 +20,8 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.util.FuzzyMatcher
 import java.io.File
 import java.nio.file.Paths
@@ -39,7 +39,7 @@ object EmoticonService : ILogger {
     fun findEmoticon(search: String): Result {
         return FuzzyMatcher(search, pairs.map { it.key }, 2).matches().let { matches ->
             when (matches.size) {
-                0 -> Result.Failure(Parser.HandleState.NOT_FOUND)
+                0 -> Result.Failure(CommandInterpreter.HandleState.NOT_FOUND)
                 1 -> Result.Success(pairs.entries.first { it.key == matches.first() }.value)
                 else -> {
                     val matchList = pairs.filterValues {
@@ -47,7 +47,7 @@ object EmoticonService : ILogger {
                     }.entries.joinToString("\n") {
                         "${it.key} - ${it.value}"
                     }
-                    Result.Failure(Parser.HandleState.UNHANDLED, "Multiple Matches!\n\n$matchList")
+                    Result.Failure(CommandInterpreter.HandleState.UNHANDLED, "Multiple Matches!\n\n$matchList")
                 }
             }
         }
@@ -55,6 +55,6 @@ object EmoticonService : ILogger {
 
     sealed class Result {
         class Success(val emote: String) : Result()
-        class Failure(val state: Parser.HandleState, val message: String = "") : Result()
+        class Failure(val state: CommandInterpreter.HandleState, val message: String = "") : Result()
     }
 }

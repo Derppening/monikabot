@@ -61,12 +61,12 @@ class WorldState {
     val dailyDeals = listOf<DailyDeal>()
     val libraryInfo = LibraryInfo()
     val pvpChallengeInstances = listOf<PVPChallengeInstance>()
-    val persistentEnemies = listOf<Any>()
+    val persistentEnemies = listOf<PersistentEnemies>()
     val pvpAlternativeModes = listOf<Any>()
     val pvpActiveTournaments = listOf<Any>()
     val projectPct = listOf<Double>()
     val constructionProjects = listOf<Any>()
-    val twitchPromos = listOf<Any>()
+    val twitchPromos = listOf<TwitchPromo>()
 
     class Event {
         @JsonProperty("_id")
@@ -229,6 +229,7 @@ class WorldState {
         val premiumOverride = 0
         val bogoBuy = 0
         val bogoGet = 0
+        val productExpiryOverride = Date()
     }
 
     class Invasion {
@@ -338,6 +339,29 @@ class WorldState {
         }
     }
 
+    class PersistentEnemies {
+        @JsonProperty("_id")
+        val id = ID()
+        val agentType = ""
+        val locTag = ""
+        val icon = ""
+        val rank = 0
+        val healthPercent = 0.0
+        val fleeDamage = 0
+        val region = 0
+        val lastDiscoveredLocation = ""
+        val lastDiscoveredTime = Date()
+        val discovered = false
+        val useTicketing = false
+    }
+
+    class TwitchPromo {
+        val startDate = Date()
+        val endDate = Date()
+        val type = ""
+        val streamers = listOf<Any>()
+    }
+
     class Job {
         val jobType = ""
         val rewards = ""
@@ -364,7 +388,8 @@ class WorldState {
     }
 
     companion object {
-        private const val WORLDSTATE_DATA_URL = "https://raw.githubusercontent.com/WFCD/warframe-worldstate-data/master/data"
+        private const val WORLDSTATE_DATA_URL =
+            "https://raw.githubusercontent.com/WFCD/warframe-worldstate-data/master/data"
 
         private val jsonMapper = jacksonObjectMapper().apply {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -374,10 +399,10 @@ class WorldState {
         fun getArcaneInfo(arcane: String): Arcane {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/arcanes.json"))
-                        .find { arcane.matches(it.get("regex").asText().toRegex()) }
-                        ?.let {
-                            jsonMapper.readValue<Arcane>(it.toString())
-                        } ?: Arcane()
+                    .find { arcane.matches(it.get("regex").asText().toRegex()) }
+                    ?.let {
+                        jsonMapper.readValue<Arcane>(it.toString())
+                    } ?: Arcane()
             } catch (e: Exception) {
                 Arcane()
             }
@@ -386,8 +411,8 @@ class WorldState {
         fun getFactionString(faction: String): String {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/factionsData.json"))
-                        .get(faction)
-                        .get("value").asText()
+                    .get(faction)
+                    .get("value").asText()
             } catch (e: Exception) {
                 ""
             }
@@ -396,8 +421,8 @@ class WorldState {
         fun getFissureModifier(tier: String): String {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/fissureModifiers.json"))
-                        .get(tier)
-                        .get("value").asText()
+                    .get(tier)
+                    .get("value").asText()
             } catch (e: Exception) {
                 ""
             }
@@ -419,8 +444,8 @@ class WorldState {
         fun getMissionType(missionType: String): String {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/missionTypes.json"))
-                        .get(missionType)
-                        .get("value").asText()
+                    .get(missionType)
+                    .get("value").asText()
             } catch (e: Exception) {
                 ""
             }
@@ -429,10 +454,10 @@ class WorldState {
         fun getSolNode(solNode: String): SolNode {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/solNodes.json"))
-                        .get(solNode)
-                        .let {
-                            jsonMapper.readValue(it.toString())
-                        }
+                    .get(solNode)
+                    .let {
+                        jsonMapper.readValue(it.toString())
+                    }
             } catch (e: Exception) {
                 SolNode()
             }
@@ -442,7 +467,10 @@ class WorldState {
             return try {
                 val tree = jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/sortieData.json"))
 
-                SortieModifier(tree.get("modifierTypes").get(modifier).asText(), tree.get("modifierDescriptions").get(modifier).asText())
+                SortieModifier(
+                    tree.get("modifierTypes").get(modifier).asText(),
+                    tree.get("modifierDescriptions").get(modifier).asText()
+                )
             } catch (e: Exception) {
                 SortieModifier("", "")
             }
@@ -451,11 +479,11 @@ class WorldState {
         fun getSortieBoss(boss: String): SortieBoss {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/sortieData.json"))
-                        .get("bosses")
-                        .get(boss)
-                        .let {
-                            jsonMapper.readValue(it.toString())
-                        }
+                    .get("bosses")
+                    .get(boss)
+                    .let {
+                        jsonMapper.readValue(it.toString())
+                    }
             } catch (e: Exception) {
                 SortieBoss()
             }
@@ -464,8 +492,8 @@ class WorldState {
         fun getSyndicateName(syndicate: String): String {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/syndicatesData.json"))
-                        .get(syndicate)
-                        .get("name").asText()
+                    .get(syndicate)
+                    .get("name").asText()
             } catch (e: Exception) {
                 ""
             }
@@ -474,8 +502,8 @@ class WorldState {
         fun getUpgradeType(upgrade: String): String {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/upgradeTypes.json"))
-                        .get(upgrade)
-                        .get("value").asText()
+                    .get(upgrade)
+                    .get("value").asText()
             } catch (e: Exception) {
                 ""
             }
@@ -484,10 +512,10 @@ class WorldState {
         fun getWarframeInfo(warframe: String): Warframe {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/warframes.json"))
-                        .find { warframe.matches(it.get("regex").asText().toRegex()) }
-                        ?.let {
-                            jsonMapper.readValue<Warframe>(it.toString())
-                        } ?: Warframe()
+                    .find { warframe.matches(it.get("regex").asText().toRegex()) }
+                    ?.let {
+                        jsonMapper.readValue<Warframe>(it.toString())
+                    } ?: Warframe()
             } catch (e: Exception) {
                 Warframe()
             }
@@ -496,10 +524,10 @@ class WorldState {
         fun getWeaponInfo(weapon: String): Weapon {
             return try {
                 jsonMapper.readTree(URL("$WORLDSTATE_DATA_URL/weapons.json"))
-                        .find { weapon.matches(it.get("regex").asText().toRegex()) }
-                        ?.let {
-                            jsonMapper.readValue<Weapon>(it.toString())
-                        } ?: Weapon()
+                    .find { weapon.matches(it.get("regex").asText().toRegex()) }
+                    ?.let {
+                        jsonMapper.readValue<Weapon>(it.toString())
+                    } ?: Weapon()
             } catch (e: Exception) {
                 Weapon()
             }

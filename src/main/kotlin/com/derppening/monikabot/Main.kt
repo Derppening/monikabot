@@ -20,15 +20,15 @@
 
 package com.derppening.monikabot
 
+import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.core.Client
-import com.derppening.monikabot.core.Parser
 import com.derppening.monikabot.impl.WarframeService
 
 object Main {
     private fun setupDispatchers() {
         // core
         Client.dispatcher.registerListener(Client)
-        Client.dispatcher.registerListener(Parser)
+        Client.dispatcher.registerListener(CommandInterpreter)
     }
 
     private fun setupTimers() {

@@ -135,6 +135,6 @@ object Client : ILogger, IDiscordClient by client {
      */
     fun resetStatus() {
         changePresence(defaultState, defaultActivity, defaultText)
-        log(ILogger.LogLevel.INFO, "Successfully updated")
+        logToChannel(ILogger.LogLevel.INFO, "Successfully updated")
     }
 }

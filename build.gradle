@@ -20,6 +20,7 @@
 
 buildscript {
     ext.kotlin_version = '1.2.+'
+    ext.kotlinx_coroutines_version = '0.24.0'
     ext.discord4j_version = '2.10.+'
     ext.logback_version = '1.2.+'
     ext.jackson_core_version = '2.9.+'
@@ -28,7 +29,7 @@ buildscript {
     ext.jackson_module_kotlin_version = '2.9.+'
     ext.jackson_datatype_jsr310_version = '2.9.+'
     ext.jsoup_version = '1.11.+'
-    ext.apache_commons_text_version = '1.3'
+    ext.apache_commons_text_version = '1.4'
 
     repositories {
         mavenCentral()
@@ -39,7 +40,7 @@ buildscript {
 }
 
 setGroup("com.derppening")
-setVersion("1.2.0-beta.9")
+setVersion("1.2.0-beta.10")
 
 apply plugin: 'application'
 apply plugin: 'java'
@@ -67,6 +68,7 @@ dependencies {
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_datatype_jsr310_version"
     compile "org.jsoup:jsoup:$jsoup_version"
     compile "org.apache.commons:commons-text:$apache_commons_text_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
@@ -91,17 +93,6 @@ def getWorkingBranch() {
         e.printStackTrace()
     }
     return gitBranch
-}
-
-task createKtProperties() {
-    doLast {
-        new File("$projectDir/out/production/classes/properties/version.properties").withWriter { w ->
-            Properties p = new Properties()
-            p['version'] = project.version.toString()
-            p['gitbranch'] = getWorkingBranch()
-            p.store w, null
-        }
-    }
 }
 
 task createGradleProperties(dependsOn: processResources) {

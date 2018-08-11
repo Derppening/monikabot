@@ -18,15 +18,33 @@
  *
  */
 
-package com.derppening.monikabot.impl
+package com.derppening.monikabot.controller.commands
 
 import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
+import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object ReloadService : ILogger {
-    fun commitReload() {
-        Core.reload()
-        CommandInterpreter.loadNullResponses()
+object Version : IBase, ILogger {
+    override fun cmdName(): String = "version"
+
+    override fun handler(event: MessageReceivedEvent): CommandInterpreter.HandleState {
+        buildMessage(event.channel) {
+            content {
+                withCode("", "MonikaBot v${Core.monikaVersion}")
+            }
+        }
+
+        return CommandInterpreter.HandleState.HANDLED
+    }
+
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildHelpText(cmdInvocation(), event) {
+            description { "Displays the version information." }
+
+            usage()
+        }
     }
 }

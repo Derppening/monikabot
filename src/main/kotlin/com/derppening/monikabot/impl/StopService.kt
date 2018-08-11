@@ -31,7 +31,7 @@ object StopService : ILogger {
         if (!isForced && Core.monikaVersionBranch == "stable") {
             Client.changePresence(StatusType.DND, ActivityType.PLAYING, "Maintenance")
             if (TriviaService.users.isNotEmpty()) {
-                log(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
+                logToChannel(ILogger.LogLevel.INFO, "Sending shutdown messages to all Trivia players...")
                 TriviaService.gracefulShutdown()
             }
             Thread.sleep(60000)

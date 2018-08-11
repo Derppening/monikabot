@@ -94,9 +94,9 @@ object StatusService : ILogger {
             } else {
                 Client.changePresence(status, activity, message)
             }
-            log(ILogger.LogLevel.INFO, "Successfully updated")
+            logToChannel(ILogger.LogLevel.INFO, "Successfully updated")
         } catch (e: Exception) {
-            log(ILogger.LogLevel.ERROR, "Cannot set status") {
+            logToChannel(ILogger.LogLevel.ERROR, "Cannot set status") {
                 info { e.message ?: "Unknown Exception" }
             }
             e.printStackTrace()

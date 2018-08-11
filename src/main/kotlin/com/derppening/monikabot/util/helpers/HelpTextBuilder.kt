@@ -56,7 +56,7 @@ object HelpTextBuilder : ILogger {
          * @param invocation Usage text.
          * @param fields Definitions for the usage text.
          */
-        fun usage(invocation: String, fields: Definitions.() -> Unit = {}) {
+        fun usage(invocation: String = "", fields: Definitions.() -> Unit = {}) {
             usages[invocation] = Definitions().apply(fields)
         }
 
@@ -73,16 +73,23 @@ object HelpTextBuilder : ILogger {
 
                     usages.toMap().forEach {
                         insertSeparator()
-                        appendField("Usage", "```${it.key}```", false)
-                        it.value.defs.forEach {
-                            appendField(it.first, it.second, false)
+                        appendField("Usage", "```$command ${it.key}```", false)
+
+                        if (it.value.desc.isNotBlank()) {
+                            appendField("Description", it.value.desc, false)
+                        }
+
+                        it.value.defs.joinToString("\n") { "${it.first}: ${it.second}" }.also {
+                            if (it.isNotBlank()) {
+                                appendField("Options", it, false)
+                            }
                         }
                     }
                 }
 
                 onError {
                     discordException { e ->
-                        log(ILogger.LogLevel.ERROR, "Cannot display help text") {
+                        logToChannel(ILogger.LogLevel.ERROR, "Cannot display help text") {
                             author { event.author }
                             channel { event.channel }
                             info { e.errorMessage }
@@ -94,12 +101,27 @@ object HelpTextBuilder : ILogger {
 
         class Definitions {
             val defs: MutableList<Pair<String, String>> = mutableListOf()
+            var desc = ""
 
             /**
-             * Definition for a term in the usage text.
+             * Description for this command definition.
              */
-            fun def(term: String, definition: () -> String) {
-                defs.add("`$term`" to definition())
+            fun desc(description: () -> String) {
+                desc = description()
+            }
+
+            /**
+             * Definition for a term that must exist when invoking the command.
+             */
+            fun flag(term: String, definition: () -> String) {
+                defs.add("`--$term`" to definition())
+            }
+
+            /**
+             * Definition for a term that may exist when invoking the command.
+             */
+            fun option(term: String, definition: () -> String) {
+                defs.add("`[$term]`" to definition())
             }
 
             /**

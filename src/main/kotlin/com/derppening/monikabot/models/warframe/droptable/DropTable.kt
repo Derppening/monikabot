@@ -79,6 +79,7 @@ class DropTable {
         val id = ""
         val enemyName = ""
         val ememyModDropChance = 0.0
+        val enemyModDropChance = 0.0
         val mods = listOf<BaseDrop.ModDrop>()
     }
 
@@ -114,7 +115,7 @@ class DropTable {
     }
 
     data class Planet(val name: String = "",
-                      val nodes: Set<Node> = setOf()) {
+                      val nodes: Set<Node> = setOf()){
         data class Node(val name: String = "",
                         val drops: MissionDropInfo = MissionDropInfo())
     }
@@ -129,6 +130,8 @@ class DropTable {
     }
 
     class TransientReward {
+        @JsonProperty("_id")
+        val id = ""
         val objectiveName = ""
         val rewards = listOf<Reward>()
 
