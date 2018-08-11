@@ -56,12 +56,13 @@ object Stop : IBase, ILogger {
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         if (isSu) {
-            buildHelpText("stop", event) {
+            buildHelpText(cmdInvocation(), event) {
                 description { "Stops the execution of the bot." }
                 
-                usage("stop [--force] [stable|development]") {
-                    def("`--force") { "If appended, forcefully shuts down the server without any buffer time." }
-                    def("`[stable|development]`") { "Optional: Which specific instance(s) to stop." }
+                usage("[--force] [stable|development]") {
+                    flag("force") { "If appended, forcefully shuts down the server without any buffer time." }
+                    option("stable") { "Specifies to stop the stable version of the bot. This is the default option." }
+                    option("development") { "Specifies to stop the development version of the bot." }
                 }
             }
         }

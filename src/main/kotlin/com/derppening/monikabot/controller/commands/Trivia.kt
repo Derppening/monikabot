@@ -38,15 +38,13 @@ object Trivia : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("trivia", event) {
-            description { "Starts a trivia game with Monika." }
-
-            usage("trivia [questions] [difficulty]") {
-                def("[questions]") {
+        buildHelpText(cmdInvocation(), event) {
+            usage("[QUESTIONS] [DIFFICULTY]") {
+                option("QUESTIONS") {
                     "Number of questions to ask." +
                             "\nDefaults to 5"
                 }
-                def("[difficulty]") {
+                option("DIFFICULTY") {
                     "Difficulty of the questions. Can be easy, medium, hard, or any." +
                             "\nDefaults to easy."
                 }

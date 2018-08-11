@@ -46,11 +46,11 @@ object TAF : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("TAF", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the Terminal Aerodome Forecast (TAF) of a given airfield." }
 
-            usage("taf [icao]") {
-                def("[icao]") { "The ICAO code of the airfield to display meteorological predictions." }
+            usage("[ICAO]") {
+                option("ICAO") { "The ICAO code of the airfield to display meteorological predictions." }
             }
         }
     }

@@ -110,7 +110,7 @@ object Reminder : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("reminder", event) {
+        buildHelpText(cmdInvocation(), event) {
             description {
                 "Sets a reminder for yourself." +
                         "\n**WARNING**: Do not use this timer for any mission-critical tasks. When this bot goes" +
@@ -118,20 +118,26 @@ object Reminder : IBase, ILogger {
                         "cause reminder delays!"
             }
 
-            usage("reminder for [--lazy] [duration] [name]") {
-                def("--lazy") { "If specified, only check if the time is in the future." }
-                def("[duration]") {
-                    "Any duration, in the format of `[days]d [hours]h [minutes]m [seconds]s`." +
-                        "\nAny part of the duration can be truncated."
+            usage("for [--lazy] [DURATION] [NAME]") {
+                desc { "Sets an reminder in the future." }
+
+                flag("lazy") { "If specified, only check if the time is in the future." }
+                option("DURATION") {
+                    "Any duration, in the format of `[DAYS]d [HOURS]h [MINUTES]m [SECONDS]s`." +
+                            "\nAny part of the duration can be omitted."
                 }
-                def("[name]") { "Name of the timer. All timers must have unique names." }
+                option("NAME") { "Name of the timer. All timers must have unique names." }
             }
-            usage("reminder remove [name]") {
-                def("[name]") { "Name of the timer to remove." }
+            usage("remove [NAME]") {
+                desc { "Removes a timer." }
+
+                option("NAME") { "Name of the reminder to remove." }
             }
-            usage("reminder [list|clear]") {
-                def("list") { "Lists all ongoing reminders." }
-                def("clear") { "Clears all ongoing reminders." }
+            usage("list") {
+                desc { "Lists all ongoing reminders." }
+            }
+            usage("clear") {
+                desc { "Clears all ongoing reminders." }
             }
         }
     }

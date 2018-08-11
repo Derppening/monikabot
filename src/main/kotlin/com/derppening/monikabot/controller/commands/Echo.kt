@@ -183,14 +183,14 @@ object Echo : IBase, ILogger {
             }
         }
 
-        buildHelpText("echo", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Echo: Repeats a string." }
 
-            usage("echo [string]") {
-                def("[string]") { "String to repeat." }
+            usage("echo [STRING]") {
+                option("STRING") { "String to repeat." }
             }
-            usage("echo -d [destination] [string]") {
-                def("[destination]") {
+            usage("echo -d [DESTINATION] [STRING]") {
+                option("DESTINATION") {
                     "Destination of the string. Recognized formats include:" +
                             "\n\t- `/channel`: Sends to `channel` in current server." +
                             if (isSu) {
@@ -198,7 +198,7 @@ object Echo : IBase, ILogger {
                                         "\n\t- `username#discriminator`: Sends to user with this Discord Tag."
                             } else ""
                 }
-                def("[string]") { "String to repeat." }
+                option("STRING") { "String to repeat." }
             }
         }
     }

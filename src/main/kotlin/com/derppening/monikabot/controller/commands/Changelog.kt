@@ -36,7 +36,7 @@ object Changelog : IBase, ILogger {
         val args = getArgumentList(event.message.content)
 
         val showRelease = args.any { it.matches(Regex("-{0,2}release")) }
-        val showAllChanges = args.any { it.matches(Regex("-{0,2}all")) }
+        val showAllChanges = args.any { it.matches(Regex("-{0,2}more")) }
 
         if (showAllChanges) {
             outputAllChanges(event, showRelease)
@@ -84,11 +84,12 @@ object Changelog : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("changelog", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the changelog for the most recent build(s)." }
 
-            usage("changelog [release] [all]") {
-                def("release") { "Only show changes for release builds" }
+            usage("[--more|--release]") {
+                flag("more") { "Show 5 most recent changes instead of 1." }
+                flag("release") { "Only show changes for release builds." }
             }
         }
     }

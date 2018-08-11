@@ -113,7 +113,7 @@ object Warframe : IBase, ILogger {
         buildHelpText("warframe", event) {
             description { "Wrapper for Warframe-related commands." }
             
-            usage("warframe [subcommand] [args]") {
+            usage("warframe [SUBCOMMAND] [ARGS]...") {
                 field("Subcommand: `alerts`") { "Displays ongoing alerts." }
                 field("Subcommand: `baro`") { "Displays Baro Ki'Teer information." }
                 field("Subcommand: `cetus`") { "Displays Cetus-related information" }
@@ -128,6 +128,8 @@ object Warframe : IBase, ILogger {
                 field("Subcommand: `sortie`") { "Displays information about the current sorties." }
                 field("Subcommand: `syndicate`") { "Displays missions of a syndicate." }
                 field("Subcommand: `wiki`") { "Directly links an item to its Warframe Wikia page." }
+
+                option("ARGS") { "Additional arguments for the command." }
             }
         }
     }

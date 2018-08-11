@@ -25,10 +25,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.ConfigService
 import com.derppening.monikabot.impl.ConfigService.configureOwnerEchoFlag
 import com.derppening.monikabot.impl.ConfigService.ownerModeEchoForSu
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Config : IBase, ILogger {
@@ -41,6 +39,8 @@ object Config : IBase, ILogger {
             help(event, true)
             return CommandInterpreter.HandleState.HANDLED
         }
+
+        // TODO(Derppening): Add sub-command listing all configs.
 
         when (args[0]) {
             "owner_echo_for_su" -> {
@@ -74,11 +74,11 @@ object Config : IBase, ILogger {
                 }
             }
             ConfigService.Result.HELP -> {
-                buildHelpText("config-owner_echo_for_su", event) {
+                buildHelpText("config owner_echo_for_su", event) {
                     description { "Whether to allow superusers access to owner mode `echo`." }
 
-                    usage("config owner_echo_for_su [allow|deny]") {
-                        def("[allow|deny]") { "Allows or denies owner mode echo for superusers." }
+                    usage("[allow|deny]") {
+                        option("[allow|deny]") { "Allows or denies owner mode echo for superusers." }
                     }
                 }
             }
@@ -86,25 +86,12 @@ object Config : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `config`")
-                withDesc("Core configurations for MonikaBot.")
-                insertSeparator()
-                appendField("Usage", "```config [configuration] [options...]```", false)
-                appendField("Configuration: `owner_echo_for_su`",
-                        "Whether to allow superusers to access owner mode echo, i.e. allowing echoing to any channel.",
-                        false)
-            }
+        buildHelpText(cmdInvocation(), event) {
+            description { "View and edit core configurations for MonikaBot" }
 
-            onError {
-                discordException { e ->
-                    logToChannel(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
+            usage("[CONFIGURATION] [OPTION]...") {
+                option("CONFIGURATION") { "Configuration to edit." }
+                option("OPTION") { "Operation to execute." }
             }
         }
     }

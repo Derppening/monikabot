@@ -106,11 +106,23 @@ object Cetus : IBase, ILogger {
         buildHelpText("warframe-cetus", event) {
             description { "Displays Cetus-related information." }
             usage("warframe cetus [ghoul|plaguestar") {
-                def("ghoul") { "If appended, shows ongoing Ghoul bounties." }
-                def("plaguestar") { "If appended, shows ongoing Operation: Plague Star information." }
+                option("ghoul") { "If appended, shows ongoing Ghoul bounties." }
+                option("plaguestar") { "If appended, shows ongoing Operation: Plague Star information." }
             }
             usage("warframe cetus time") {
-                def("time") { "Show the current time in Cetus/Plains." }
+                option("time") { "Show the current time in Cetus/Plains." }
+            }
+        }
+
+        buildHelpText(cmdInvocation(), event) {
+            description { "Displays Cetus-related information." }
+
+            usage("[ghoul|plaguestar") {
+                field("`ghoul`") { "If appended, shows ongoing Ghoul bounties." }
+                field("`plaguestar`") { "If appended, shows ongoing Operation: Plague Star information." }
+            }
+            usage("time") {
+                desc { "Show the current time in Cetus/Plains." }
             }
         }
     }

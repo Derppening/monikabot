@@ -60,10 +60,10 @@ object Ping : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("ping", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the current latency of the bot to various servers." }
 
-            usage("ping")
+            usage()
         }
     }
 }

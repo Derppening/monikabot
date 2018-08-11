@@ -52,14 +52,14 @@ object Clear : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("clear", event) {
+        buildHelpText(cmdInvocation(), event) {
             description {
                 "Clears all channel messages that are younger than 14 days." +
                         "\nThis command does not work in private channels."
             }
 
-            usage("clear [--all]") {
-                def("--all") { "Retrieves all messages from the channel, not only ones which are locally cached." }
+            usage("[--all]") {
+                flag("all") { "Deletes all messages from the channel, not only ones which are locally cached." }
             }
         }
     }

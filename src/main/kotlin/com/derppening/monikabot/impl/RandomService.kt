@@ -24,6 +24,7 @@ import com.derppening.monikabot.core.ILogger
 
 object RandomService : ILogger {
     fun generateRandom(args: List<String>): String {
+        // TODO(Derppening): Use "--" instead of directly specifying
         return if (args.size == 1 && args[0].matches(Regex("dic?e"))) {
             rollDie()
         } else if (args.size == 1 && args[0].equals("coin", true)) {

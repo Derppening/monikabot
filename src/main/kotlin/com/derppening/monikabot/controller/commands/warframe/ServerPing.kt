@@ -41,10 +41,10 @@ object ServerPing : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-ping", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the current latency of the bot to various Warframe servers." }
 
-            usage("warframe ping") {
+            usage {
                 field("Internal API") { "The servers responsible for loading and updating player progress." }
                 field("Content Server") { "The servers responsible for hosting updates and world information." }
                 field("Forums") { "The Warframe Forums." }

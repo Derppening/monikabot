@@ -84,11 +84,11 @@ object Prime : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-primt", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the most recently released primes, as well as predicts the next few primes." }
 
-            usage("warframe primes [num_to_show]") {
-                def("[num_to_show]") { "Number of released/predicted primes to show." }
+            usage("[NUM_TO_SHOW]") {
+                option("NUM_TO_SHOW") { "Number of released/predicted primes to show." }
             }
         }
     }

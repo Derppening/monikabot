@@ -22,10 +22,8 @@ package com.derppening.monikabot.controller.commands
 
 import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object Issue : IBase, ILogger {
@@ -43,29 +41,10 @@ object Issue : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `issue`")
-                withDesc("Shortcut to submitting a bug report or feature request.")
-                insertSeparator()
-                appendField("Usage", "```issue```", false)
-            }
-
-            onError {
-                discordException { e ->
-                    logToChannel(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
-        }
-
-        buildHelpText("issue", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Shortcut to submitting a bug report or feature request." }
 
-            usage("issue")
+            usage()
         }
     }
 }

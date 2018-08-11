@@ -136,8 +136,10 @@ object Drop : IBase, ILogger {
         buildHelpText("warframe-drop", event) {
             description { "Displays drop chance information for different locations in-game." }
 
-            usage("warframe drop [loc_type] [location]") {
-                def("[loc_type]") {
+            usage("[LOC_TYPE] [LOCATION]") {
+                desc { "Searches the drop table for a particular location." }
+
+                option("LOC_TYPE") {
                     "Specifies the type of location to search for." +
                             "\nRecognized categories include:" +
                             "\n- `blueprint`" +
@@ -149,17 +151,19 @@ object Drop : IBase, ILogger {
                             "\n- `relic`" +
                             "\n- `sortie`"
                 }
-                def("[location]") { "The name of the location to lookup drop tables." }
+                option("LOCATION") { "The name of the location to lookup drop tables." }
             }
 
-            usage("warframe drop [item_type] [location]") {
-                def("[item_type]") {
-                    "If give, specifies the category of item to search for." +
+            usage("[ITEM_TYPE] [ITEM]") {
+                desc { "Searches the locations where a specific item drops from." }
+
+                option("ITEM_TYPE") {
+                    "If given, specifies the category of item to search for." +
                             "\nRecognized categories include:" +
                             "\n- `mod`" +
                             "\n- `prime`"
                 }
-                def("[item]") { "Item to search drop locations for." }
+                option("ITEM") { "Item to search drop locations for." }
             }
         }
     }

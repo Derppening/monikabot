@@ -92,12 +92,12 @@ object Alert : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-alert", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays all currently ongoing alerts." }
 
-            usage("warframe alert [--alert|--special]") {
-                def("--alert") { "Only show normal mission alerts." }
-                def("--special") { "Only show special alerts." }
+            usage("[--alert|--special]") {
+                flag("alert") { "Only show normal mission alerts." }
+                flag("special") { "Only show special alerts." }
             }
         }
     }

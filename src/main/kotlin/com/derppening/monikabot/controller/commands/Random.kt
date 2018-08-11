@@ -46,15 +46,21 @@ object Random : IBase, ILogger {
         buildHelpText("random", event) {
             description { "Randomly generates numbers. Also works for dices and coins." }
 
-            usage("random [real] [min] [max]") {
-                def("real") { "If specified, generate a real number instead of an integer." }
-                def("[min] [max]") { "Specify the minimum and maximum numbers (inclusive) to generate." }
+            usage("[real] [MIN] [MAX]") {
+                flag("real") { "If specified, generate a real number instead of an integer." }
+                option("MIN") { "Specify the minimum number (inclusive) to generate." }
+                option("MAX") { "Specify the maximum number (inclusive) to generate." }
             }
-            usage("random list [entries]") {
-                def("[entries]") { "A list of entries to pick one from, delimited by space." }
+            usage("list [ENTRIES]...") {
+                desc { "Picks one item from a given list." }
+
+                option("ENTRIES") { "A list of entries to pick from, delimited by space." }
             }
-            usage("random [coin|dice]") {
-                def("[coin|dice]") { "Special modes to generate output based on a coin/dice." }
+            usage("[coin|dice]") {
+                desc { "Special modes for the randomizer." }
+
+                flag("coin") { "Flips a coin." }
+                flag("dice") { "Rolls a die." }
             }
         }
     }

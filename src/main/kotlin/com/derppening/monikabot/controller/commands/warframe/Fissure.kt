@@ -42,10 +42,10 @@ object Fissure : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-fissure", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays ongoing fissure missions." }
 
-            usage("warframe fissures")
+            usage()
         }
     }
 }

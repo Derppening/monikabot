@@ -56,7 +56,7 @@ object HelpTextBuilder : ILogger {
          * @param invocation Usage text.
          * @param fields Definitions for the usage text.
          */
-        fun usage(invocation: String, fields: Definitions.() -> Unit = {}) {
+        fun usage(invocation: String = "", fields: Definitions.() -> Unit = {}) {
             usages[invocation] = Definitions().apply(fields)
         }
 

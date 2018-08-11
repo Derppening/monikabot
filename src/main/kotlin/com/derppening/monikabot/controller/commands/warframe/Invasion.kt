@@ -67,11 +67,11 @@ object Invasion : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-invasion", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the invasion progress in Warframe." }
 
-            usage("warframe invasion [timer]") {
-                def("timer") { "If appended, show the construction progress for Balor Fomorian and Razorback." }
+            usage("[timer]") {
+                field("`timer`") { "If appended, show the construction progress for Balor Fomorian and Razorback." }
             }
         }
     }

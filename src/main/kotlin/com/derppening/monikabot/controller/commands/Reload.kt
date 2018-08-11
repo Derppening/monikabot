@@ -40,10 +40,10 @@ object Reload : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("reload", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Reloads essential bot properties from their respective files." }
 
-            usage("reload")
+            usage()
         }
     }
 }

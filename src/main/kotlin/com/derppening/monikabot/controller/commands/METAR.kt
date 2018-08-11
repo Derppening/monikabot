@@ -44,11 +44,11 @@ object METAR : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("METAR", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the Meteorological Terminal Air Report (METAR) of a given airfield." }
 
-            usage("metar [icao]") {
-                def("[icao]") { "The ICAO code of the airfield to display meteorological information." }
+            usage("[ICAO]") {
+                option("ICAO") { "The ICAO code of the airfield to display meteorological information." }
             }
         }
     }

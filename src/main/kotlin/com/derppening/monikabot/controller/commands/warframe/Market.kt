@@ -65,15 +65,16 @@ object Market : IBase, ILogger {
         return CommandInterpreter.HandleState.HANDLED
     }
 
-    override fun help(event: MessageReceivedEvent, isSu: Boolean) { buildHelpText("warframe-market", event) {
+    override fun help(event: MessageReceivedEvent, isSu: Boolean) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays market information of any item." }
 
-            usage("warframe market [search_expr]") {
-                def("[search_expr]") {
+            usage("[SEARCH_EXPR]") {
+                option("SEARCH_EXPR") {
                     "The search expression." +
                             "\n\nThe expression can comprise of one or more space-delimited terms:" +
-                            "\n\t- `[term]`: Fuzzily match `[term]`" +
-                            "\n\t- `\"[term]\"`: Match whole `[term]`" +
+                            "\n\t- `[TERM]`: Fuzzily match `[TERM]`" +
+                            "\n\t- `\"[TERM]\"`: Match whole `[TERM]`" +
                             "\n\t- `*`: Match anything"
                 }
             }

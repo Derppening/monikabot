@@ -45,11 +45,11 @@ object Wiki : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-wiki", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Creates a direct link to a page in the Warframe Wikia." }
 
-            usage("warframe wiki [item]") {
-                def("[item]") { "Item to lookup." }
+            usage("[ITEM]") {
+                option("ITEM") { "Item to lookup." }
             }
         }
     }

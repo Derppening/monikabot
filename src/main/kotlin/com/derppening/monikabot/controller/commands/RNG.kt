@@ -58,14 +58,14 @@ object RNG : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("rng", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Computes distribution statistics for drop tables." }
 
-            usage("rng p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUND]") {
-                def("[PROBABILITY]") { "Specifies item drop chance." }
-                def("[n=ATTEMPTS]") { "Optional: Specifies number of attempts to get the item." }
-                def("[k=SUCCESSFUL_TRIAL]") { "Optional: Specifies the number of trial which you got the item." }
-                def("[r=ROUND]") {
+            usage("p=[PROBABILITY] [n=ATTEMPTS] [k=SUCCESS_TRIAL] [r=ROUNDING]") {
+                option("PROBABILITY") { "Specifies item drop chance." }
+                option("ATTEMPTS") { "Optional: Specifies number of attempts to get the item." }
+                option("SUCCESSFUL_TRIAL") { "Optional: Specifies the number of trial which you got the item." }
+                option("ROUNDING") {
                     "Optional: Specifies rounding. You may use dp to signify decimal places and sf to signify " +
                             "significant figures." +
                             "\nDefaults to 3 decimal places."

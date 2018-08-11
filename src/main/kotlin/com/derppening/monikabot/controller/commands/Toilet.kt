@@ -77,20 +77,22 @@ object Toilet : IBase, ILogger {
     private fun convertToASCII(text: String, font: String?): String = text.toASCIIText(font)
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("toilet", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Formats text to different styles." }
 
-            usage("toilet [--font=font] [text]") {
-                def("[font]") { "Font to use." }
-                def("[text]") { "Text to reformat." }
+            usage("[--font=FONT] [TEXT]") {
+                option("FONT") { "Font to use." }
+                option("TEXT") { "Text to reformat." }
             }
 
-            usage("toilet --emoji [text]") {
-                def("[text]") { "Text to format using emojis." }
+            usage("--emoji [TEXT]") {
+                desc { "Formats the text using emojis." }
+
+                option("TEXT") { "Text to format." }
             }
 
-            usage("toilet --font") {
-                def("--font") { "Lists all fonts available." }
+            usage("--font") {
+                desc { "Lists all fonts available." }
             }
         }
     }

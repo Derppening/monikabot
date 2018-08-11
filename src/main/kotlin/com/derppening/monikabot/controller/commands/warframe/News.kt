@@ -24,10 +24,8 @@ import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.controller.commands.IBase
 import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.warframe.NewsService.getNewsEmbed
-import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.EmbedHelper.sendEmbed
 import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
-import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 object News : IBase, ILogger {
@@ -42,29 +40,10 @@ object News : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildEmbed(event.channel) {
-            fields {
-                withTitle("Help Text for `warframe-news`")
-                withDesc("Displays the latest Warframe news.")
-                insertSeparator()
-                appendField("Usage", "```warframe news```", false)
-            }
-
-            onError {
-                discordException { e ->
-                    logToChannel(ILogger.LogLevel.ERROR, "Cannot display help text") {
-                        author { event.author }
-                        channel { event.channel }
-                        info { e.errorMessage }
-                    }
-                }
-            }
-        }
-
-        buildHelpText("warframe-news", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the latest Warframe news." }
 
-            usage("warframe news")
+            usage()
         }
     }
 }

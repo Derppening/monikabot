@@ -105,16 +105,17 @@ object Dog : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("dog", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays a photo of a dog." }
 
-            usage("dog [breed] [subbreed]") {
-                def("[breed]") { "If specified, only display images of the given breed." }
-                def("[subbreed]") { "If specified, only display images of the given subbreed. This option must be used in conjunction with `[breed]`." }
+            usage("[BREED] [SUBBREED]") {
+                option("BREED") { "If specified, only display images of the given breed." }
+                option("SUBBREED") { "If specified, only display images of the given subbreed. This option must be used in conjunction with `[breed]`." }
             }
-            usage("dog --list [breed]") {
-                def("--list") { "Lists all breeds of dogs that can be retrieved from this command." }
-                def("[breed]") { "If specified, lists all subbreeds of the given breed." }
+            usage("--list [BREED]") {
+                desc { "Lists all breeds of dogs that can be retrieved from this command." }
+
+                option("BREED") { "If specified, lists all subbreeds of the given breed." }
             }
         }
     }

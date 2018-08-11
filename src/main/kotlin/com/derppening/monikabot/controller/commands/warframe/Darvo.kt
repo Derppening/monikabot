@@ -73,10 +73,10 @@ object Darvo : IBase, ILogger {
             }
         }
 
-        buildHelpText("warframe-darvo", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the ongoing Darvo sale." }
 
-            usage("warframe darvo")
+            usage()
         }
     }
 }

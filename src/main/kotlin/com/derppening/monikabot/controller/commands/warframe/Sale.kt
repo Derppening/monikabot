@@ -41,10 +41,10 @@ object Sale : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-sale", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the ongoing market sales." }
 
-            usage("warframe sale")
+            usage()
         }
     }
 }

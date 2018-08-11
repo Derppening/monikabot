@@ -43,12 +43,15 @@ object Debug : IBase, ILogger {
             return CommandInterpreter.HandleState.HANDLED
         }
 
+        // TODO(Derppening): Add help text for all of them
         when (args[0]) {
             "embed.edit" -> {
                 if (args.elementAtOrNull(1) == "--help") {
                     buildHelpText("debug embed.edit", event) {
 
                     }
+
+                    return CommandInterpreter.HandleState.HANDLED
                 }
 
                 editEmbed(args.drop(1), event.client)

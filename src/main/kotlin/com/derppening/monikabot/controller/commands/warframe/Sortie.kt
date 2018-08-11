@@ -72,10 +72,10 @@ object Sortie : IBase, ILogger {
             }
         }
 
-        buildHelpText("warframe-sortie", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays the current sorties." }
 
-            usage("warframe sorties")
+            usage()
         }
     }
 }

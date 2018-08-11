@@ -46,29 +46,29 @@ object Status : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("status", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Sets the status and playing text of the bot." }
 
-            usage("status [STATUS] [ACTIVITY] [TEXT] -- [URL]") {
-                def("[STATUS]") {
+            usage("[STATUS] [ACTIVITY] [TEXT] -- [URL]") {
+                option("STATUS") {
                     "New status for the bot. Can be one of the following:" +
                             "\n\t`--online`" +
                             "\n\t`--idle`" +
                             "\n\t`--dnd`" +
                             "\n\t`--offline`"
                 }
-                def("[ACTIVITY]") {
+                option("ACTIVITY") {
                     "New activity for the bot. Can be one of the following:" +
                             "\n\t`--play`" +
                             "\n\t`--stream`" +
                             "\n\t`--listen`" +
                             "\n\t`--watch`"
                 }
-                def("[TEXT]") { "New \"Playing\" message of the bot." }
-                def("[URL]") { "If `ACTIVITY` is set to streaming, the link of the Twitch stream." }
+                option("TEXT") { "New \"Playing\" message of the bot." }
+                option("URL") { "If `ACTIVITY` is set to streaming, the link of the Twitch stream." }
             }
-            usage("status [--reset]") {
-                def("--reset") { "Resets the status to the default." }
+            usage("status --reset") {
+                desc { "Resets the status to the default." }
             }
         }
     }

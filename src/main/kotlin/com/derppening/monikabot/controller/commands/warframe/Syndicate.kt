@@ -80,11 +80,11 @@ object Syndicate : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-syndicate", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays missions of a given syndicate." }
 
-            usage("warframe syndicate [syndicate]") {
-                def("[syndicate]") { "The syndicate to show missions for." }
+            usage("[SYNDICATE]") {
+                option("SYNDICATE") { "The syndicate to show missions for." }
             }
         }
     }

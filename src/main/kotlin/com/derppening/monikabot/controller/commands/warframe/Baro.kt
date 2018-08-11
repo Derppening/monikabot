@@ -53,10 +53,10 @@ object Baro : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-baro", event) {
+        buildHelpText(cmdInvocation(), event) {
             description { "Displays information about Baro Ki'Teer." }
 
-            usage("warframe baro")
+            usage()
         }
     }
 }
