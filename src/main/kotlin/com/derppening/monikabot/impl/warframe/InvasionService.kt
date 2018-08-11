@@ -76,7 +76,7 @@ object InvasionService : ILogger {
         }.build()
     }
 
-    fun getInvasionAlertEmbed(): EmbedObject {
+    fun getInvasionAlertEmbed(): EmbedObject? {
         return worldState.goals.filter {
             it.fomorian
         }.also {
@@ -85,7 +85,7 @@ object InvasionService : ILogger {
             }
         }.map {
             it.toEmbed()
-        }.first()
+        }.firstOrNull()
     }
 
     fun WorldState.Goal.toEmbed(): EmbedObject {

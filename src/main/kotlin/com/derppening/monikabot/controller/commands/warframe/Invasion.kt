@@ -63,7 +63,7 @@ object Invasion : IBase, ILogger {
 
     private fun getInvasionTimer(event: MessageReceivedEvent) {
         sendEmbed(getInvasionTimerEmbed() to event.channel)
-        sendEmbed(getInvasionAlertEmbed() to event.channel)
+        getInvasionAlertEmbed()?.also { sendEmbed(it to event.channel) }
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
