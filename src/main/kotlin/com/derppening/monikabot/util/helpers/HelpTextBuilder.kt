@@ -80,7 +80,9 @@ object HelpTextBuilder : ILogger {
                         }
 
                         it.value.defs.joinToString("\n") { "${it.first}: ${it.second}" }.also {
-                            appendField("Options", it, false)
+                            if (it.isNotBlank()) {
+                                appendField("Options", it, false)
+                            }
                         }
                     }
                 }
