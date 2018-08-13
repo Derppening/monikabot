@@ -29,6 +29,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 
 object Warframe : IBase, ILogger {
     private val commands = mapOf(
+            "acolyte" to Acolyte,
             "alert" to Alert,
             "baro" to Baro,
             "cetus" to Cetus,
@@ -46,6 +47,7 @@ object Warframe : IBase, ILogger {
             "wiki" to Wiki,
 
             // aliases
+            "acolytes" to Acolyte,
             "alerts" to Alert,
             "drops" to Drop,
             "fissures" to Fissure,
@@ -114,6 +116,7 @@ object Warframe : IBase, ILogger {
             description { "Wrapper for Warframe-related commands." }
             
             usage("warframe [SUBCOMMAND] [ARGS]...") {
+                field("Subcommand: `acolytes`") { "Displays acolyte status (if available)." }
                 field("Subcommand: `alerts`") { "Displays ongoing alerts." }
                 field("Subcommand: `baro`") { "Displays Baro Ki'Teer information." }
                 field("Subcommand: `cetus`") { "Displays Cetus-related information" }
