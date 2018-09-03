@@ -55,25 +55,6 @@ object PrimeService : ILogger {
         return primes.takeLast(size)
     }
 
-    fun getCurrentPrimesStr(): List<String> {
-        val currentPrimes = getCurrentPrimes().filter { it.primeExpiry == null }
-
-        return currentPrimes.mapIndexed { i, it ->
-            val content = "\n\t- ${it.name}"
-            val duration = if (i != currentPrimes.lastIndex) {
-                Duration.between(it.primeDate, currentPrimes[i + 1].primeDate).toDays()
-            } else {
-                0
-            }
-
-            "$content ${if (i != currentPrimes.lastIndex) "(Lasted for $duration days)" else ""}"
-        }
-    }
-
-    private fun getCurrentPrimes(): List<PrimeInfo> {
-        return primes.filter { it.primeExpiry == null }
-    }
-
     fun getPredictedPrimesStr(size: Int): List<String> {
         var time = getReleasedPrimes(size).last().primeDate ?: error("Primes should have a prime date.")
         val male = getPredictedPrimes(size).filter { it.gender.toUpperCase() == 'M' }.sortedBy {
