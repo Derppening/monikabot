@@ -189,3 +189,7 @@
 
 [v1.2.0-beta.10]
 - Massive refactoring of command delegation
+
+[v1.2.0-beta.11]
+- **ADDED**: `warframe acolyte` command
+- **FIXED**: Missing Limbo Prime release date
