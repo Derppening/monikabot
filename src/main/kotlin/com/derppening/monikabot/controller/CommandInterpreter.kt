@@ -27,6 +27,7 @@ import com.derppening.monikabot.impl.TriviaService
 import com.derppening.monikabot.util.*
 import com.derppening.monikabot.util.helpers.MessageHelper
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -73,7 +74,7 @@ object CommandInterpreter : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        launch(onCompletion = { logger.debug("Coroutine completed") }) {
+        GlobalScope.launch {
             logger.debug("Coroutine launched")
             logger.debug(
                 "Handling message \"${event.message.content}\" " +
@@ -190,7 +191,7 @@ object CommandInterpreter : ILogger {
                 else -> {
                 }
             }
-        }
+        }.invokeOnCompletion { logger.debug("Coroutine completed") }
     }
 
     /**
