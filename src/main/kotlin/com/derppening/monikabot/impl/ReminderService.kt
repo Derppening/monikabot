@@ -33,6 +33,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
 import java.io.File
+import java.io.IOException
 import java.nio.file.Paths
 import java.time.Duration
 import java.time.Instant
@@ -49,19 +50,31 @@ object ReminderService : ILogger {
     fun exportTimersToFile() {
         logger.debug("${Core.getMethodName()} -> ${timerSaveFile.path}")
 
-        jacksonObjectMapper().writeValue(File(timerSaveFile), timers)
+        // TODO(Derppening): Move this to bot initialization
+        val saveFile = File(timerSaveFile)
+        if (!saveFile.exists()) {
+            saveFile.parentFile.mkdir()
+            saveFile.createNewFile()
+        }
+
+        jacksonObjectMapper().writeValue(saveFile, timers)
     }
 
     fun importTimersFromFile() {
         logger.debug("${Core.getMethodName()} <- ${timerSaveFile.path}")
 
-        timers = jacksonObjectMapper().readValue(Paths.get(timerSaveFile).toFile())
-        timers.filter { Duration.between(Instant.now(), it.expiryDateTime) < Duration.ZERO }.forEach {
-            Timer.timerCompleteHandler(it.timerName, it.userID)
-            timers.remove(it)
-        }
-        timers.forEach {
-            it.start()
+        try {
+            timers = jacksonObjectMapper().readValue(Paths.get(timerSaveFile).toFile())
+            timers.filter { Duration.between(Instant.now(), it.expiryDateTime) < Duration.ZERO }.forEach {
+                Timer.timerCompleteHandler(it.timerName, it.userID)
+                timers.remove(it)
+            }
+            timers.forEach {
+                it.start()
+            }
+        } catch (e: IOException) {
+            logger.debugFun(Core.getMethodName()) { "Timers file does not exist; Creating..." }
+            exportTimersToFile()
         }
     }
 

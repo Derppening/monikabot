@@ -23,7 +23,6 @@ package com.derppening.monikabot.controller.commands.warframe
 import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.controller.commands.IBase
 import com.derppening.monikabot.core.ILogger
-import com.derppening.monikabot.impl.warframe.PrimeService.getCurrentPrimesStr
 import com.derppening.monikabot.impl.warframe.PrimeService.getPredictedPrimesStr
 import com.derppening.monikabot.impl.warframe.PrimeService.getReleasedPrimesStr
 import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
@@ -65,13 +64,8 @@ object Prime : IBase, ILogger {
 
         buildMessage(event.channel) {
             content {
-                if (args.isNotEmpty()) {
-                    appendContent("Released Primes: ")
-                    appendContent(getReleasedPrimesStr(listSize).joinToString(""))
-                } else {
-                    appendContent("Current Primes:")
-                    appendContent(getCurrentPrimesStr().joinToString(""))
-                }
+                appendContent("Released Primes: ")
+                appendContent(getReleasedPrimesStr(listSize).joinToString(""))
             }
         }
 

@@ -67,7 +67,9 @@ object WarframeService : ILogger {
             dropTables = jsonMapper.readValue(URL("$DROPTABLE_DATA_URL/all.json"))
         }
 
-        logger.debugFun(Core.getMethodName()) { "Parsing took $timer ms" }
+        if (timer >= 2000) {
+            logger.warnFun(Core.getMethodName()) { "Parsing took $timer ms! Is server overloaded?" }
+        }
 
         DropService.doCacheUpdate()
     }
@@ -81,7 +83,9 @@ object WarframeService : ILogger {
                 worldState = jsonMapper.readValue(URL(WORLDSTATE_URL))
             }
 
-            logger.debugFun(Core.getMethodName()) { "Parsing took $timer ms" }
+            if (timer >= 2000) {
+                logger.warnFun(Core.getMethodName()) { "Parsing took $timer ms! Is server overloaded?" }
+            }
         } catch (e: Exception) {
             logger.warnFun(Core.getMethodName()) { "Unable to update! Will retry next cycle..." }
             e.printStackTrace()

@@ -18,5 +18,4 @@
  *
  */
 
-rootProject.name = 'monikabot'
-
+rootProject.name = "monikabot"

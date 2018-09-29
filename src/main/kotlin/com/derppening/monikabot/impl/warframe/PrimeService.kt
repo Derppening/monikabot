@@ -24,12 +24,14 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.prime.PrimeInfo
 import com.derppening.monikabot.util.helpers.toNearestChronoYear
 import java.io.File
+import java.nio.file.Paths
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 object PrimeService : ILogger {
-    private const val primeFilePath = "data/primes.csv"
+//    private const val primeFilePath = "resources/primes.csv"
+    private val primesFile = Paths.get("resources/primes.csv").toUri()
 
     private val allInfo
         get() = readFromFile().filterNot { it.name == "Excalibur" }
@@ -53,25 +55,6 @@ object PrimeService : ILogger {
 
     private fun getReleasedPrimes(size: Int): List<PrimeInfo> {
         return primes.takeLast(size)
-    }
-
-    fun getCurrentPrimesStr(): List<String> {
-        val currentPrimes = getCurrentPrimes().filter { it.primeExpiry == null }
-
-        return currentPrimes.mapIndexed { i, it ->
-            val content = "\n\t- ${it.name}"
-            val duration = if (i != currentPrimes.lastIndex) {
-                Duration.between(it.primeDate, currentPrimes[i + 1].primeDate).toDays()
-            } else {
-                0
-            }
-
-            "$content ${if (i != currentPrimes.lastIndex) "(Lasted for $duration days)" else ""}"
-        }
-    }
-
-    private fun getCurrentPrimes(): List<PrimeInfo> {
-        return primes.filter { it.primeExpiry == null }
     }
 
     fun getPredictedPrimesStr(size: Int): List<String> {
@@ -112,7 +95,7 @@ object PrimeService : ILogger {
     }
 
     private fun readFromFile(): List<PrimeInfo> {
-        val lines = File(Thread.currentThread().contextClassLoader.getResource(primeFilePath).toURI()).readLines().drop(1)
+        val lines = File(primesFile).also { check(it.exists()) }.readLines()
 
         return lines.map {
             val props = it.split(',')
