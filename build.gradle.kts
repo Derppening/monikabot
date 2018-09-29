@@ -123,6 +123,10 @@ tasks {
         dependsOn("createGradleProperties")
     }
 
+    getByName<Test>("test") {
+        useJUnitPlatform()
+    }
+
     getByName<Wrapper>("wrapper") {
         gradleVersion = "4.10.2"
         distributionType = Wrapper.DistributionType.ALL
