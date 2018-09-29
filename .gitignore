@@ -12,6 +12,9 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+# Generated files
+.idea/**/contentModel.xml
+
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
@@ -62,6 +65,9 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
 
 ### Intellij Patch ###
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
@@ -199,4 +205,5 @@ gradle-app.setting
 
 # End of https://www.gitignore.io/api/java,linux,macos,gradle,kotlin,windows,intellij
 
+persistent/*
 src/main/resources/properties/*

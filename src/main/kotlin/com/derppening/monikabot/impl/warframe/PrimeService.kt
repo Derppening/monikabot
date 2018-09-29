@@ -24,12 +24,14 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.models.warframe.prime.PrimeInfo
 import com.derppening.monikabot.util.helpers.toNearestChronoYear
 import java.io.File
+import java.nio.file.Paths
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 object PrimeService : ILogger {
-    private const val primeFilePath = "data/primes.csv"
+//    private const val primeFilePath = "resources/primes.csv"
+    private val primesFile = Paths.get("resources/primes.csv").toUri()
 
     private val allInfo
         get() = readFromFile().filterNot { it.name == "Excalibur" }
@@ -93,7 +95,7 @@ object PrimeService : ILogger {
     }
 
     private fun readFromFile(): List<PrimeInfo> {
-        val lines = File(Thread.currentThread().contextClassLoader.getResource(primeFilePath).toURI()).readLines().drop(1)
+        val lines = File(primesFile).also { check(it.exists()) }.readLines()
 
         return lines.map {
             val props = it.split(',')

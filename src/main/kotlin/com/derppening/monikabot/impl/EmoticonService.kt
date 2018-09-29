@@ -30,7 +30,7 @@ object EmoticonService : ILogger {
     private val pairs = readFromFile()
 
     private fun readFromFile(): Map<String, String> =
-            File(Paths.get("persistent/emoticons.txt").toUri())
+            File(Paths.get("resources/emoticons.txt").toUri())
                     .readLines()
                     .associate {
                         it.takeWhile { it != '=' } to it.dropWhile { it != '=' }.drop(1)
