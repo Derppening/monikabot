@@ -20,6 +20,7 @@
 
 package com.derppening.monikabot.impl
 
+import com.derppening.monikabot.models.warframe.droptable.DropTable
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
@@ -28,7 +29,6 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.net.URL
@@ -50,18 +50,17 @@ class WarframeServiceTest {
         try {
             jsonMapper.apply {
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            }.readValue<WorldState>(URL("$DROP_TABLE_DATA_URL/all.json"))
+            }.readValue<DropTable>(URL("$DROP_TABLE_DATA_URL/all.json"))
         } catch (e: UnrecognizedPropertyException) {
             fail(e.message)
         }
     }
 
-    @Disabled
     @Test
     @DisplayName("Parse Drop Tables (All)")
     fun testParseAllDropTables() {
         try {
-            jsonMapper.readValue<WorldState>(URL("$DROP_TABLE_DATA_URL/all.json"))
+            jsonMapper.readValue<DropTable>(URL("$DROP_TABLE_DATA_URL/all.json"))
         } catch (e: UnrecognizedPropertyException) {
             fail(e.message)
         }
@@ -79,7 +78,6 @@ class WarframeServiceTest {
         }
     }
 
-    @Disabled
     @Test
     @DisplayName("Parse World State (All)")
     fun testParseAllWorldState() {

@@ -56,8 +56,8 @@ class WorldState {
     val badlandNodes = listOf<BadlandNode>()
     val nodeOverrides = listOf<NodeOverride>()
     val voidTraders = listOf<VoidTrader>()
-    val primeAccessAvailability = PrimeVaultAvailability()
-    val primeVaultAvailabilities = listOf<PrimeVaultAvailability>()
+    val primeAccessAvailability = PrimeAccessAvailability()
+    val primeVaultAvailabilities = listOf<Boolean>()
     val dailyDeals = listOf<DailyDeal>()
     val libraryInfo = LibraryInfo()
     val pvpChallengeInstances = listOf<PVPChallengeInstance>()
@@ -67,6 +67,7 @@ class WorldState {
     val projectPct = listOf<Double>()
     val constructionProjects = listOf<Any>()
     val twitchPromos = listOf<TwitchPromo>()
+    val weeklyChallenges = WeeklyChallenge()
 
     class Event {
         @JsonProperty("_id")
@@ -262,6 +263,7 @@ class WorldState {
         val node = ""
         val seed = 0L
         val hide = false
+        val levelOverride = ""
         val faction = ""
         val enemySpec = ""
         val extraEnemySpec = ""
@@ -383,8 +385,33 @@ class WorldState {
         }
     }
 
-    class PrimeVaultAvailability {
+    class PrimeAccessAvailability {
         val state = ""
+    }
+
+    class WeeklyChallenge {
+        @JsonProperty("_id")
+        val id = ID()
+        val activation = Date()
+        val expiry = Date()
+        val challenges = listOf<Challenge>()
+
+        class Challenge {
+            val type = ""
+            val minimumEnemyLevel = 0
+            val requiredCount = 0
+            val progressIndicatorFreq = 0
+            val damageType = ""
+            val victimType = listOf<String>()
+            val script = Script()
+
+            class Script {
+                val script = ""
+                val function = ""
+                @JsonProperty("_faction")
+                val faction = ""
+            }
+        }
     }
 
     companion object {
