@@ -23,8 +23,10 @@ package com.derppening.monikabot.models.warframe.market
 import com.fasterxml.jackson.annotation.JsonProperty
 
 class MarketManifest {
+    val id = ""
     @JsonProperty("url_name")
     val urlName = ""
+    val thumb = ""
     @JsonProperty("item_name")
     val itemName = ""
 }
