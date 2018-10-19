@@ -193,3 +193,6 @@
 [v1.2.0-beta.11]
 - **ADDED**: `warframe acolyte` command
 - **FIXED**: Missing Limbo Prime release date
+
+[v1.2.0-beta.12]
+- No major changes

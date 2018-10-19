@@ -30,7 +30,6 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 object PrimeService : ILogger {
-//    private const val primeFilePath = "resources/primes.csv"
     private val primesFile = Paths.get("resources/primes.csv").toUri()
 
     private val allInfo
@@ -95,7 +94,7 @@ object PrimeService : ILogger {
     }
 
     private fun readFromFile(): List<PrimeInfo> {
-        val lines = File(primesFile).also { check(it.exists()) }.readLines()
+        val lines = File(primesFile).also { check(it.exists()) }.readLines().drop(1)
 
         return lines.map {
             val props = it.split(',')
