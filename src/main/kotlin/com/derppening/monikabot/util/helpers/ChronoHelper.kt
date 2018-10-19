@@ -37,7 +37,7 @@ object ChronoHelper {
     /**
      * Formats a date.
      */
-    val dateTimeFormatter = DateTimeFormatter
+    val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter
             .ofLocalizedDateTime(FormatStyle.MEDIUM)
             .withLocale(Locale.ENGLISH)
             .withZone(ZoneId.of("UTC"))

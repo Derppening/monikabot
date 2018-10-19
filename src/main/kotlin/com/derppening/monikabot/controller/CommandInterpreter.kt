@@ -27,6 +27,7 @@ import com.derppening.monikabot.impl.TriviaService
 import com.derppening.monikabot.util.*
 import com.derppening.monikabot.util.helpers.MessageHelper
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import sx.blah.discord.api.events.EventSubscriber
@@ -74,7 +75,7 @@ object CommandInterpreter : ILogger {
      */
     @EventSubscriber
     fun onReceiveMessage(event: MessageReceivedEvent) {
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.Default) {
             logger.debug("Coroutine launched")
             logger.debug(
                 "Handling message \"${event.message.content}\" " +

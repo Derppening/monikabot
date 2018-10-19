@@ -48,7 +48,7 @@ repositories {
 
 dependencies {
     val kotlin = "1.2.71"
-    val kotlinCoroutines = "0.30.0"
+    val kotlinCoroutines = "0.30.2"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
     val jacksonCore = "2.9.6"
