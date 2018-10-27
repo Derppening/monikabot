@@ -68,6 +68,7 @@ class WorldState {
     val constructionProjects = listOf<Any>()
     val twitchPromos = listOf<TwitchPromo>()
     val weeklyChallenges = WeeklyChallenge()
+    val featuredGuilds = listOf<FeaturedGuild>()
 
     class Event {
         @JsonProperty("_id")
@@ -99,14 +100,19 @@ class WorldState {
         val regionIDx = 0
         val count = 0
         val goal = 1
+        val goalInterim = 0
         val success = 0
         val personal = false
+        val bounty = false
         val best = false
         val scoreVar = ""
         val scoreMaxTag = ""
         val clampNodeScores = false
         val node = ""
         val missionKeyName = ""
+        val concurrentMissionKeyNames = listOf<String>()
+        val concurrentNodeReqs = listOf<Int>()
+        val concurrentNodes = listOf<String>()
         val faction = ""
         val desc = ""
         val tooltip = ""
@@ -115,9 +121,11 @@ class WorldState {
         val archwingDrops = listOf<String>()
         val scoreLocTag = ""
         val tag = ""
+        val prereqGoalTags = listOf<String>()
         val missionInfo = Alert.MissionInfo()
         val continuousHubEvent = ContinuousHubEvent()
         val jobAffiliationTag = ""
+        val rewardInterim = Reward()
         val reward = Reward()
         val jobs = listOf<Job>()
         val transmission = ""
@@ -125,7 +133,9 @@ class WorldState {
 
         class Reward {
             val credits = 0
+            val xp = 0
             val items = listOf<String>()
+            val countedItems = listOf<MissionReward.CountedItems>()
         }
 
         class ContinuousHubEvent {
@@ -412,6 +422,14 @@ class WorldState {
                 val faction = ""
             }
         }
+    }
+
+    class FeaturedGuild {
+        @JsonProperty("_id")
+        val id = ID()
+        val name = ""
+        val tier = 0
+        val allianceID = ID()
     }
 
     companion object {
