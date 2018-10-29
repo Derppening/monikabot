@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     application
     java
-    kotlin("jvm") version "1.2.70"
+    kotlin("jvm") version "1.3.0"
 }
 
 group = "com.derppening"
@@ -47,8 +47,8 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.2.71"
-    val kotlinCoroutines = "0.30.2"
+    val kotlin = "1.3.0"
+    val kotlinCoroutines = "1.0.0"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
     val jacksonCore = "2.9.6"
