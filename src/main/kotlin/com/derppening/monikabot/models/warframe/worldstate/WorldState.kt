@@ -372,6 +372,7 @@ class WorldState {
         val endDate = Date()
         val type = ""
         val streamers = listOf<Any>()
+        val achievement = Any()
     }
 
     class Job {
