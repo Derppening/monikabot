@@ -196,3 +196,6 @@
 
 [v1.2.0-beta.12]
 - No major changes
+
+[v1.2.0-beta.13]
+- Compatibility changes for Warframe Fortuna update

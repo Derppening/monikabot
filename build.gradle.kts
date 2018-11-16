@@ -29,7 +29,7 @@ plugins {
 }
 
 group = "com.derppening"
-version = "1.2.0-beta.12"
+version = "1.2.0-beta.13"
 
 application {
     mainClassName = "com.derppening.monikabot.Main"
