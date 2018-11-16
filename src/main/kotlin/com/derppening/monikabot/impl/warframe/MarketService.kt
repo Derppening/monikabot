@@ -71,19 +71,23 @@ object MarketService : ILogger {
         return buildEmbed {
             withTitle("Trade Statistics")
 
-            if (market.payload.statistics.stat48.isNotEmpty()) {
-                appendField("48-Hour Minimum", market.payload.statistics.stat48.last().minPrice.toString(), true)
-                appendField("48-Hour Median", market.payload.statistics.stat48.last().median.toString(), true)
-                appendField("48-Hour Average", market.payload.statistics.stat48.last().avgPrice.toString(), true)
-                appendField("48-Hour Maximum", market.payload.statistics.stat48.last().maxPrice.toString(), true)
+            if (market.payload.statisticsClosed.stat48.isNotEmpty()) {
+                val stats = market.payload.statisticsClosed.stat48
+
+                appendField("48-Hour Minimum", stats.last().minPrice.toString(), true)
+                appendField("48-Hour Median", stats.last().median.toString(), true)
+                appendField("48-Hour Average", stats.last().avgPrice.toString(), true)
+                appendField("48-Hour Maximum", stats.last().maxPrice.toString(), true)
                 insertSeparator()
             }
 
-            if (market.payload.statistics.stat90.isNotEmpty()) {
-                appendField("90-Day Minimum", market.payload.statistics.stat90.last().minPrice.toString(), true)
-                appendField("90-Day Median", market.payload.statistics.stat90.last().median.toString(), true)
-                appendField("90-Day Average", market.payload.statistics.stat90.last().avgPrice.toString(), true)
-                appendField("90-Day Maximum", market.payload.statistics.stat90.last().maxPrice.toString(), true)
+            if (market.payload.statisticsClosed.stat90.isNotEmpty()) {
+                val stats = market.payload.statisticsClosed.stat90
+
+                appendField("90-Day Minimum", stats.last().minPrice.toString(), true)
+                appendField("90-Day Median", stats.last().median.toString(), true)
+                appendField("90-Day Average", stats.last().avgPrice.toString(), true)
+                appendField("90-Day Maximum", stats.last().maxPrice.toString(), true)
                 insertSeparator()
             }
 
