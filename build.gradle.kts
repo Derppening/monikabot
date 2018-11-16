@@ -25,11 +25,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     application
     java
-    kotlin("jvm") version "1.2.70"
+    kotlin("jvm") version "1.3.10"
 }
 
 group = "com.derppening"
-version = "1.2.0-beta.12"
+version = "1.2.0-beta.13"
 
 application {
     mainClassName = "com.derppening.monikabot.Main"
@@ -47,19 +47,19 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.2.71"
-    val kotlinCoroutines = "0.30.2"
+    val kotlin = "1.3.10"
+    val kotlinCoroutines = "1.0.1"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
-    val jacksonCore = "2.9.6"
-    val jacksonDatabind = "2.9.6"
-    val jacksonAnnotations = "2.9.6"
-    val jacksonModuleKotlin = "2.9.6"
-    val jacksonDatatypeJSR310 = "2.9.6"
+    val jacksonCore = "2.9.7"
+    val jacksonDatabind = "2.9.7"
+    val jacksonAnnotations = "2.9.7"
+    val jacksonModuleKotlin = "2.9.7"
+    val jacksonDatatypeJSR310 = "2.9.7"
     val jsoup = "1.11.3"
     val junit = "5.3.1"
     val junitPlatform = "1.3.1"
-    val apacheCommonsText = "1.4"
+    val apacheCommonsText = "1.6"
 
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin")
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin")

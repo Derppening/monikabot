@@ -42,6 +42,7 @@ object Warframe : IBase, ILogger {
             "ping" to ServerPing,
             "prime" to Prime,
             "sale" to Sale,
+            "solaris" to Solaris,
             "sortie" to Sortie,
             "syndicate" to Syndicate,
             "wiki" to Wiki,

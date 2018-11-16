@@ -103,17 +103,6 @@ object Cetus : IBase, ILogger {
     }
 
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
-        buildHelpText("warframe-cetus", event) {
-            description { "Displays Cetus-related information." }
-            usage("warframe cetus [ghoul|plaguestar") {
-                option("ghoul") { "If appended, shows ongoing Ghoul bounties." }
-                option("plaguestar") { "If appended, shows ongoing Operation: Plague Star information." }
-            }
-            usage("warframe cetus time") {
-                option("time") { "Show the current time in Cetus/Plains." }
-            }
-        }
-
         buildHelpText(cmdInvocation(), event) {
             description { "Displays Cetus-related information." }
 

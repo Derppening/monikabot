@@ -21,6 +21,7 @@
 package com.derppening.monikabot.impl.warframe
 
 import com.derppening.monikabot.models.warframe.market.MarketManifest
+import com.derppening.monikabot.models.warframe.market.MarketStats
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
@@ -54,6 +55,21 @@ class MarketServiceTest {
                 .get("items").get("en").let {
                     jsonMapper.readValue<List<MarketManifest>>(it.toString())
                 }
+        } catch (e: UnrecognizedPropertyException) {
+            fail(e.message)
+        }
+    }
+
+    @Test
+    fun testParseItemStatistics() {
+        val link = "https://warframe.market/items/ash_prime_blueprint/statistics"
+        val jsonToParse = Jsoup.connect(link)
+            .timeout(5000)
+            .get()
+            .select("#application-state")
+
+        try {
+            jsonMapper.readValue<MarketStats>(jsonToParse.html())
         } catch (e: UnrecognizedPropertyException) {
             fail(e.message)
         }
