@@ -96,14 +96,14 @@ object CommandInterpreter : ILogger {
             val cmd = getCommand(popLeadingMention(event.message.content)).toLowerCase().let {
                 when {
                     it.isBlank() -> it
-                    it.last() == '!' && Core.monikaVersionBranch != "development" -> {
+                    it.last() == '!' && Core.monikaVersionBranch == "stable" -> {
                         logger.debug("Message ignored: target=devel")
                         return@launch
                     }
                     it.last() == '!' -> {
                         it.dropLast(1)
                     }
-                    Core.monikaVersionBranch == "development" -> {
+                    Core.monikaVersionBranch != "stable" -> {
                         logger.debug("Message ignored: target=stable")
                         return@launch
                     }
