@@ -25,6 +25,8 @@ import com.derppening.monikabot.core.ILogger
 import com.derppening.monikabot.impl.warframe.DropService
 import com.derppening.monikabot.models.warframe.droptable.DropTable
 import com.derppening.monikabot.models.warframe.worldstate.WorldState
+import com.derppening.monikabot.util.helpers.readText
+import com.derppening.monikabot.util.helpers.setTimeout
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -55,23 +57,36 @@ object WarframeService : ILogger {
      * Function to update drop tables.
      */
     private fun updateDropTables() {
-        val info = jsonMapper.readValue<DropTable.Info>(URL("$DROPTABLE_DATA_URL/info.json"))
+        try {
+            val infoJson = URL("$DROPTABLE_DATA_URL/info.json")
+                .openConnection()
+                .setTimeout(2000, 2000)
+                .readText()
+            val info = jsonMapper.readValue<DropTable.Info>(infoJson)
 
-        if (info.hash == dropTableInfo.hash && info.timestamp == dropTableInfo.timestamp) {
-            return
+            if (info.hash == dropTableInfo.hash && info.timestamp == dropTableInfo.timestamp) {
+                return
+            }
+
+            dropTableInfo = info
+
+            val dropTableJson = URL("$DROPTABLE_DATA_URL/all.json")
+                .openConnection()
+                .setTimeout(2000, 2000)
+                .readText()
+            val timer = measureTimeMillis {
+                dropTables = jsonMapper.readValue(dropTableJson)
+            }
+
+            if (timer >= 2000) {
+                logger.infoFun(Core.getMethodName()) { "Parsing took $timer ms! Is server overloaded?" }
+            }
+
+            DropService.doCacheUpdate()
+        } catch (tr: Throwable) {
+            logger.warnFun(Core.getMethodName()) { "Unable to update! Will retry next cycle..." }
+            tr.printStackTrace()
         }
-
-        dropTableInfo = info
-
-        val timer = measureTimeMillis {
-            dropTables = jsonMapper.readValue(URL("$DROPTABLE_DATA_URL/all.json"))
-        }
-
-        if (timer >= 2000) {
-            logger.warnFun(Core.getMethodName()) { "Parsing took $timer ms! Is server overloaded?" }
-        }
-
-        DropService.doCacheUpdate()
     }
 
     /**
@@ -79,16 +94,21 @@ object WarframeService : ILogger {
      */
     private fun updateWorldState() {
         try {
+            val worldStateJson = URL(WORLDSTATE_URL)
+                .openConnection()
+                .setTimeout(2000, 2000)
+                .readText()
+
             val timer = measureTimeMillis {
-                worldState = jsonMapper.readValue(URL(WORLDSTATE_URL))
+                worldState = jsonMapper.readValue(worldStateJson)
             }
 
             if (timer >= 2000) {
-                logger.warnFun(Core.getMethodName()) { "Parsing took $timer ms! Is server overloaded?" }
+                logger.infoFun(Core.getMethodName()) { "Parsing took $timer ms! Is server overloaded?" }
             }
-        } catch (e: Exception) {
+        } catch (tr: Throwable) {
             logger.warnFun(Core.getMethodName()) { "Unable to update! Will retry next cycle..." }
-            e.printStackTrace()
+            tr.printStackTrace()
         }
     }
 }

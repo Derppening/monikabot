@@ -23,7 +23,7 @@ package com.derppening.monikabot.util.helpers
 import java.net.URL
 import java.net.URLConnection
 
-private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
+private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36"
 
 fun URL.openAndSetUserAgent(userAgent: String = USER_AGENT): URLConnection = openConnection().also {
     it.setRequestProperty("User-Agent", userAgent)
@@ -31,6 +31,13 @@ fun URL.openAndSetUserAgent(userAgent: String = USER_AGENT): URLConnection = ope
 
 fun URLConnection.setUserAgent(userAgent: String = USER_AGENT): URLConnection = also {
     setRequestProperty("User-Agent", userAgent)
+}
+
+fun URLConnection.setTimeout(connectTimeout: Int, readTimeout: Int): URLConnection {
+    return this.apply {
+        this.connectTimeout = connectTimeout
+        this.readTimeout = readTimeout
+    }
 }
 
 fun URLConnection.readText(): String = getInputStream().bufferedReader().readText()
