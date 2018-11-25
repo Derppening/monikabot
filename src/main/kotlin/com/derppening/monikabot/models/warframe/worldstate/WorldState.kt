@@ -97,6 +97,7 @@ class WorldState {
         val expiry = Date()
         val healthPct = 0.0
         val victimNode = ""
+        val regions = listOf<Int>()
         val regionIDx = 0
         val count = 0
         val goal = 1

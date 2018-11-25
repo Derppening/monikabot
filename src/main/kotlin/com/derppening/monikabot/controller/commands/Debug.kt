@@ -48,7 +48,20 @@ object Debug : IBase, ILogger {
             "embed.edit" -> {
                 if (args.elementAtOrNull(1) == "--help") {
                     buildHelpText("debug embed.edit", event) {
+                        description { "Edits a field of an embed." }
 
+                        usage("[ID] [FIELD_KEY] [NEW_KEY] [NEW_VALUE]") {
+                            option("ID") { "ID of the embed message." }
+                            option("FIELD_KEY") { "Key (i.e. header) of field to edit." }
+                            option("NEW_KEY") { "New value for field header. Use '_' if keeping the original value." }
+                            option("NEW_VALUE") { "New value for field content. Use '_' if keeping the original value." }
+                        }
+
+                        usage("[ID] [FIELD_KEY] _ _") {
+                            desc { "Special invocation: Removes a field from the embed." }
+                            option("ID") { "ID of the embed message." }
+                            option("FIELD_KEY") { "Key (i.e. header) of field to edit." }
+                        }
                     }
 
                     return CommandInterpreter.HandleState.HANDLED
@@ -57,18 +70,90 @@ object Debug : IBase, ILogger {
                 editEmbed(args.drop(1), event.client)
             }
             "message.append" -> {
+                if (args.elementAtOrNull(1) == "--help") {
+                    buildHelpText("debug message.append", event) {
+                        description { "Appends text to a message/embed." }
+
+                        usage("[ID] key=[KEY] val=[VAL]") {
+                            desc { "Appends a field to an embed." }
+
+                            option("ID") {
+                                "ID of the message containing an embed. If the message does not contain an embed, " +
+                                        "will instead directly append to the message contents."
+                            }
+                            option("KEY") { "Header of the embed field." }
+                            option("VAL") { "Content of the embed field." }
+                        }
+
+                        usage("[ID] [MESSAGE]...") {
+                            desc { "Appends text to a message." }
+
+                            option("ID") { "ID of the message." }
+                            option("MESSAGE") { "Content of the message to append." }
+                        }
+                    }
+
+                    return CommandInterpreter.HandleState.HANDLED
+                }
+
                 appendToMessage(args.drop(1), event.client)
             }
             "message.edit" -> {
+                if (args.elementAtOrNull(1) == "--help") {
+                    buildHelpText("debug message.edit", event) {
+                        description { "Edits the text of a message." }
+
+                        usage("[ID] [MESSAGE]...") {
+                            option("ID") { "ID of the message." }
+                            option("MESSAGE") { "Content of the message to replace." }
+                        }
+                    }
+
+                    return CommandInterpreter.HandleState.HANDLED
+                }
+
                 editMessage(args.drop(1), event.client)
             }
             "message.pipe.channel" -> {
+                if (args.elementAtOrNull(1) == "--help") {
+                    buildHelpText("debug message.pipe.channel", event) {
+                        description { "Copies a message to another channel." }
+
+                        usage("[MESSAGE_ID] >> [CHANNEL_ID]") {
+                            option("MESSAGE_ID") { "ID of message to copy." }
+                            option("CHANNEL_ID") { "ID of destination channel." }
+                        }
+                    }
+
+                    return CommandInterpreter.HandleState.HANDLED
+                }
+
                 pipeMessageToChannel(args.drop(1), event.client)
             }
             "sys.mem" -> {
+                if (args.elementAtOrNull(1) == "--help") {
+                    buildHelpText("debug sys.mem", event) {
+                        description { "Displays information about this bot's memory usage." }
+
+                        usage()
+                    }
+
+                    return CommandInterpreter.HandleState.HANDLED
+                }
+
                 sendEmbed(displayMemoryUsage() to event.channel)
             }
             "sys.messageCache" -> {
+                if (args.elementAtOrNull(1) == "--help") {
+                    buildHelpText("debug sys.messageCache", event) {
+                        description { "Displays information about the message cache." }
+
+                        usage()
+                    }
+
+                    return CommandInterpreter.HandleState.HANDLED
+                }
+
                 sendEmbed(displayMessageCache(event.client) to event.channel)
             }
             else -> {
@@ -87,7 +172,7 @@ object Debug : IBase, ILogger {
         buildHelpText("debug", event) {
             description { "Enables superuser debugging methods." }
 
-            usage("debug [option] [args]") {
+            usage("[option] [args]") {
                 field("Option: `embed.edit`") { "Edits a field of an embed." }
                 field("Option: `message.append`") { "Appends to a message." }
                 field("Option: `message.edit`") { "Edits a message." }

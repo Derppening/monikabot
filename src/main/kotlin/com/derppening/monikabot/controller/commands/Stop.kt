@@ -40,10 +40,10 @@ object Stop : IBase, ILogger {
         }
 
         val args = getArgumentList(event.message.content)
-        if (args.any { it.matches(Regex("-{0,2}dev(elopment)?")) } && Core.monikaVersionBranch != "development") {
+        val hasStableFlag = args.any { it.matches(Regex("-{0,2}stable")) }
+        if (!hasStableFlag && Core.monikaVersionBranch == "stable") {
             return CommandInterpreter.HandleState.HANDLED
-        }
-        if (args.any { it.matches(Regex("-{0,2}stable")) } && Core.monikaVersionBranch != "stable") {
+        } else if (hasStableFlag && Core.monikaVersionBranch != "stable") {
             return CommandInterpreter.HandleState.HANDLED
         }
 
@@ -57,12 +57,12 @@ object Stop : IBase, ILogger {
     override fun help(event: MessageReceivedEvent, isSu: Boolean) {
         if (isSu) {
             buildHelpText(cmdInvocation(), event) {
-                description { "Stops the execution of the bot." }
+                description { "Stops the execution of the bot. Defaults to stopping all non-stable instances of the " +
+                        "bot." }
                 
-                usage("[--force] [stable|development]") {
+                usage("[--force] [stable]") {
                     flag("force") { "If appended, forcefully shuts down the server without any buffer time." }
-                    option("stable") { "Specifies to stop the stable version of the bot. This is the default option." }
-                    option("development") { "Specifies to stop the development version of the bot." }
+                    option("stable") { "Specifies to only stop stable instances of the bot." }
                 }
             }
         }

@@ -114,7 +114,9 @@ object DebugService : ILogger {
                         val newkey = args[2].takeIf { it != "_" }
                         val value = args[3].takeIf { it != "_" }
 
-                        appendField(newkey ?: it.name, value ?: it.value, it.isInline)
+                        if (newkey != null || value != null) {
+                            appendField(newkey ?: it.name, value ?: it.value, it.isInline)
+                        }
                     } else {
                         appendField(it)
                     }
