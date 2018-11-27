@@ -57,8 +57,8 @@ dependencies {
     val jacksonModuleKotlin = "2.9.7"
     val jacksonDatatypeJSR310 = "2.9.7"
     val jsoup = "1.11.3"
-    val junit = "5.3.1"
-    val junitPlatform = "1.3.1"
+    val junit = "5.3.2"
+    val junitPlatform = "1.3.2"
     val apacheCommonsText = "1.6"
 
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin")
@@ -128,7 +128,7 @@ tasks {
     }
 
     getByName<Wrapper>("wrapper") {
-        gradleVersion = "4.10.2"
+        gradleVersion = "5.0"
         distributionType = Wrapper.DistributionType.ALL
     }
 }
