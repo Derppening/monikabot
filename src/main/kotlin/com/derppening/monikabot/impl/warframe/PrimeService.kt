@@ -57,6 +57,12 @@ object PrimeService : ILogger {
     }
 
     fun getPredictedPrimesStr(size: Int): List<String> {
+        val averageDuration = primes.zipWithNext().let { pairs ->
+            pairs.sumBy {
+                Duration.between(it.first.primeDate, it.second.primeDate).toDays().toInt()
+            }.div(pairs.size)
+        }
+
         var time = getReleasedPrimes(size).last().primeDate ?: error("Primes should have a prime date.")
         val male = getPredictedPrimes(size).filter { it.gender.toUpperCase() == 'M' }.sortedBy {
             it.date?.epochSecond ?: 0
@@ -68,7 +74,7 @@ object PrimeService : ILogger {
         val currentPrimes = primes.subList(primes.size - 2, primes.size).toMutableList()
         val predictedStr = mutableListOf<String>()
         while (male.isNotEmpty() || female.isNotEmpty()) {
-            time = time.plus(90, ChronoUnit.DAYS)
+            time = time.plus(averageDuration.toLong(), ChronoUnit.DAYS)
 
             val gender = currentPrimes[currentPrimes.size - 2].gender.toUpperCase()
             when {
@@ -99,11 +105,13 @@ object PrimeService : ILogger {
         return lines.map {
             val props = it.split(',')
             check(props.size == 5)
-            PrimeInfo(props[0],
-                    props[1][0],
-                    props[2].toLongOrNull() ?: 0L,
-                    props[3].toLongOrNull() ?: 0,
-                    props[4].toLongOrNull() ?: 0)
+            PrimeInfo(
+                props[0],
+                props[1][0],
+                props[2].toLongOrNull() ?: 0L,
+                props[3].toLongOrNull() ?: 0,
+                props[4].toLongOrNull() ?: 0
+            )
         }
     }
 }
