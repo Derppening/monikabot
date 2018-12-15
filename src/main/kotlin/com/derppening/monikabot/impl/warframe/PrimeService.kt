@@ -41,14 +41,18 @@ object PrimeService : ILogger {
         val released = primes.takeLast(size)
 
         return released.mapIndexed { i, it ->
-            val content = "\n\t- ${it.name}"
-            val duration = if (i != released.lastIndex) {
-                Duration.between(it.primeDate, released[i + 1].primeDate).toDays()
-            } else {
-                0
+            val duration = when {
+                Duration.between(it.primeDate, Instant.now()).isNegative -> Duration.between(it.primeDate, Instant.now())
+                i == released.lastIndex || Duration.between(released[i + 1].primeDate, Instant.now()).isNegative -> Duration.ZERO
+                else -> Duration.between(it.primeDate, released[i + 1].primeDate)
+            }
+            val durationText = when {
+                duration.isNegative -> "(Releasing in ${duration.abs().toDays()} days)"
+                duration == Duration.ZERO -> ""
+                else -> "(Lasted for ${duration.toDays()} days)"
             }
 
-            "$content ${if (i != released.lastIndex) "(Lasted for $duration days)" else ""}"
+            "\n\t- ${it.name} $durationText".trim(' ')
         }
     }
 
