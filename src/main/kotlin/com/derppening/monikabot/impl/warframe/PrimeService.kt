@@ -31,6 +31,13 @@ import java.time.temporal.ChronoUnit
 
 object PrimeService : ILogger {
     private val primesFile = Paths.get("resources/primes.csv").toUri()
+    private val PRIMES_FILE_HEADER = listOf(
+        "warframe",
+        "gender",
+        "originalRelease",
+        "primeRelease",
+        "primeVaulted"
+    )
 
     private val allInfo
         get() = readFromFile().filterNot { it.name == "Excalibur" }
@@ -41,14 +48,22 @@ object PrimeService : ILogger {
         val released = primes.takeLast(size)
 
         return released.mapIndexed { i, it ->
-            val content = "\n\t- ${it.name}"
-            val duration = if (i != released.lastIndex) {
-                Duration.between(it.primeDate, released[i + 1].primeDate).toDays()
-            } else {
-                0
+            val duration = when {
+                Duration.between(it.primeDate, Instant.now()).isNegative -> {
+                    Duration.between(it.primeDate, Instant.now())
+                }
+                i == released.lastIndex || Duration.between(released[i + 1].primeDate, Instant.now()).isNegative -> {
+                    Duration.ZERO
+                }
+                else -> Duration.between(it.primeDate, released[i + 1].primeDate)
+            }
+            val durationText = when {
+                duration.isNegative -> "(Releasing in ${duration.abs().toDays()} days)"
+                duration == Duration.ZERO -> ""
+                else -> "(Lasted for ${duration.toDays()} days)"
             }
 
-            "$content ${if (i != released.lastIndex) "(Lasted for $duration days)" else ""}"
+            "\n\t- ${it.name} $durationText".trim(' ')
         }
     }
 
@@ -57,6 +72,12 @@ object PrimeService : ILogger {
     }
 
     fun getPredictedPrimesStr(size: Int): List<String> {
+        val averageDuration = primes.zipWithNext().let { pairs ->
+            pairs.sumBy {
+                Duration.between(it.first.primeDate, it.second.primeDate).toDays().toInt()
+            }.div(pairs.size)
+        }
+
         var time = getReleasedPrimes(size).last().primeDate ?: error("Primes should have a prime date.")
         val male = getPredictedPrimes(size).filter { it.gender.toUpperCase() == 'M' }.sortedBy {
             it.date?.epochSecond ?: 0
@@ -68,7 +89,7 @@ object PrimeService : ILogger {
         val currentPrimes = primes.subList(primes.size - 2, primes.size).toMutableList()
         val predictedStr = mutableListOf<String>()
         while (male.isNotEmpty() || female.isNotEmpty()) {
-            time = time.plus(90, ChronoUnit.DAYS)
+            time = time.plus(averageDuration.toLong(), ChronoUnit.DAYS)
 
             val gender = currentPrimes[currentPrimes.size - 2].gender.toUpperCase()
             when {
@@ -94,16 +115,28 @@ object PrimeService : ILogger {
     }
 
     private fun readFromFile(): List<PrimeInfo> {
-        val lines = File(primesFile).also { check(it.exists()) }.readLines().drop(1)
+        val lines = File(primesFile)
+            .also {
+                check(it.exists())
+            }.readLines()
+            .also {
+                val fieldHeaders = it.first().split(',')
+                check(fieldHeaders.size == 5)
+
+                fieldHeaders.forEachIndexed { i, s -> check(s == PRIMES_FILE_HEADER[i]) }
+            }
+            .drop(1)
 
         return lines.map {
             val props = it.split(',')
             check(props.size == 5)
-            PrimeInfo(props[0],
-                    props[1][0],
-                    props[2].toLongOrNull() ?: 0L,
-                    props[3].toLongOrNull() ?: 0,
-                    props[4].toLongOrNull() ?: 0)
+            PrimeInfo(
+                props[0],
+                props[1][0],
+                props[2].toLongOrNull() ?: 0L,
+                props[3].toLongOrNull() ?: 0,
+                props[4].toLongOrNull() ?: 0
+            )
         }
     }
 }
