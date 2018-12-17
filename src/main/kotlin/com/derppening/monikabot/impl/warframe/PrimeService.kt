@@ -31,6 +31,13 @@ import java.time.temporal.ChronoUnit
 
 object PrimeService : ILogger {
     private val primesFile = Paths.get("resources/primes.csv").toUri()
+    private val PRIMES_FILE_HEADER = listOf(
+        "warframe",
+        "gender",
+        "originalRelease",
+        "primeRelease",
+        "primeVaulted"
+    )
 
     private val allInfo
         get() = readFromFile().filterNot { it.name == "Excalibur" }
@@ -42,8 +49,12 @@ object PrimeService : ILogger {
 
         return released.mapIndexed { i, it ->
             val duration = when {
-                Duration.between(it.primeDate, Instant.now()).isNegative -> Duration.between(it.primeDate, Instant.now())
-                i == released.lastIndex || Duration.between(released[i + 1].primeDate, Instant.now()).isNegative -> Duration.ZERO
+                Duration.between(it.primeDate, Instant.now()).isNegative -> {
+                    Duration.between(it.primeDate, Instant.now())
+                }
+                i == released.lastIndex || Duration.between(released[i + 1].primeDate, Instant.now()).isNegative -> {
+                    Duration.ZERO
+                }
                 else -> Duration.between(it.primeDate, released[i + 1].primeDate)
             }
             val durationText = when {
@@ -104,7 +115,17 @@ object PrimeService : ILogger {
     }
 
     private fun readFromFile(): List<PrimeInfo> {
-        val lines = File(primesFile).also { check(it.exists()) }.readLines().drop(1)
+        val lines = File(primesFile)
+            .also {
+                check(it.exists())
+            }.readLines()
+            .also {
+                val fieldHeaders = it.first().split(',')
+                check(fieldHeaders.size == 5)
+
+                fieldHeaders.forEachIndexed { i, s -> check(s == PRIMES_FILE_HEADER[i]) }
+            }
+            .drop(1)
 
         return lines.map {
             val props = it.split(',')
