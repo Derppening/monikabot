@@ -62,7 +62,7 @@ object BaroService : ILogger {
                                 appendField(item.toEmbedField())
                             }
                         }
-                    }.build()
+                    }
                 }
                 manifest.takeIf { it.isNotEmpty() }?.size?.div(25) -> {
                     buildEmbed {
@@ -71,16 +71,16 @@ object BaroService : ILogger {
                         }
 
                         withFooterText("Leaves at ${DateTimeFormatter.ISO_INSTANT.format(expiry.date.numberLong)}")
-                    }.build()
+                    }
                 }
                 else -> {
                     buildEmbed {
                         manifest.drop(24 + (it - 1) * 25).take(25).forEach { item ->
                             appendField(item.toEmbedField())
                         }
-                    }.build()
+                    }
                 }
-            }
+            }.build()
         }
     }
 
