@@ -69,8 +69,8 @@ class DropTable {
         @JsonProperty("_id")
         val id = ""
         val enemyName = ""
-        val enemyItemDropChance = 0.0
-        val blueprintDropChance = 0.0
+        val enemyItemDropChance = ""
+        val blueprintDropChance = ""
         val items = listOf<BaseDrop.RewardDrop>()
         val mods = listOf<BaseDrop.ModDrop>()
     }
