@@ -26,6 +26,8 @@ import com.derppening.monikabot.util.helpers.NumericHelper
 import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.util.EmbedBuilder
+import kotlin.math.ceil
+import kotlin.math.log
 import kotlin.math.pow
 
 object RNGService : ILogger {
@@ -84,30 +86,9 @@ object RNGService : ILogger {
             appendField("Mean Attempts for First Success", formatReal(1 / p, round), true)
             appendField("Variance for First Success", formatReal((1 - p) / p.pow(2), round), true)
 
-            val min = run {
-                var min50 = 0
-                var min90 = 0
-                val min99: Int
-                var i = 0
-                while (true) {
-                    if (min50 == 0 && 1 - (1 - p).pow(i) > 0.5) {
-                        min50 = i
-                    }
-                    if (min90 == 0 && 1 - (1 - p).pow(i) > 0.9) {
-                        min90 = i
-                    }
-                    if (1 - (1 - p).pow(i) > 0.99) {
-                        min99 = i
-                        break
-                    }
-                    ++i
-                }
-
-                Triple(min50, min90, min99)
-            }
-            appendField("Attempts for >50% Chance", min.first.toString(), true)
-            appendField(">90% Chance", min.second.toString(), true)
-            appendField(">99% Chance", min.third.toString(), true)
+            appendField("Attempts for >50% Chance", "${minAttempts(0.5, p)}", true)
+            appendField(">90% Chance", "${minAttempts(0.9, p)}", true)
+            appendField(">99% Chance", "${minAttempts(0.99, p)}", true)
 
             if (attempts.first) {
                 insertSeparator()
@@ -128,6 +109,11 @@ object RNGService : ILogger {
             }
         }
     }
+
+    /**
+     * Compute the minimum number of attempts in which an event with chance [p] will have at least [chance] of happening.
+     */
+    private fun minAttempts(chance: Double, p: Double): Int = ceil(log(1 - chance, 1 - p)).toInt()
 
     sealed class Result {
         class Failure(val message: String) : Result()
