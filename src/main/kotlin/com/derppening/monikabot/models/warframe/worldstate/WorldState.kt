@@ -372,8 +372,11 @@ class WorldState {
         val startDate = Date()
         val endDate = Date()
         val type = ""
-        val streamers = listOf<Any>()
+        val streamers = listOf<String>()
         val achievement = Any()
+        val spawnChance = 0.0
+        val cooldown = 0.0
+        val agentTypes = listOf<Any>()
     }
 
     class Job {
