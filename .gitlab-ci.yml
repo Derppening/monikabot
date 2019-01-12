@@ -15,11 +15,11 @@ cache:
 build:
   stage: build
   script:
-    - ./gradlew assemble
+    - ./gradlew assemble -i
   only:
     - master
 
 test:
   stage: test
   script:
-    - ./gradlew check
+    - ./gradlew check -i
