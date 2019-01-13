@@ -18,14 +18,14 @@
  *
  */
 
-import java.io.FileWriter
-import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileWriter
+import java.util.*
 
 plugins {
     application
     java
-    kotlin("jvm") version "1.3.11"
+    kotlin("jvm") version "1.3.20"
 }
 
 group = "com.derppening"
@@ -47,15 +47,15 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.3.11"
-    val kotlinCoroutines = "1.0.1"
+    val kotlin = "1.3.20"
+    val kotlinCoroutines = "1.1.1"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
-    val jacksonCore = "2.9.7"
-    val jacksonDatabind = "2.9.7"
-    val jacksonAnnotations = "2.9.7"
-    val jacksonModuleKotlin = "2.9.7"
-    val jacksonDatatypeJSR310 = "2.9.7"
+    val jacksonCore = "2.9.8"
+    val jacksonDatabind = "2.9.8"
+    val jacksonAnnotations = "2.9.8"
+    val jacksonModuleKotlin = "2.9.8"
+    val jacksonDatatypeJSR310 = "2.9.8"
     val jsoup = "1.11.3"
     val junit = "5.3.2"
     val junitPlatform = "1.3.2"
@@ -128,7 +128,7 @@ tasks {
     }
 
     getByName<Wrapper>("wrapper") {
-        gradleVersion = "5.1"
+        gradleVersion = "5.1.1"
         distributionType = Wrapper.DistributionType.ALL
     }
 }
