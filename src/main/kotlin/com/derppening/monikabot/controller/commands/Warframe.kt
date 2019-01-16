@@ -36,6 +36,7 @@ object Warframe : IBase, ILogger {
             "darvo" to Darvo,
             "drop" to Drop,
             "fissure" to Fissure,
+            "fortuna" to Fortuna,
             "invasion" to Invasion,
             "news" to News,
             "market" to Market,
