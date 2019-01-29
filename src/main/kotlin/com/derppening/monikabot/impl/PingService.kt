@@ -41,19 +41,21 @@ object PingService : ILogger {
             "Comodo DNS" to "8.26.56.26"
     )
 
+    private val TIME_REGEX = Regex("rtt min/avg/max/mdev = (?:[\\d.])+/((?:[\\d.])+)/(?:[\\d.])+/(?:[\\d.])+ ms")
+
     fun getEmbed(): EmbedFields {
         val digitalOceanString = digitalOceanPings.entries.joinToString("\n") { (server, ip) ->
-            val cmd = "ping -c 1 $ip"
+            val cmd = "ping -c 4 $ip"
             logger.infoFun(Core.getMethodName()) { "Invoking \"$cmd\"" }
             val p = ProcessBuilder(cmd.split(" "))
             val process = p.start()
             process.waitFor()
 
             val str = process.inputStream.bufferedReader().readText()
-            val time = Regex("time=((?:[\\d.])+ ms)").find(str)?.groups?.get(1)?.value ?: ""
+            val time = TIME_REGEX.find(str)?.groups?.get(1)?.value ?: ""
 
             if (time.isNotBlank()) {
-                "$server: $time"
+                "$server: $time ms"
             } else {
                 "$server: Unreachable"
             }
@@ -67,10 +69,10 @@ object PingService : ILogger {
             process.waitFor()
 
             val str = process.inputStream.bufferedReader().readText()
-            val time = Regex("time=((?:[\\d.])+ ms)").find(str)?.groups?.get(1)?.value ?: ""
+            val time = TIME_REGEX.find(str)?.groups?.get(1)?.value ?: ""
 
             if (time.isNotBlank()) {
-                "$server: $time"
+                "$server: $time ms"
             } else {
                 "$server: Unreachable"
             }
