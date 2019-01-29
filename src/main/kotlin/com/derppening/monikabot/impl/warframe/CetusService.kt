@@ -36,7 +36,7 @@ import java.util.*
 object CetusService {
     fun getBountyEmbeds(): List<EmbedObject> {
         val cetusInfo = worldState.syndicateMissions.find { it.tag == "CetusSyndicate" }
-                ?: throw Exception("Cannot find Cetus information")
+            ?: throw Exception("Cannot find Cetus information")
         val timeLeft = Duration.between(Instant.now(), cetusInfo.expiry.date.numberLong)
         val timeLeftString = timeLeft.formatDuration()
 
@@ -137,48 +137,52 @@ object CetusService {
         }.build()
     }
 
-    private class CetusTime(private val start: Instant, private val end: Instant) {
-        private val numOfNextTimes = 3
-        private val _timeLeft
-            get() = if (Duration.between(Instant.now(), end.minus(50, ChronoUnit.MINUTES)).seconds <= 0) {
-                Pair(CetusTimeState.NIGHT, Duration.between(Instant.now(), end))
+    private class CetusTime(private val start: Instant, private val end: Instant, private val now: Instant = Instant.now()) {
+        companion object {
+            private const val NUM_OF_NEXT_TIMES = 3
+        }
+
+        private val _timeLeft = run {
+            if (Duration.between(now, end.minus(50, ChronoUnit.MINUTES)).seconds <= 0) {
+                Pair(TimeState.NIGHT, Duration.between(now, end))
             } else {
-                Pair(CetusTimeState.DAY, Duration.between(Instant.now(), end.minus(50, ChronoUnit.MINUTES)))
+                Pair(TimeState.DAY, Duration.between(now, end.minus(50, ChronoUnit.MINUTES)))
             }
+        }
 
-        val dayLength
-            get() = Duration.between(start, end).formatDuration()
+        val dayLength = Duration.between(start, end).formatDuration()
 
-        val timeLeft
-            get() = _timeLeft.let { it.first.toString().toLowerCase().capitalize() to it.second.formatDuration() }
+        val timeLeft = run {
+            val state = _timeLeft.first.toString().toLowerCase().capitalize()
+            val timeLeft = _timeLeft.second.formatDuration()
 
-        val dayTimes
-            get() = (0 until numOfNextTimes).map {
-                dateTimeFormatter.format(end.plus(it * 150L, ChronoUnit.MINUTES))
+            Pair(state, timeLeft)
+        }
+
+        val dayTimes = (0 until NUM_OF_NEXT_TIMES).map {
+            dateTimeFormatter.format(end.plus(it * 150L, ChronoUnit.MINUTES))
+        }
+
+        val nightTimes = run {
+            val nextNight = if (_timeLeft.first != TimeState.NIGHT) {
+                end.minus(50, ChronoUnit.MINUTES)
+            } else {
+                end.plus(100, ChronoUnit.MINUTES)
             }
-
-        val nightTimes
-            get() = run {
-                val nextNight = if (_timeLeft.first != CetusTimeState.NIGHT) {
-                    end.minus(50, ChronoUnit.MINUTES)
-                } else {
-                    end.plus(100, ChronoUnit.MINUTES)
-                }
-                (0 until numOfNextTimes).map {
-                    dateTimeFormatter.format(nextNight.plus(it * 150L, ChronoUnit.MINUTES))
-                }
+            (0 until NUM_OF_NEXT_TIMES).map {
+                dateTimeFormatter.format(nextNight.plus(it * 150L, ChronoUnit.MINUTES))
             }
+        }
 
-        val earthTimeEquiv
-            get() = let {
-                val dayProgression = Duration.between(start, Instant.now()).seconds.toDouble()
-                val dayDuration = Duration.between(start, end).seconds.toDouble()
-                val timeTranslation = (1.toDouble() / 6) * dayDuration
-                val sec = ((dayProgression + timeTranslation) * 86400 / dayDuration).toInt()
-                "${formatTimeElement((sec / 3600) % 24)}:${formatTimeElement(sec / 60 % 60)}:${formatTimeElement(sec % 60)}"
-            }
+        val earthTimeEquiv = run {
+            val dayProgression = Duration.between(start, now).seconds.toDouble()
+            val dayDuration = Duration.between(start, end).seconds.toDouble()
+            val timeTranslation = (1.toDouble() / 6) * dayDuration
+            val sec = ((dayProgression + timeTranslation) * 86400 / dayDuration).toInt()
+            "${formatTimeElement((sec / 3600) % 24)}:${formatTimeElement(sec / 60 % 60)}:${formatTimeElement(sec % 60)}"
+        }
 
-        private enum class CetusTimeState(val start: Duration, val end: Duration) {
+        private enum class TimeState(val start: Duration, val end: Duration) {
             DAWN(Duration.ZERO, Duration.ofMinutes(7).plusSeconds(30)),
             SUNRISE(Duration.ofMinutes(7).plusSeconds(30), Duration.ofMinutes(15)),
             MORNING(Duration.ofMinutes(15), Duration.ofMinutes(30)),
