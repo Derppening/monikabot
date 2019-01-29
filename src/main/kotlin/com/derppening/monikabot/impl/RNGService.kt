@@ -26,40 +26,50 @@ import com.derppening.monikabot.util.helpers.NumericHelper
 import com.derppening.monikabot.util.helpers.NumericHelper.formatReal
 import com.derppening.monikabot.util.helpers.insertSeparator
 import sx.blah.discord.util.EmbedBuilder
+import kotlin.math.ceil
+import kotlin.math.log
 import kotlin.math.pow
 
 object RNGService : ILogger {
     fun computeRNGStats(args: List<String>): Result {
-        var prob = Pair(false, 0.0)
-        var attempts = Pair(false, 0)
-        var success = Pair(false, 0)
+        var probs: Double? = null
+        var attempts: Int? = null
+        var success: Int? = null
         var round = Pair(NumericHelper.Rounding.DECIMAL_PLACES, 3)
 
         try {
             args.forEach {
                 when {
-                    it.startsWith("p") -> prob = Pair(true, it.substring(it.indexOf('=') + 1).toDouble())
-                    it.startsWith("n") -> attempts = Pair(true, it.substring(it.indexOf('=') + 1).toInt())
-                    it.startsWith("k") -> success = Pair(true, it.substring(it.indexOf('=') + 1).toInt())
+                    it.startsWith("p") -> probs = it.substring(it.indexOf('=') + 1).toDouble()
+                    it.startsWith("n") -> attempts = it.substring(it.indexOf('=') + 1).toInt()
+                    it.startsWith("k") -> success = it.substring(it.indexOf('=') + 1).toInt()
                     it.startsWith("r") -> {
                         round = when {
-                            it.endsWith("dp") -> Pair(NumericHelper.Rounding.DECIMAL_PLACES, it.substring(it.indexOf('=') + 1, it.indexOf("dp")).toInt())
-                            it.endsWith("sf") -> Pair(NumericHelper.Rounding.SIGNIFICANT_FIGURES, it.substring(it.indexOf('=') + 1, it.indexOf("sf")).toInt())
+                            it.endsWith("dp") -> Pair(
+                                NumericHelper.Rounding.DECIMAL_PLACES,
+                                it.substring(it.indexOf('=') + 1, it.indexOf("dp")).toInt()
+                            )
+                            it.endsWith("sf") -> Pair(
+                                NumericHelper.Rounding.SIGNIFICANT_FIGURES,
+                                it.substring(it.indexOf('=') + 1, it.indexOf("sf")).toInt()
+                            )
                             else -> error("Specifies rounding does not make sense!")
                         }
                     }
                 }
             }
 
-            logger.infoFun(Core.getMethodName("[${args.joinToString(", ") { "\"$it\"" }}]")) { "Invoked with p=$prob, n=$attempts, k=$success, r=$round" }
+            logger.infoFun(Core.getMethodName("[${args.joinToString(", ") { "\"$it\"" }}]")) { "Invoked with p=$probs, n=$attempts, k=$success, r=$round" }
 
-            if (!prob.first) {
+            if (probs == null) {
                 error("I need the probability!")
-            } else if (prob.second <= 0.0 || prob.second > 1.0) {
+            } else if (probs?.let { it <= 0.0 || it > 1.0 } == true) {
                 error("Probability must be between 0.0 and 1.0!")
-            } else if (attempts.second < 0 || success.second < 0) {
-                error("You cannot try or succeed a negative amount of times!")
-            } else if (attempts.second < success.second) {
+            } else if (attempts?.let { it < 0 } == true) {
+                error("You cannot try a negative amount of times!")
+            } else if (success?.let { it < 0 } == true) {
+                error("You cannot succeed a negative amount of times!")
+            } else if ((attempts ?: 0) < (success ?: 0)) {
                 error("You can't succeed more times than you tried!")
             } else if (round.first == NumericHelper.Rounding.DECIMAL_PLACES && round.second < 0) {
                 error("You cannot format a number to a negative number of decimal places!")
@@ -69,54 +79,35 @@ object RNGService : ILogger {
         } catch (e: NumberFormatException) {
             return Result.Failure("One of the numbers is not formatted properly!")
         } catch (e: Exception) {
-            return Result.Failure(e.message!!)
+            return Result.Failure(e.message.toString())
         }
 
-        return Result.Success {
-            val p = prob.second
-            val n = attempts.second
-            val k = success.second
+        val p = probs ?: throw IllegalStateException("Null probability should be caught")
+        val n = attempts
+        val k = success
 
-            withDesc("With probability=$p, " +
-                    "attempts=${if (attempts.first) n.toString() else "(not given)"}, " +
-                    "successes=${if (success.first) k.toString() else "(not given)"}")
+        return Result.Success {
+            withDesc(
+                "With probability=$p, " +
+                        "attempts=${n.takeIf { it != null } ?: "(not given)"}" +
+                        "success=${k.takeIf { it != null } ?: "(not given)"}"
+            )
 
             appendField("Mean Attempts for First Success", formatReal(1 / p, round), true)
             appendField("Variance for First Success", formatReal((1 - p) / p.pow(2), round), true)
 
-            val min = run {
-                var min50 = 0
-                var min90 = 0
-                val min99: Int
-                var i = 0
-                while (true) {
-                    if (min50 == 0 && 1 - (1 - p).pow(i) > 0.5) {
-                        min50 = i
-                    }
-                    if (min90 == 0 && 1 - (1 - p).pow(i) > 0.9) {
-                        min90 = i
-                    }
-                    if (1 - (1 - p).pow(i) > 0.99) {
-                        min99 = i
-                        break
-                    }
-                    ++i
-                }
+            appendField("Attempts for >50% Chance", "${minAttempts(0.5, p)}", true)
+            appendField(">90% Chance", "${minAttempts(0.9, p)}", true)
+            appendField(">99% Chance", "${minAttempts(0.99, p)}", true)
 
-                Triple(min50, min90, min99)
-            }
-            appendField("Attempts for >50% Chance", min.first.toString(), true)
-            appendField(">90% Chance", min.second.toString(), true)
-            appendField(">99% Chance", min.third.toString(), true)
-
-            if (attempts.first) {
+            if (n != null) {
                 insertSeparator()
                 appendField("Mean of Successes", formatReal(n * p, round), true)
                 appendField("Variance of Successes", formatReal(n * p * (1 - p), round), true)
                 appendField("Chance of Failure after $n Attempts", formatReal((1 - p).pow(n), round, true), true)
             }
 
-            if (success.first) {
+            if (k != null) {
                 insertSeparator()
                 appendField("Chance of Success during Run $k", formatReal((1 - p).pow(k - 1) * p, round, true), true)
 
@@ -128,6 +119,11 @@ object RNGService : ILogger {
             }
         }
     }
+
+    /**
+     * Compute the minimum number of attempts in which an event with chance [p] will have at least [chance] of happening.
+     */
+    private fun minAttempts(chance: Double, p: Double): Int = ceil(log(1 - chance, 1 - p)).toInt()
 
     sealed class Result {
         class Failure(val message: String) : Result()
