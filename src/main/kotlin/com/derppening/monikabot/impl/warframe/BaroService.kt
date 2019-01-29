@@ -27,13 +27,16 @@ import com.derppening.monikabot.models.warframe.worldstate.WorldState
 import com.derppening.monikabot.util.helpers.EmbedHelper.buildEmbed
 import com.derppening.monikabot.util.helpers.formatDuration
 import sx.blah.discord.api.internal.json.objects.EmbedObject
+import sx.blah.discord.handle.impl.obj.Embed
+import sx.blah.discord.handle.obj.IEmbed
 import java.time.Duration
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 object BaroService : ILogger {
     fun isBaroInWorldState(): Boolean = worldState.voidTraders.isNotEmpty()
 
-    fun getBaroEmbed(): EmbedObject {
+    fun getBaroEmbed(): List<EmbedObject> {
         if (worldState.voidTraders.size > 1) {
             fix("worldState[\"voidTraders\"] has more than 1 entry!", Core.getMethodName())
         }
@@ -41,32 +44,52 @@ object BaroService : ILogger {
         return worldState.voidTraders.first().toEmbed()
     }
 
-    fun WorldState.VoidTrader.toEmbed(): EmbedObject {
-        return buildEmbed {
-            withTitle("Baro Ki'Teer Information")
+    fun WorldState.VoidTrader.toEmbed(): List<EmbedObject> {
+        return List<EmbedObject>(manifest.takeIf { it.isNotEmpty() }?.size?.div(25)?.plus(1) ?: 1) {
+            when (it) {
+                0 -> {
+                    buildEmbed {
+                        withTitle("Baro Ki'Teer Information")
 
-            if (manifest.isEmpty()) {
-                val nextTimeDuration = Duration.between(Instant.now(), activation.date.numberLong)
-                appendField("Time to Next Appearance", nextTimeDuration.formatDuration(), true)
-                appendField("Relay", WorldState.getSolNode(node).value, true)
-            } else {
-                val expiryTimeDuration = Duration.between(Instant.now(), expiry.date.numberLong)
-                appendField("Time Left", expiryTimeDuration.formatDuration(), false)
-                manifest.forEach {
-                    val item = WorldState.getLanguageFromAsset(it.itemType).let { fmt ->
-                        if (fmt.isEmpty()) {
-                            it.itemType
+                        if (manifest.isEmpty()) {
+                            val nextTimeDuration = Duration.between(Instant.now(), activation.date.numberLong)
+                            appendField("Time to Next Appearance", nextTimeDuration.formatDuration(), true)
+                            appendField("Relay", WorldState.getSolNode(node).value, true)
                         } else {
-                            fmt
+                            val expiryTimeDuration = Duration.between(Instant.now(), expiry.date.numberLong)
+                            appendField("Time Left", expiryTimeDuration.formatDuration(), false)
+                            manifest.take(24).forEach { item ->
+                                appendField(item.toEmbedField())
+                            }
                         }
                     }
-                    val ducats = it.primePrice
-                    val credits = it.regularPrice
-                    appendField(item, "$ducats Ducats - $credits Credits", true)
                 }
-            }
+                manifest.takeIf { it.isNotEmpty() }?.size?.div(25) -> {
+                    buildEmbed {
+                        manifest.drop(24 + (it - 1) * 25).take(25).forEach { item ->
+                            appendField(item.toEmbedField())
+                        }
 
-            withTimestamp(Instant.now())
-        }.build()
+                        withFooterText("Leaves at ${DateTimeFormatter.ISO_INSTANT.format(expiry.date.numberLong)}")
+                    }
+                }
+                else -> {
+                    buildEmbed {
+                        manifest.drop(24 + (it - 1) * 25).take(25).forEach { item ->
+                            appendField(item.toEmbedField())
+                        }
+                    }
+                }
+            }.build()
+        }
+    }
+
+    fun WorldState.VoidTrader.Item.toEmbedField(): IEmbed.IEmbedField {
+        val item =
+            WorldState.getLanguageFromAsset(this.itemType).takeIf { it.isNotEmpty() } ?: this.itemType
+        val ducats = this.primePrice
+        val credits = this.regularPrice
+
+        return Embed.EmbedField(item, "$ducats Ducats - $credits Credits", true)
     }
 }
