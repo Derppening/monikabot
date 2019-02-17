@@ -278,7 +278,7 @@ object DropService : ILogger {
                     if (it.isNotEmpty()) {
                         appendField("$rarity Blueprint Drops",
                                 it.joinToString("\n") {
-                                    val str = if (it.rotation != "null" && it.rotation != null) {
+                                    val str = if (it.rotation != "null") {
                                         "[Rotation ${it.rotation}] "
                                     } else {
                                         ""
