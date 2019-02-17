@@ -131,6 +131,7 @@ class WorldState {
         val jobs = listOf<Job>()
         val transmission = ""
         val instructionalItem = ""
+        val types = listOf<String>()
 
         class Reward {
             val credits = 0
