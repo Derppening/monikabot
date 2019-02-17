@@ -25,7 +25,7 @@ import java.util.*
 plugins {
     application
     java
-    kotlin("jvm") version "1.3.20"
+    kotlin("jvm") version "1.3.21"
 }
 
 group = "com.derppening"
@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.3.20"
+    val kotlin = "1.3.21"
     val kotlinCoroutines = "1.1.1"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
@@ -57,8 +57,8 @@ dependencies {
     val jacksonModuleKotlin = "2.9.8"
     val jacksonDatatypeJSR310 = "2.9.8"
     val jsoup = "1.11.3"
-    val junit = "5.3.2"
-    val junitPlatform = "1.3.2"
+    val junit = "5.4.0"
+    val junitPlatform = "1.4.0"
     val apacheCommonsText = "1.6"
 
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin")
@@ -128,7 +128,7 @@ tasks {
     }
 
     getByName<Wrapper>("wrapper") {
-        gradleVersion = "5.1.1"
+        gradleVersion = "5.2"
         distributionType = Wrapper.DistributionType.ALL
     }
 }
