@@ -75,10 +75,8 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutines")
 
     testCompile("org.jetbrains.kotlin:kotlin-test-junit5:$kotlin")
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junit")
-    testCompile("org.junit.jupiter:junit-jupiter-params:$junit")
+    testCompile("org.junit.jupiter:junit-jupiter:$junit")
     testCompile("org.junit.platform:junit-platform-runner:$junitPlatform")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junit")
     testRuntime("org.junit.platform:junit-platform-console:$junitPlatform")
 }
 
