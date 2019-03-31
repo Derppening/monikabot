@@ -68,6 +68,7 @@ class WorldState {
     val constructionProjects = listOf<Any>()
     val twitchPromos = listOf<TwitchPromo>()
     val weeklyChallenges = WeeklyChallenge()
+    val seasonInfo = SeasonInfo()
     val featuredGuilds = listOf<FeaturedGuild>()
 
     class Event {
@@ -81,6 +82,7 @@ class WorldState {
         val imageUrl = ""
         val priority = false
         val mobileOnly = false
+        val pushed = false
         val eventLiveURL = ""
 
         class Message {
@@ -427,6 +429,25 @@ class WorldState {
                 @JsonProperty("_faction")
                 val faction = ""
             }
+        }
+    }
+
+    class SeasonInfo {
+        val activation = Date()
+        val expiry = Date()
+        val affiliationTag = ""
+        val season = 0
+        val phase = 0
+        val params = ""
+        val activeChallenges = listOf<ActiveChallenge>()
+
+        class ActiveChallenge {
+            @JsonProperty("_id")
+            val id = ID()
+            val daily = false
+            val activation = Date()
+            val expiry = Date()
+            val challenge = ""
         }
     }
 
