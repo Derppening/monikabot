@@ -79,28 +79,45 @@ object PrimeService : ILogger {
         }
 
         var time = getReleasedPrimes(size).last().primeDate ?: error("Primes should have a prime date.")
-        val male = getPredictedPrimes(size).filter { it.gender.toUpperCase() == 'M' }.sortedBy {
+        val male = nonprimes.filter { it.gender.toUpperCase() == 'M' }.sortedBy {
             it.date?.epochSecond ?: 0
         }.toMutableList()
-        val female = getPredictedPrimes(size).filter { it.gender.toUpperCase() == 'F' }.sortedBy {
+        val female = nonprimes.filter { it.gender.toUpperCase() == 'F' }.sortedBy {
             it.date?.epochSecond ?: 0
         }.toMutableList()
 
         val currentPrimes = primes.subList(primes.size - 2, primes.size).toMutableList()
         val predictedStr = mutableListOf<String>()
-        while (male.isNotEmpty() || female.isNotEmpty()) {
+        predictionLoop@ while (predictedStr.size < size && (male.isNotEmpty() || female.isNotEmpty())) {
             time = time.plus(averageDuration.toLong(), ChronoUnit.DAYS)
 
-            val gender = currentPrimes[currentPrimes.size - 2].gender.toUpperCase()
+            val genders = currentPrimes.takeLast(2).map { it.gender.toUpperCase() }
             when {
-                gender == 'M' && female.isNotEmpty() || gender == 'F' && male.isEmpty() -> {
+                male.isEmpty() -> {
                     currentPrimes.add(female[0])
                     female.removeAt(0)
                 }
-                else -> {
+                female.isEmpty() -> {
                     currentPrimes.add(male[0])
                     male.removeAt(0)
                 }
+                genders.all { it == 'M' } -> {
+                    currentPrimes.add(female[0])
+                    female.removeAt(0)
+                }
+                genders.all { it == 'F' } -> {
+                    currentPrimes.add(male[0])
+                    male.removeAt(0)
+                }
+                genders.last() == 'M' -> {
+                    currentPrimes.add(male[0])
+                    male.removeAt(0)
+                }
+                genders.last() == 'F' -> {
+                    currentPrimes.add(female[0])
+                    female.removeAt(0)
+                }
+                else -> break@predictionLoop
             }
             val durationToPrime = Duration.between(Instant.now(), time)
             val durationStr = durationToPrime.toNearestChronoYear()
