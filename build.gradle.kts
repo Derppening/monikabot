@@ -25,7 +25,7 @@ import java.util.*
 plugins {
     application
     java
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.30"
 }
 
 group = "com.derppening"
@@ -47,8 +47,8 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.3.21"
-    val kotlinCoroutines = "1.1.1"
+    val kotlin = "1.3.30"
+    val kotlinCoroutines = "1.2.0"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
     val jacksonCore = "2.9.8"
@@ -109,11 +109,7 @@ task("createGradleProperties") {
 }
 
 tasks {
-    getByName<KotlinCompile>("compileKotlin") {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
-    getByName<KotlinCompile>("compileTestKotlin") {
+    withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
 
