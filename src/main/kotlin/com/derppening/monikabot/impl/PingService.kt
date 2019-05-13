@@ -44,41 +44,27 @@ object PingService : ILogger {
     private val TIME_REGEX = Regex("rtt min/avg/max/mdev = (?:[\\d.])+/((?:[\\d.])+)/(?:[\\d.])+/(?:[\\d.])+ ms")
 
     fun getEmbed(): EmbedFields {
-        val digitalOceanString = digitalOceanPings.entries.joinToString("\n") { (server, ip) ->
-            val cmd = "ping -c 4 $ip"
-            logger.infoFun(Core.getMethodName()) { "Invoking \"$cmd\"" }
-            val p = ProcessBuilder(cmd.split(" "))
-            val process = p.start()
-            process.waitFor()
-
-            val str = process.inputStream.bufferedReader().readText()
-            val time = TIME_REGEX.find(str)?.groups?.get(1)?.value ?: ""
-
-            if (time.isNotBlank()) {
-                "$server: $time ms"
-            } else {
-                "$server: Unreachable"
-            }
-        }
-
-        val dnsString = dnsPings.entries.joinToString("\n") { (server, ip) ->
-            val cmd = "ping -c 1 $ip"
-            logger.infoFun(Core.getMethodName()) { "Invoking \"$cmd\"" }
-            val p = ProcessBuilder(cmd.split(" "))
-            val process = p.start()
-            process.waitFor()
-
-            val str = process.inputStream.bufferedReader().readText()
-            val time = TIME_REGEX.find(str)?.groups?.get(1)?.value ?: ""
-
-            if (time.isNotBlank()) {
-                "$server: $time ms"
-            } else {
-                "$server: Unreachable"
-            }
-        }
+        val digitalOceanString = digitalOceanPings.entries.joinToString("\n") { pingServer(it.key, it.value) }
+        val dnsString = dnsPings.entries.joinToString("\n") { pingServer(it.key, it.value) }
 
         return EmbedFields(digitalOceanString, dnsString)
+    }
+
+    private fun pingServer(server: String, ip: String): String {
+        val cmd = "ping -c 2 $ip"
+        logger.infoFun(Core.getMethodName()) { "Invoking \"$cmd\"" }
+        val p = ProcessBuilder(cmd.split(" "))
+        val process = p.start()
+        process.waitFor()
+
+        val str = process.inputStream.bufferedReader().readText()
+        val time = TIME_REGEX.find(str)?.groups?.get(1)?.value ?: ""
+
+        return if (time.isNotBlank()) {
+            "$server: $time ms"
+        } else {
+            "$server: Unreachable"
+        }
     }
 
     class EmbedFields(
