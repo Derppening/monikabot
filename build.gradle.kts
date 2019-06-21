@@ -20,6 +20,7 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileWriter
+import java.time.Instant
 import java.util.*
 
 plugins {
@@ -29,7 +30,7 @@ plugins {
 }
 
 group = "com.derppening"
-version = "1.2.0-beta.13"
+version = "1.2.0-rc.1"
 
 application {
     mainClassName = "com.derppening.monikabot.Main"
@@ -76,28 +77,38 @@ dependencies {
     testRuntime("org.junit.platform:junit-platform-console:$junitPlatform")
 }
 
-fun getWorkingBranch(): String {
-    try {
-        val workingDir = File("${project.projectDir}")
-        val result = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD", null, workingDir)
-        result.waitFor()
-        if (result.exitValue() == 0) {
-            return result.inputStream.bufferedReader().readText().trim()
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+data class GitInfo(val branch: String, val commitTime: String)
 
-    return "unknown"
+fun getGitInfo(): GitInfo {
+    val projectDir = project.projectDir
+
+    return try {
+        val branchProcess = Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD", null, projectDir)
+        val timeProcess = Runtime.getRuntime().exec("git log -1 --format=%at", null, projectDir)
+
+        branchProcess.waitFor()
+        timeProcess.waitFor()
+
+        val branch = branchProcess.takeIf { it.exitValue() == 0 }?.inputStream?.reader()?.readText()?.trim() ?: "unknown"
+        val time = timeProcess.takeIf { it.exitValue() == 0 }?.inputStream?.reader()?.readText()?.trim() ?: "unknown"
+
+        GitInfo(branch, time)
+    } catch (e: Throwable) {
+        GitInfo("unknown", "unknown")
+    }
 }
 
 task("createGradleProperties") {
     dependsOn("processResources")
     doLast {
         FileWriter(File("$buildDir/resources/main/properties/version.properties")).use {
+            val gitInfo = getGitInfo()
+
             val p = Properties()
             p["version"] = project.version.toString()
-            p["gitbranch"] = getWorkingBranch()
+            p["gitbranch"] = gitInfo.branch
+            p["buildtime"] = Instant.now().epochSecond.toString()
+            p["committime"] = gitInfo.commitTime
 
             p.store(it, null)
         }
