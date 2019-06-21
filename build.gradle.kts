@@ -25,7 +25,7 @@ import java.util.*
 plugins {
     application
     java
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.40"
 }
 
 group = "com.derppening"
@@ -47,29 +47,25 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.3.31"
-    val kotlinCoroutines = "1.2.0"
+    val kotlin = "1.3.40"
+    val kotlinCoroutines = "1.2.2"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
-    val jacksonCore = "2.9.8"
-    val jacksonDatabind = "2.9.8"
-    val jacksonAnnotations = "2.9.8"
-    val jacksonModuleKotlin = "2.9.8"
-    val jacksonDatatypeJSR310 = "2.9.8"
-    val jsoup = "1.11.3"
-    val junit = "5.4.1"
-    val junitPlatform = "1.4.1"
+    val jacksonJson = "2.9.9"
+    val jsoup = "1.12.1"
+    val junit = "5.4.2"
+    val junitPlatform = "1.4.2"
     val apacheCommonsText = "1.6"
 
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin")
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin")
     compile("com.discord4j:Discord4J:$discord4j")
     compile("ch.qos.logback:logback-classic:$logback")
-    compile("com.fasterxml.jackson.core:jackson-core:$jacksonCore")
-    compile("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabind")
-    compile("com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotations")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlin")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDatatypeJSR310")
+    compile("com.fasterxml.jackson.core:jackson-core:$jacksonJson")
+    compile("com.fasterxml.jackson.core:jackson-databind:$jacksonJson")
+    compile("com.fasterxml.jackson.core:jackson-annotations:$jacksonJson")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonJson")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonJson")
     compile("org.jsoup:jsoup:$jsoup")
     compile("org.apache.commons:commons-text:$apacheCommonsText")
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutines")
