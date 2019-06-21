@@ -199,3 +199,21 @@
 
 [v1.2.0-beta.13]
 - Compatibility changes for Warframe Fortuna update
+
+[v1.2.0]
+- **ADDED**: New commands
+    - `dog`: Displays images of dogs
+    - `metar`: Displays METAR information 
+    - `taf`: Displays TAF information
+    - `toilet`: Format text into larger versions
+    - `warframe acolyte`: Displays ongoing acolyte status (if any)
+    - `warframe cetus`: Displays Cetus bounties and time
+    - `warframe fortuna`: Displays Fortuna bounties and time
+- **CHANGED**: Command Improvements
+    - `random` can now randomize lists
+    - `warframe cetus` now displays Plague Star bounty info
+    - `warframe invasion` now displays Fomorian and Razorback info
+- **CHANGED**: Added new prime information since last update
+- **CHANGED**: Monika is now more tolerant of typos in commands
+- **FIXED**: Prime deduction algorithm not properly following the order
+- **FIXED**: Baro Ki'Teer information not working with >24 items
