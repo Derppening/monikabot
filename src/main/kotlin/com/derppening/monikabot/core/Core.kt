@@ -27,6 +27,7 @@ import sx.blah.discord.handle.obj.IUser
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.time.Instant
 import java.util.*
 import kotlin.properties.Delegates
 import kotlin.system.exitProcess
@@ -90,6 +91,14 @@ object Core : ILogger {
      */
     val monikaVersionBranch: String
     /**
+     * When the bot is last updated.
+     */
+    val commitTime: Instant
+    /**
+     * When the current version is built.
+     */
+    val buildTime: Instant
+    /**
      * Version of the bot.
      */
     var monikaVersion by Delegates.notNull<String>()
@@ -109,6 +118,8 @@ object Core : ILogger {
 
         val versionProp = getProperties(VERSION_PROP)
         monikaVersionBranch = versionProp.getProperty("gitbranch")
+        commitTime = Instant.ofEpochSecond(versionProp.getProperty("committime").toLong())
+        buildTime = Instant.ofEpochSecond(versionProp.getProperty("buildtime").toLong())
 
         loadFromVersion()
 

@@ -23,6 +23,7 @@ package com.derppening.monikabot.controller.commands
 import com.derppening.monikabot.controller.CommandInterpreter
 import com.derppening.monikabot.core.Core
 import com.derppening.monikabot.core.ILogger
+import com.derppening.monikabot.util.helpers.ChronoHelper.dateTimeFormatter
 import com.derppening.monikabot.util.helpers.HelpTextBuilder.buildHelpText
 import com.derppening.monikabot.util.helpers.MessageHelper.buildMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
@@ -33,7 +34,11 @@ object Version : IBase, ILogger {
     override fun handler(event: MessageReceivedEvent): CommandInterpreter.HandleState {
         buildMessage(event.channel) {
             content {
-                withCode("", "MonikaBot v${Core.monikaVersion}")
+                val versionText = "MonikaBot v${Core.monikaVersion}"
+                val commitTimeText = "Last Updated: ${dateTimeFormatter.format(Core.commitTime)} UTC"
+                val buildTimeText = "Build Time  : ${dateTimeFormatter.format(Core.buildTime)} UTC"
+
+                withCode("", "$versionText\n\n$commitTimeText\n$buildTimeText")
             }
         }
 
