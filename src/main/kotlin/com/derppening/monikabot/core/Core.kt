@@ -91,6 +91,10 @@ object Core : ILogger {
      */
     val monikaVersionBranch: String
     /**
+     * Whether the bot is under production mode.
+     */
+    val isProdMode: Boolean get() = monikaVersionBranch == "stable" || monikaVersionBranch == "unknown"
+    /**
      * When the bot is last updated.
      */
     val commitTime: Instant
@@ -117,12 +121,19 @@ object Core : ILogger {
         loadFromSource()
 
         val versionProp = getProperties(VERSION_PROP)
-        monikaVersionBranch = versionProp.getProperty("gitbranch")
+        monikaVersionBranch = versionProp.getProperty("gitbranch") ?: "unknown"
         commitTime = Instant.ofEpochSecond(versionProp.getProperty("committime").toLong())
         buildTime = Instant.ofEpochSecond(versionProp.getProperty("buildtime").toLong())
 
         loadFromVersion()
 
+        logger.infoFun(getMethodName()) {
+            if (isProdMode) {
+                "Branch $monikaVersionBranch - Using Production Mode"
+            } else {
+                "Branch $monikaVersionBranch - Using Development Mode"
+            }
+        }
         logger.infoFun(getMethodName()) { "Done" }
     }
 
