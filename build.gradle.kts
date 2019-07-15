@@ -26,7 +26,7 @@ import java.util.*
 plugins {
     application
     java
-    kotlin("jvm") version "1.3.40"
+    kotlin("jvm") version "1.3.41"
 }
 
 group = "com.derppening"
@@ -48,7 +48,7 @@ repositories {
 }
 
 dependencies {
-    val kotlin = "1.3.40"
+    val kotlin = "1.3.41"
     val kotlinCoroutines = "1.2.2"
     val discord4j = "2.10.1"
     val logback = "1.2.3"
