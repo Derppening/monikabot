@@ -217,3 +217,6 @@
 - **CHANGED**: Monika is now more tolerant of typos in commands
 - **FIXED**: Prime deduction algorithm not properly following the order
 - **FIXED**: Baro Ki'Teer information not working with >24 items
+
+[v1.2.1]
+- **ADDED**: Wukong Prime Information
